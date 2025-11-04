@@ -1,4 +1,6 @@
 import numpy as np
+import os
+import concurrent.futures
 
 from slsim.Lenses.lens import Lens
 from typing import Optional
@@ -194,7 +196,7 @@ class LensPop(LensedPopulationBase):
                     if n == 0:
                         # TODO: this is only consistent for a single source. If there
                         # are multiple sources at different redshift, this is not fully
-                        # acurate
+                        # accurate
                         los_class = self.los_pop.draw_los(
                             source_redshift=_source.redshift,
                             deflector_redshift=_deflector.redshift,
@@ -226,6 +228,156 @@ class LensPop(LensedPopulationBase):
                         los_class=los_class,
                     )
                     lens_population.append(lens_final)
+        return lens_population
+    
+    @staticmethod
+    def _draw_one_lens(args):
+        """
+        Helper function to run ONE iteration of drawing lens.
+        This static method is run in a separate process.
+        
+        All dependencies are passed via the 'args' tuple to avoid
+        pickling 'self'.
+        """
+        
+        (
+            lens_galaxies,
+            sources,
+            los_pop,
+            cosmo,
+            get_num_sources_tested_func, # The method from the instance
+            kwargs_lens_cuts,
+            multi_source,
+            speed_factor,
+        ) = args
+
+        try:
+            _deflector = lens_galaxies.draw_deflector()
+            _deflector.update_center(deflector_area=0.01)
+            theta_e_infinity = _deflector.theta_e_infinity(cosmo=cosmo)
+            test_area = area_theta_e_infinity(theta_e_infinity=theta_e_infinity)
+            
+            # Call the passed-in function
+            num_sources_tested = get_num_sources_tested_func(
+                testarea=test_area * speed_factor
+            )
+
+            if num_sources_tested > 0:
+                valid_sources = []
+                n = 0
+                while n < num_sources_tested:
+                    _source = sources.draw_source()
+                    _source.update_center(
+                        area=test_area, reference_position=_deflector.deflector_center
+                    )
+                    if n == 0:
+                        # TODO: this is only consistent for a single source. If there
+                        # are multiple sources at different redshift, this is not fully
+                        # accurate
+                        los_class = los_pop.draw_los(
+                            source_redshift=_source.redshift,
+                            deflector_redshift=_deflector.redshift,
+                        )
+                    
+                    lens_class = Lens(
+                        deflector_class=_deflector,
+                        source_class=_source,
+                        cosmo=cosmo,
+                        los_class=los_class,
+                    )
+                    
+                    if lens_class.validity_test(**kwargs_lens_cuts):
+                        valid_sources.append(_source)
+                        if not multi_source:
+                            break
+                    n += 1
+                    
+                if len(valid_sources) > 0:
+                    # Use a single source if only one source is valid, else use
+                    # the list of valid sources
+                    if len(valid_sources) == 1:
+                        final_sources = valid_sources[0]
+                    else:
+                        final_sources = valid_sources
+                    
+                    lens_final = Lens(
+                        deflector_class=_deflector,
+                        source_class=final_sources,
+                        cosmo=cosmo,
+                        los_class=los_class,
+                    )
+                    # 4. Return the successful result
+                    return lens_final
+                    
+        except Exception as e:
+            # Good practice to report errors from worker processes
+            print(f"Error in parallel worker: {e}")
+        
+        # 5. Return None if no valid lens was found in this iteration
+        return None
+
+    def _draw_population_parallel(
+        self,
+        kwargs_lens_cuts,
+        multi_source=False,
+        speed_factor=1,
+        num_cores=None,
+    ):
+        """Return full population list of all lenses within the area.
+        
+        This version is parallelized using concurrent.futures.
+
+        :param kwargs_lens_cuts:
+        :param multi_source:
+        :param speed_factor:
+        :param num_cores: Number of CPU cores to use. 
+                          Defaults to all available cores.
+        :return: List of Lens instances.
+        """
+
+        if num_cores is None:
+            num_cores = os.cpu_count() or 1 # Default to 1 if os.cpu_count() fails
+
+        num_lenses_to_process = int(self.deflector_number / speed_factor)
+        
+        print(f"Starting lens population draw with {num_lenses_to_process} iterations on {num_cores} cores...")
+
+        # 6. Bundle all dependencies into a single tuple.
+        # This tuple will be copied and sent to each worker.
+        task_args = (
+            self._lens_galaxies,
+            self._sources,
+            self.los_pop,
+            self.cosmo,
+            self.get_num_sources_tested, # Pass the instance method itself
+            kwargs_lens_cuts,
+            multi_source,
+            speed_factor,
+        )
+
+        # 7. Create an iterable of tasks.
+        # We need to run the *same* task (with the same args) N times.
+        tasks_iterable = [task_args] * num_lenses_to_process
+
+        lens_population = []
+        
+        # 8. Use the ProcessPoolExecutor to manage the parallel processes
+        with concurrent.futures.ProcessPoolExecutor(max_workers=num_cores) as executor:
+            
+            # executor.map applies the static method to each item in tasks_iterable.
+            # It processes tasks in parallel and returns results in order.
+            # We use a simple list comprehension to filter out the 'None' results.
+            
+            # For potentially better performance (if some tasks are much faster
+            # than others), you could use executor.submit and
+            # concurrent.futures.as_completed, but executor.map is simpler.
+            
+            results = executor.map(self._draw_one_lens, tasks_iterable)
+            
+            # 9. Collect valid results and filter out 'None' (failed iterations)
+            lens_population = [lens for lens in results if lens is not None]
+
+        print(f"Finished. Found {len(lens_population)} valid lens systems.")
         return lens_population
 
 
