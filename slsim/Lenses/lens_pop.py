@@ -1,5 +1,5 @@
 import numpy as np
-from itertools import repeat
+from itertools import chain
 import multiprocessing
 
 import tqdm
@@ -141,9 +141,9 @@ class LensPop(LensedPopulationBase):
 
     def _process_single_deflector(self, args):
         """
-        Helper function for parallel processing. Processes a single deflector
-        and returns a Lens object if a valid lensing system is found,
-        otherwise returns None.
+        Helper function for parallel processing. Processes a SINGLE deflector
+        and returns a Lens object or None.
+        (This is your original _process_deflectors_chunk logic)
         """
         kwargs_lens_cuts, multi_source, speed_factor = args
 
@@ -171,7 +171,6 @@ class LensPop(LensedPopulationBase):
                         deflector_redshift=_deflector.redshift,
                     )
                 
-                # Create lens class with the LOS from the first source
                 lens_class = Lens(
                     deflector_class=_deflector,
                     source_class=_source,
@@ -179,17 +178,13 @@ class LensPop(LensedPopulationBase):
                     los_class=los_class,
                 )
                 
-                # Check the validity of the lens system
                 if lens_class.validity_test(**kwargs_lens_cuts):
                     valid_sources.append(_source)
-                    # If multi_source is False, stop after finding the first valid source
                     if not multi_source:
                         break
                 n += 1
                 
             if len(valid_sources) > 0:
-                # Use a single source if only one source is valid, else use
-                # the list of valid sources
                 if len(valid_sources) == 1:
                     final_sources = valid_sources[0]
                 else:
@@ -199,53 +194,88 @@ class LensPop(LensedPopulationBase):
                     deflector_class=_deflector,
                     source_class=final_sources,
                     cosmo=self.cosmo,
-                    los_class=los_class, # Use the same LOS class
+                    los_class=los_class,
                 )
-                return lens_final  # Return the valid lens
+                return lens_final
                 
-        return None  # Return None if no valid lens is found
+        return None
+
+    def _process_deflectors_chunk(self, args):
+        """
+        NEW helper function that processes a CHUNK of deflectors.
+        It contains the for-loop you requested.
+        """
+        # --- NEW ---
+        # Unpack the new seed argument
+        kwargs_lens_cuts, multi_source, speed_factor, num_in_chunk, seed = args
+        
+        # --- CRITICAL ---
+        # Seed this worker's RNG to make it unique
+        np.random.seed(seed)
+        
+        lenses_in_chunk = []
+
+        # This is the for loop you asked for
+        for _ in range(num_in_chunk):
+            single_args = (kwargs_lens_cuts, multi_source, speed_factor)
+            lens = self._process_single_deflector(single_args)
+            
+            if lens is not None:
+                lenses_in_chunk.append(lens)
+        
+        return lenses_in_chunk
 
     def draw_population_parallel(
         self,
         kwargs_lens_cuts,
         multi_source=False,
         speed_factor=1,
-        num_workers= None,
+        num_workers=None,
     ):
         """
         Return full population list of all lenses within the area,
-        processed in parallel.
-
-        :param kwargs_lens_cuts: validity test keywords.
-        :type kwargs_lens_cuts: dict
-        :param multi_source: A boolean value. If True, considers multi
-            source lensing. If False, considers single source lensing.
-            The default value is True.
-        :param speed_factor: factor by which the number of deflectors is
-            decreased to speed up the calculations.
-        :return: List of Lens instances.
-        :rtype: list
+        processed in parallel using manually defined chunks.
         """
         num_lenses = int(self.deflector_number / speed_factor)
         
-        # Determine a good chunksize for multiprocessing
-        # This divides the work into larger batches, reducing overhead.
-        num_workers = num_workers or 1
-        chunksize = max(1, num_lenses // (num_workers * 4))
+        # --- MODIFIED ---
+        # Use multiprocessing.cpu_count() for a sensible default
+        if num_workers is None:
+            num_workers = multiprocessing.cpu_count() or 1 # Use all available cores
+        
+        # --- New Chunking Logic ---
+        base_chunk_size = num_lenses // num_workers
+        remainder = num_lenses % num_workers
+        chunk_sizes = [base_chunk_size] * num_workers
+        for i in range(remainder):
+            chunk_sizes[i] += 1
+        
+        # --- NEW ---
+        # Generate a list of unique, random seeds for each worker
+        # We use a master RNG in the parent process to control the
+        # seeds for the child processes.
+        master_rng = np.random.RandomState()
+        child_seeds = master_rng.randint(0, 2**32 - 1, size=num_workers)
 
+        # Create the argument list for imap
+        args_list = [
+            (kwargs_lens_cuts, multi_source, speed_factor, size, seed) # Add seed
+            for size, seed in zip(chunk_sizes, child_seeds) if size > 0
+        ]
+        # --- End New Logic ---
+        
         lens_population = []
 
         multiprocessing.set_start_method("spawn", force=True)
 
         with multiprocessing.Pool(processes=num_workers) as pool:
             results_iterator = tqdm.tqdm(pool.imap(
-                self._process_single_deflector,
-                repeat((kwargs_lens_cuts, multi_source, speed_factor), 
-                       times=num_lenses),
-                chunksize=chunksize
-            ), total=num_lenses, desc="Drawing lens population in parallel")
+                self._process_deflectors_chunk,
+                args_list,
+                chunksize=1
+            ), total=len(args_list), desc="Drawing lens population in chunks")
 
-            lens_population = [lens for lens in results_iterator if lens is not None]
+            lens_population = list(chain.from_iterable(results_iterator))
 
         return lens_population
 
