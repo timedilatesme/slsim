@@ -143,7 +143,6 @@ class LensPop(LensedPopulationBase):
         """
         Helper function for parallel processing. Processes a SINGLE deflector
         and returns a Lens object or None.
-        (This is your original _process_deflectors_chunk logic)
         """
         kwargs_lens_cuts, multi_source, speed_factor = args
 
@@ -202,20 +201,16 @@ class LensPop(LensedPopulationBase):
 
     def _process_deflectors_chunk(self, args):
         """
-        NEW helper function that processes a CHUNK of deflectors.
-        It contains the for-loop you requested.
+        Helper function that processes a CHUNK of deflectors.
         """
-        # --- NEW ---
         # Unpack the new seed argument
         kwargs_lens_cuts, multi_source, speed_factor, num_in_chunk, seed = args
         
-        # --- CRITICAL ---
         # Seed this worker's RNG to make it unique
         np.random.seed(seed)
         
         lenses_in_chunk = []
 
-        # This is the for loop you asked for
         for _ in range(num_in_chunk):
             single_args = (kwargs_lens_cuts, multi_source, speed_factor)
             lens = self._process_single_deflector(single_args)
@@ -238,19 +233,16 @@ class LensPop(LensedPopulationBase):
         """
         num_lenses = int(self.deflector_number / speed_factor)
         
-        # --- MODIFIED ---
         # Use multiprocessing.cpu_count() for a sensible default
         if num_workers is None:
             num_workers = multiprocessing.cpu_count() or 1 # Use all available cores
         
-        # --- New Chunking Logic ---
         base_chunk_size = num_lenses // num_workers
         remainder = num_lenses % num_workers
         chunk_sizes = [base_chunk_size] * num_workers
         for i in range(remainder):
             chunk_sizes[i] += 1
         
-        # --- NEW ---
         # Generate a list of unique, random seeds for each worker
         # We use a master RNG in the parent process to control the
         # seeds for the child processes.
@@ -262,7 +254,6 @@ class LensPop(LensedPopulationBase):
             (kwargs_lens_cuts, multi_source, speed_factor, size, seed) # Add seed
             for size, seed in zip(chunk_sizes, child_seeds) if size > 0
         ]
-        # --- End New Logic ---
         
         lens_population = []
 
