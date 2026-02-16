@@ -15,12 +15,15 @@ def simulate_image(
     band,
     num_pix,
     add_noise=True,
+    add_background_counts=False,
     observatory="LSST",
     kwargs_psf=None,
     kwargs_numerics=None,
+    kwargs_single_band=None,
     with_source=True,
     with_deflector=True,
     with_point_source=True,
+    image_units_counts=False,
     **kwargs
 ):
     """Creates an image of a selected lens with noise.
@@ -30,19 +33,34 @@ def simulate_image(
     :param band: imaging band
     :param num_pix: number of pixels per axis
     :param add_noise: if True, add noise
+    :param add_background_counts: whether to add the absolute count of
+        photons on the background. If =False; the mean background is
+        subtracted (not the noise)
+    :type add_background_counts: bool
     :param observatory: telescope type to be simulated
     :type observatory: str
     :param kwargs_psf: (optional) specific PSF quantities to overwrite
         default options ("psf_type", "kernel_point_source",
         "point_source_supersampling_factor")
     :type kwargs_psf: dict
-    :param kwargs: additional keyword arguments for the bands
     :type kwargs_numerics: dict
-    :param kwargs_numerics: options are
+    :param kwargs_numerics (optional): options are
         "point_source_supersampling_factor", "supersampling_factor", and
         more in lenstronomy.ImSim.Numerics.numerics class
-    :param with_source: bool, if True computes source
-    :param with_deflector: bool, if True includes deflector light
+    :param kwargs_single_band (optional): not intended to be provided
+        directly by the user -- this is more efficient for the SNR
+        criterion in the validity test
+    :type kwargs_single_band: dict
+    :param with_source: if True, include source light
+    :type with_source: bool
+    :param with_deflector: if True, include deflector light
+    :type with_deflector: bool
+    :param with_point_source: if True, include point source light
+    :type with_point_source: bool
+    :param image_units_counts: if True, return image in units of counts
+        instead of counts/second (default: False)
+    :type image_units_counts: bool
+    :param kwargs: additional keyword arguments for the bands
     :type kwargs: dict
     :return: simulated image
     :rtype: 2d numpy array
@@ -50,9 +68,12 @@ def simulate_image(
     kwargs_model, kwargs_params = lens_class.lenstronomy_kwargs(band)
     from slsim.ImageSimulation import image_quality_lenstronomy
 
-    kwargs_single_band = image_quality_lenstronomy.kwargs_single_band(
-        observatory=observatory, band=band, **kwargs
-    )
+    # passing in `kwargs_single_band` is more efficient for the SNR criterion
+    # in Lens._validity_test()
+    if kwargs_single_band is None:
+        kwargs_single_band = image_quality_lenstronomy.kwargs_single_band(
+            observatory=observatory, band=band, **kwargs
+        )
     if kwargs_psf is not None:
         kwargs_single_band.update(kwargs_psf)
     sim_api = SimAPI(
@@ -81,6 +102,13 @@ def simulate_image(
     )
     if add_noise:
         image += sim_api.noise_for_model(model=image)
+    if add_background_counts:
+        # the noise is Poisson, so the counts are the variance of the background rms
+        exp_time = sim_api.exposure_time
+        var_bkg = (sim_api.background_noise * exp_time) ** 2
+        image += var_bkg / exp_time
+    if image_units_counts:
+        image *= sim_api.exposure_time
     return image
 
 
@@ -363,6 +391,7 @@ def point_source_image_at_time(
     psf_kernel,
     transform_pix2angle,
     time,
+    microlensing=False,
 ):
     """Creates lensed point source images with variability at a given time on
     the basis of given information.
@@ -376,6 +405,8 @@ def point_source_image_at_time(
     :param transform_pix2angle: transformation matrix (2x2) of pixels
         into coordinate displacements
     :param time: time is an image observation time [day].
+    :param microlensing: boolean flag to include microlensing
+        variability
     :return: point source images with variability
     """
 
@@ -399,7 +430,7 @@ def point_source_image_at_time(
         ra_image_values = image_data["ra_image"]
         dec_image_values = image_data["dec_image"]
         variable_mag = lens_class.point_source_magnitude(
-            band=band, lensed=True, time=time
+            band=band, lensed=True, time=time, microlensing=microlensing
         )
         variable_mag = np.nan_to_num(variable_mag, nan=np.inf)
         variable_mag_list = np.concatenate(variable_mag)
@@ -502,7 +533,7 @@ def deflector_images_with_different_zeropoint(
 def image_plus_poisson_noise(
     image, exposure_time, gain=1, coadd_zero_point=27, single_visit_zero_point=27
 ):
-    """Creates an image with possion noise.
+    """Creates an image with Poisson noise.
 
     :param image: an image
     :param exposure_time: exposure time or exposure map for an image
@@ -564,6 +595,7 @@ def lens_image(
         "z": 31.45,
         "y": 30.63,
     },
+    microlensing=False,
 ):
     """Creates lens image on the basis of given information. It can simulate
     both static lens image and variable lens image.
@@ -591,6 +623,8 @@ def lens_image(
         sould contain at least values for the band in which one need to
         simulate images. Default values are average magnitude zero
         points for LSST single visists in each band.
+    :param microlensing: boolean flag to include microlensing
+        variability
     :return: lens image
     """
     delta_pix = transformmatrix_to_pixelscale(transform_pix2angle)
@@ -626,6 +660,7 @@ def lens_image(
             psf_kernel=psf_kernel,
             transform_pix2angle=transform_pix2angle,
             time=t_obs,
+            microlensing=microlensing,
         )
     image_ps = np.nan_to_num(image_ps, nan=0)  # Replace NaN if present with 0
     image = convolved_deflector_source + image_ps
@@ -666,6 +701,7 @@ def lens_image_series(
         "z": 31.45,
         "y": 30.63,
     },
+    microlensing=False,
 ):
     """Creates lens image on the basis of given information. This function is
     designed to simulate time series images of a lens.
@@ -697,6 +733,7 @@ def lens_image_series(
                 }. It sould contain at least values for the band in which one need to
                 simulate images. Default values are average magnitude zero points for
                 LSST single visists in each band.
+    :param microlensing: boolean flag to include microlensing variability
     :return: list of series of images of a lens
     """
 
@@ -722,6 +759,7 @@ def lens_image_series(
             with_deflector=with_deflector,
             gain=gain,
             single_visit_mag_zero_points=single_visit_mag_zero_points,
+            microlensing=microlensing,
         )
         image_series.append(image)
 
