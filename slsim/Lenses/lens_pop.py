@@ -285,12 +285,11 @@ class LensPop(LensedPopulationBase):
 
                     if self._field_galaxy_population is not None:
                         field_galaxies = self._draw_field_galaxies(
-                            area=test_area*20, z_max=_source.redshift
+                            area=test_area * 20, z_max=_source.redshift
                         )
                         if len(field_galaxies) == 0:
                             field_galaxies = None
 
-                    
                     lens_final = Lens(
                         deflector_class=_deflector,
                         source_class=final_sources,
@@ -301,7 +300,7 @@ class LensPop(LensedPopulationBase):
                     )
                     lens_population.append(lens_final)
         return lens_population
-    
+
     def _draw_field_galaxies(self, area, z_max=None):
         """Draw field galaxies within a specified area and redshift limit.
 

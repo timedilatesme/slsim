@@ -72,7 +72,7 @@ class Lens(LensedSystemBase):
         :type shear: bool
         :param convergence: whether to include external convergence in multi-plane lensing
         :type convergence: bool
-        :param field_galaxies: list of field galaxy instances to include in the lensing configuration, if any. 
+        :param field_galaxies: list of field galaxy instances to include in the lensing configuration, if any.
         If provided, these galaxies will be included as additional light in the lens plane, and will not be explicitly included as deflectors in the lensing calculation.
         :type field_galaxies: list of sources from slsim.Sources.SourcePopulation.galaxies class or None
 
@@ -1324,8 +1324,8 @@ class Lens(LensedSystemBase):
 
         # field galaxies
         if self._field_galaxies is not None:
-            field_galaxies_lens_model_list, kwargs_field_galaxies = self.field_galaxy_light_model_lenstronomy(
-                band=band
+            field_galaxies_lens_model_list, kwargs_field_galaxies = (
+                self.field_galaxy_light_model_lenstronomy(band=band)
             )
             lens_light_model_list += field_galaxies_lens_model_list
             kwargs_lens_light += kwargs_field_galaxies
@@ -1546,14 +1546,15 @@ class Lens(LensedSystemBase):
         all_source_kwarg_dict["kwargs_source"] = kwargs_source
         all_source_kwarg_dict["kwargs_ps"] = kwargs_ps
         return source_models, all_source_kwarg_dict
-    
+
     def field_galaxy_light_model_lenstronomy(self, band):
-        """Returns field galaxy light model instance and parameters in lenstronomy
-        conventions.
+        """Returns field galaxy light model instance and parameters in
+        lenstronomy conventions.
 
         :param band: imaging band
         :type band: str
-        :return: field_galaxy_light_model_list, kwargs_field_galaxy_light
+        :return: field_galaxy_light_model_list,
+            kwargs_field_galaxy_light
         """
         field_galaxy_light_model_list = []
         kwargs_field_galaxy_light = []
@@ -1563,7 +1564,7 @@ class Lens(LensedSystemBase):
             model_list, kwargs = field_galaxy.kwargs_extended_light(band=band)
             field_galaxy_light_model_list += model_list
             kwargs_field_galaxy_light += kwargs
-        return field_galaxy_light_model_list, kwargs_field_galaxy_light        
+        return field_galaxy_light_model_list, kwargs_field_galaxy_light
 
     def kappa_star(self, ra, dec):
         """Computes the stellar surface density at location (ra, dec) in units
