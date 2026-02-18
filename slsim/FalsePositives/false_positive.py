@@ -37,28 +37,27 @@ class FalsePositive(Lens):
         self._include_deflector_light = include_deflector_light
 
     def _image_position_from_source(self, x_source, y_source, source_index):
-        """
-        Overrides the lens equation solver. 
-        For unlensed objects (on the lens plane), the image position is the source position.
-        
+        """Overrides the lens equation solver. For unlensed objects (on the
+        lens plane), the image position is the source position.
+
         :return: Arrays of x and y coordinates.
         """
         return np.array([x_source]), np.array([y_source])
 
     def _point_source_magnification(self, source_index, extended=False):
-        """
-        Overrides the magnification calculation.
-        For unlensed objects, the magnification is always 1 (flux is unchanged).
-        
+        """Overrides the magnification calculation. For unlensed objects, the
+        magnification is always 1 (flux is unchanged).
+
         :return: Array of magnifications (all 1.0).
         """
         # We return an array of 1.0s matching the number of "images" (which is 1 per source)
         return np.array([1.0])
 
     def _point_source_arrival_times(self, source_index):
-        """
-        Overrides time delay calculation.
-        No lensing means no geometric or potential time delays relative to the source itself.
+        """Overrides time delay calculation.
+
+        No lensing means no geometric or potential time delays relative
+        to the source itself.
         """
         return np.array([0.0])
 
