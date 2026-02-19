@@ -1052,22 +1052,31 @@ class Lens(LensedSystemBase):
         ##########################################################################
 
         # Instantiate the microlensing model with all required parameters
-        self._microlensing_model_class = {}
-        self._microlensing_model_class[source_index] = (
-            MicrolensingLightCurveFromLensModel(
-                source_redshift=self.source(source_index).redshift,
-                deflector_redshift=self.deflector_redshift,
-                kappa_star_images=kappa_star_images,
-                kappa_tot_images=kappa_tot_images,
-                shear_images=shear_images,
-                shear_phi_angle_images=shear_phi_angle_images,
-                ra_lens=ra_lens,
-                dec_lens=dec_lens,
-                deflector_velocity_dispersion=self.deflector_velocity_dispersion(),
-                cosmology=self.cosmo,
-                **kwargs_microlensing_updated,
+        # Check if the microlensing model class is already instantiated for this source index to avoid redundant instantiation
+        if not hasattr(self, "_microlensing_model_class"):
+            self._microlensing_model_class = {}
+
+        if source_index not in self._microlensing_model_class.keys():
+            self._microlensing_model_class[source_index] = (
+                MicrolensingLightCurveFromLensModel(
+                    source_redshift=self.source(source_index).redshift,
+                    deflector_redshift=self.deflector_redshift,
+                    kappa_star_images=kappa_star_images,
+                    kappa_tot_images=kappa_tot_images,
+                    shear_images=shear_images,
+                    shear_phi_angle_images=shear_phi_angle_images,
+                    ra_lens=ra_lens,
+                    dec_lens=dec_lens,
+                    deflector_velocity_dispersion=self.deflector_velocity_dispersion(),
+                    cosmology=self.cosmo,
+                    **kwargs_microlensing_updated,
+                )
             )
-        )
+        else:
+            # Update existing instance with new parameters if needed
+            self._microlensing_model_class[source_index].update_source_morphology(
+                kwargs_source_morphology
+            )
 
         # Generate microlensing magnitudes with the simplified method call
         microlensing_magnitudes = self._microlensing_model_class[
@@ -1287,12 +1296,15 @@ class Lens(LensedSystemBase):
             extended_source_magnification = 0
         return extended_source_magnification
 
-    def lenstronomy_kwargs(self, band=None):
+    def lenstronomy_kwargs(self, band=None, time=None):
         """Generates lenstronomy dictionary conventions for the class object.
 
         :param band: imaging band, if =None, will result in un-
             normalized amplitudes
         :type band: string or None
+        :param time: time is an image observation time in units of days.
+            If None, provides magnitude without variability.
+        :type time: float
         :return: lenstronomy model and parameter conventions
         """
         lens_model, kwargs_lens = self.deflector_mass_model_lenstronomy(source_index=0)
@@ -1332,7 +1344,9 @@ class Lens(LensedSystemBase):
                 self.max_redshift_source_class.redshift
             )
 
-        sources, sources_kwargs = self.source_light_model_lenstronomy(band=band)
+        sources, sources_kwargs = self.source_light_model_lenstronomy(
+            band=band, time=time
+        )
         # ensure that only the models that exist are getting added to kwargs_model
         for k in sources.keys():
             kwargs_model[k] = sources[k]
@@ -1506,7 +1520,7 @@ class Lens(LensedSystemBase):
                         lensed=True,
                         microlensing=microlensing,
                         kwargs_microlensing=kwargs_microlensing,
-                    )
+                    ).flatten()
                 ps_type, kwargs_ps_ = self.source(index).kwargs_point_source(
                     band, image_pos_x=img_x, image_pos_y=img_y, ps_mag=image_magnitudes
                 )
