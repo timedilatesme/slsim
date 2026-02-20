@@ -17,6 +17,7 @@ from slsim.Microlensing.source_morphology.source_morphology import (
 
 from slsim.ImageSimulation.image_quality_lenstronomy import get_speclite_filtername
 
+
 class AGNSourceMorphology(SourceMorphology):
     """Class for AGN source morphology."""
 
