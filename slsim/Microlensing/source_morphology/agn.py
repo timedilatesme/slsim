@@ -15,6 +15,7 @@ from slsim.Microlensing.source_morphology.source_morphology import (
     SourceMorphology,
 )
 
+from slsim.ImageSimulation.image_quality_lenstronomy import get_speclite_filtername
 
 class AGNSourceMorphology(SourceMorphology):
     """Class for AGN source morphology."""
@@ -87,7 +88,7 @@ class AGNSourceMorphology(SourceMorphology):
         if self.observing_wavelength_band is not None:
             # Get the mean wavelength of the band
             filter = speclite.filters.load_filter(
-                "lsst2023-" + self.observing_wavelength_band
+                get_speclite_filtername(self.observing_wavelength_band)
             )
             self.observer_frame_wavelength_in_nm = filter.effective_wavelength.to(
                 u.nm
