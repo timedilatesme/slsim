@@ -17,6 +17,7 @@ def simulate_image(
     add_noise=True,
     add_background_counts=False,
     observatory="LSST",
+    t_obs=None,
     kwargs_psf=None,
     kwargs_numerics=None,
     kwargs_single_band=None,
@@ -39,6 +40,9 @@ def simulate_image(
     :type add_background_counts: bool
     :param observatory: telescope type to be simulated
     :type observatory: str
+    :param t_obs: an observation time in units of days. This is applicable only for
+        variable source. In case of point source, if we do not provide
+        t_obs, considers no variability in the lens.
     :param kwargs_psf: (optional) specific PSF quantities to overwrite
         default options ("psf_type", "kernel_point_source",
         "point_source_supersampling_factor")
@@ -65,7 +69,7 @@ def simulate_image(
     :return: simulated image
     :rtype: 2d numpy array
     """
-    kwargs_model, kwargs_params = lens_class.lenstronomy_kwargs(band)
+    kwargs_model, kwargs_params = lens_class.lenstronomy_kwargs(band, time=t_obs)
     from slsim.ImageSimulation import image_quality_lenstronomy
 
     # passing in `kwargs_single_band` is more efficient for the SNR criterion
