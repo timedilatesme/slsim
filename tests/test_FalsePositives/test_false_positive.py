@@ -156,11 +156,10 @@ def test_false_positive_toggles(fp_test_setup):
     # 1 source + 1 deflector + 1 field galaxy = 3 light models
     assert len(kwargs_model_field["lens_light_model_list"]) == 3
 
+
 def test_false_positive_overridden_physics_methods(fp_test_setup):
-    """
-    Tests the overridden methods in the FalsePositive class that enforce 
-    an 'unlensed' physical scenario (Lines 52, 61, and 69).
-    """
+    """Tests the overridden methods in the FalsePositive class that enforce an
+    'unlensed' physical scenario (Lines 52, 61, and 69)."""
     cosmo, lens_galaxies, source_galaxies = fp_test_setup
 
     lens = lens_galaxies.draw_deflector()
@@ -187,6 +186,7 @@ def test_false_positive_overridden_physics_methods(fp_test_setup):
     # 3. Test _point_source_arrival_times
     arrival_times = fp_instance._point_source_arrival_times(source_index=0)
     assert np.array_equal(arrival_times, np.array([0.0]))
+
 
 if __name__ == "__main__":
     pytest.main()
