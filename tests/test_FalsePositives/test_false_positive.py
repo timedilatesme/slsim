@@ -159,7 +159,7 @@ def test_false_positive_toggles(fp_test_setup):
 
 def test_false_positive_overridden_physics_methods(fp_test_setup):
     """Tests the overridden methods in the FalsePositive class that enforce an
-    'unlensed' physical scenario (Lines 52, 61, and 69)."""
+    'unlensed' physical scenario."""
     cosmo, lens_galaxies, source_galaxies = fp_test_setup
 
     lens = lens_galaxies.draw_deflector()
