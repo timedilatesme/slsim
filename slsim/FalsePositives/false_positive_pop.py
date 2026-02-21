@@ -9,8 +9,8 @@ import numpy as np
 class FalsePositivePopBase(object):
     """Base class for false positive population generation.
 
-    This class provides common functionality and can be extended to create specific types of false
-    positive populations.
+    This class provides common functionality and can be extended to
+    create specific types of false positive populations.
     """
 
     def __init__(
@@ -52,7 +52,9 @@ class FalsePositivePopBase(object):
         :return: List of drawn field galaxy instances.
         """
         return draw_field_galaxies(
-            field_galaxy_population=self._field_galaxy_population, area=area, z_max=z_max
+            field_galaxy_population=self._field_galaxy_population,
+            area=area,
+            z_max=z_max,
         )
 
 
@@ -159,7 +161,9 @@ class FalsePositiveGalaxiesPop(FalsePositivePopBase):
                     continue  # Retry if sources are invalid
 
                 # Step 3: Draw field galaxies
-                field_galaxies = self.draw_field_galaxies(area=test_area * 10, z_max=z_max)
+                field_galaxies = self.draw_field_galaxies(
+                    area=test_area * 10, z_max=z_max
+                )
 
                 # Step 4: Create false positive
                 false_positive = FalsePositive(
@@ -313,8 +317,10 @@ class FalsePositiveMultiSourcePop(FalsePositivePopBase):
                 if sources is None:
                     continue  # Retry if sources are invalid
 
-                # Step 4: Add field galaxies 
-                field_galaxies = self.draw_field_galaxies(area=test_area * 10, z_max=z_max)
+                # Step 4: Add field galaxies
+                field_galaxies = self.draw_field_galaxies(
+                    area=test_area * 10, z_max=z_max
+                )
 
                 # Step 5: Create false positive
                 false_positive = FalsePositive(

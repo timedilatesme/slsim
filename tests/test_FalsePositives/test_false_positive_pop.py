@@ -7,7 +7,7 @@ import slsim.Deflectors as deflectors
 import slsim.Pipelines as pipelines
 from slsim.FalsePositives.false_positive_pop import (
     FalsePositiveGalaxiesPop,
-    FalsePositiveMultiSourcePop
+    FalsePositiveMultiSourcePop,
 )
 from astropy.units import Quantity
 
@@ -51,7 +51,7 @@ def test_draw_false_positive_single():
     draw_fp1 = fp_pop1.draw_false_positive()
     draw_deflector = fp_pop1.draw_deflector()
     draw_source = fp_pop1.draw_sources(z_max=draw_deflector[1])
-    
+
     assert isinstance(draw_fp1, object)
     assert isinstance(draw_deflector[0], object)
     assert draw_deflector[1] == draw_deflector[0].redshift + 0.002
@@ -69,7 +69,7 @@ def test_draw_false_positive_multiple():
     assert isinstance(draw_fp2, list)
 
 
-@patch('numpy.random.poisson', return_value=2)
+@patch("numpy.random.poisson", return_value=2)
 def test_draw_false_positive_with_field_galaxies(mock_poisson):
     # Tests the base class method draw_field_galaxies through the population generator
     fp_pop = FalsePositiveGalaxiesPop(
@@ -77,10 +77,10 @@ def test_draw_false_positive_with_field_galaxies(mock_poisson):
         surrounding_galaxy_population=source_galaxies,
         cosmo=cosmo,
         source_number_choice=[1],
-        field_galaxy_population=source_galaxies # using source_galaxies as mock
+        field_galaxy_population=source_galaxies,  # using source_galaxies as mock
     )
     draw_fp = fp_pop.draw_false_positive()
-    
+
     # We forced poisson to draw 2 field galaxies
     assert draw_fp._field_galaxies is not None
     assert len(draw_fp._field_galaxies) == 2
@@ -92,8 +92,8 @@ def test_false_positive_multi_source_validation():
         FalsePositiveMultiSourcePop(
             central_galaxy_population=lens_galaxies,
             source_populations=[source_galaxies],
-            source_number_choices=[[1], [2]], 
-            cosmo=cosmo
+            source_number_choices=[[1], [2]],
+            cosmo=cosmo,
         )
 
 
@@ -101,9 +101,9 @@ def test_false_positive_multi_source_random_clustering():
     fp_multi_pop = FalsePositiveMultiSourcePop(
         central_galaxy_population=lens_galaxies,
         source_populations=[source_galaxies, source_galaxies],
-        source_number_choices=[[0, 1], [1]], # Tests the n_draw == 0 skip logic as well
+        source_number_choices=[[0, 1], [1]],  # Tests the n_draw == 0 skip logic as well
         cosmo=cosmo,
-        clustering_mode="random"
+        clustering_mode="random",
     )
     draw_fp = fp_multi_pop.draw_false_positive()
     assert isinstance(draw_fp, object)
@@ -117,9 +117,9 @@ def test_false_positive_multi_source_ring_clustering():
         source_populations=[source_galaxies],
         source_number_choices=[[3]],
         cosmo=cosmo,
-        clustering_mode="ring"
+        clustering_mode="ring",
     )
-    
+
     draw_fp = fp_multi_pop.draw_false_positive()
     assert isinstance(draw_fp, object)
     assert draw_fp.source_number == 3

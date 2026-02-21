@@ -289,7 +289,8 @@ class LensPop(LensedPopulationBase):
                     field_galaxies = None
                     if self._field_galaxy_population is not None:
                         field_galaxies = self._draw_field_galaxies(
-                            area=test_area * 10, z_max=_deflector.redshift #TODO: field galaxy area should come from the simulated image
+                            area=test_area * 10,
+                            z_max=_deflector.redshift,  # TODO: field galaxy area should come from the simulated image
                         )
                         if len(field_galaxies) == 0:
                             field_galaxies = None
@@ -315,8 +316,11 @@ class LensPop(LensedPopulationBase):
         :return: List of drawn field galaxy instances.
         """
         return draw_field_galaxies(
-            field_galaxy_population=self._field_galaxy_population, area=area, z_max=z_max
+            field_galaxy_population=self._field_galaxy_population,
+            area=area,
+            z_max=z_max,
         )
+
 
 def area_theta_e_infinity(theta_e_infinity):
     """Draw a test area around the deflector.
@@ -328,8 +332,8 @@ def area_theta_e_infinity(theta_e_infinity):
     test_area = np.pi * (theta_e_infinity * 1.5) ** 2
     return test_area
 
-def draw_field_galaxies(field_galaxy_population, 
-                        area, z_max=None):
+
+def draw_field_galaxies(field_galaxy_population, area, z_max=None):
     """Draw field galaxies within a specified area and redshift limit.
 
     :param field_galaxy_population: Population of field galaxies to draw from (usually an instance of `~Galaxies`). If None, no field galaxies will be drawn.

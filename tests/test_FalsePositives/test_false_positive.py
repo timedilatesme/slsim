@@ -150,7 +150,7 @@ def test_false_positive_toggles(fp_test_setup):
         deflector_class=lens,
         cosmo=cosmo,
         include_deflector_light=True,
-        field_galaxies=[mock_field_galaxy]
+        field_galaxies=[mock_field_galaxy],
     )
     kwargs_model_field, _ = fp_with_field.lenstronomy_kwargs("i")
     # 1 source + 1 deflector + 1 field galaxy = 3 light models

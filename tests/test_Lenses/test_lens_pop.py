@@ -58,7 +58,7 @@ def create_lens_pop_instance(return_kext=False, with_field_galaxies=False):
         catalog_type="skypy",
         **kwargs,
     )
-    
+
     field_galaxy_population = None
     if with_field_galaxies:
         # Reusing source_galaxies as a mock field galaxy population for simplicity
@@ -81,6 +81,7 @@ def gg_lens_pop_instance():
     # Create LensPop instance without return_kext
     return create_lens_pop_instance(return_kext=False)
 
+
 @pytest.fixture
 def gg_lens_pop_instance_with_field_galaxies():
     # Create LensPop instance with a field galaxy population
@@ -99,9 +100,10 @@ def test_draw_population(gg_lens_pop_instance):
 def test_draw_field_galaxies(gg_lens_pop_instance_with_field_galaxies):
     lens_pop = gg_lens_pop_instance_with_field_galaxies
     # Patch Poisson distribution to guarantee we draw field galaxies
-    with patch('numpy.random.poisson', return_value=3):
+    with patch("numpy.random.poisson", return_value=3):
         field_galaxies = lens_pop._draw_field_galaxies(area=100.0, z_max=2.0)
         assert len(field_galaxies) == 3
+
 
 def test_draw_field_galaxies_none(gg_lens_pop_instance):
     lens_pop = gg_lens_pop_instance
@@ -109,19 +111,24 @@ def test_draw_field_galaxies_none(gg_lens_pop_instance):
     field_galaxies = lens_pop._draw_field_galaxies(area=100.0, z_max=2.0)
     assert field_galaxies == []
 
+
 def test_draw_population_with_field_galaxies(gg_lens_pop_instance_with_field_galaxies):
     lens_pop = gg_lens_pop_instance_with_field_galaxies
     kwargs_lens_cuts = {}
-    
+
     # Test positive case where field galaxies are actively found and appended
-    with patch('numpy.random.poisson', return_value=1):
-        lens_population = lens_pop.draw_population(kwargs_lens_cuts, multi_source=False, speed_factor=100)
+    with patch("numpy.random.poisson", return_value=1):
+        lens_population = lens_pop.draw_population(
+            kwargs_lens_cuts, multi_source=False, speed_factor=100
+        )
         assert isinstance(lens_population, list)
-        
+
     # Test fallback case where the draw returns an empty list, forcing field_galaxies to None
-    with patch.object(lens_pop, '_draw_field_galaxies', return_value=[]):
-        with patch('numpy.random.poisson', return_value=1):
-            lens_population_empty = lens_pop.draw_population(kwargs_lens_cuts, multi_source=False, speed_factor=100)
+    with patch.object(lens_pop, "_draw_field_galaxies", return_value=[]):
+        with patch("numpy.random.poisson", return_value=1):
+            lens_population_empty = lens_pop.draw_population(
+                kwargs_lens_cuts, multi_source=False, speed_factor=100
+            )
             assert isinstance(lens_population_empty, list)
 
 
