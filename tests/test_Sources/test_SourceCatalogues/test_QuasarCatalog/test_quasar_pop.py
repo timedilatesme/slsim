@@ -436,6 +436,47 @@ class TestQuasarSEDIntegration:
         assert np.all(
             np.abs(g_i_color) < 5.0
         ), "Derived colors are unphysical, anchoring likely failed."
+    
+    @patch.object(
+        QuasarRate, "generate_quasar_redshifts", return_value=np.linspace(7.0, 12.0, 6)
+    )
+    def test_qsogen_sed_high_redshift_handling(self, mock_gen_z):
+        """Test that the code can handle very high redshift quasars (z ~ 12)
+        without crashing and correctly issues a warning about the Lyman-limit."""
+        qr_high_z = QuasarRate(
+            redshifts=np.linspace(7.0, 12.0, 6),
+            sky_area=Quantity(0.05, unit="deg2"),
+            noise=True,
+            cosmo=FlatLambdaCDM(H0=70, Om0=0.3),
+            use_qsogen_sed=True,
+            use_sed_interpolator=False,
+            qsogen_bands=["g", "r", "i"],
+        )
+        
+        # Verify that the warning is raised for z > 7
+        with pytest.warns(UserWarning, match="probe the Lyman-limit system"):
+            table = qr_high_z.quasar_sample(m_min=18, m_max=23)
+        
+        # Verify that the redshifts were generated as expected
+        mock_gen_z.assert_called_once()
+
+        print('table = ', table)
+            
+        # Verify the code completed and generated the table despite the extreme extrapolation
+        assert len(table) > 0
+        assert "ps_mag_g" in table.colnames
+        assert "ps_mag_r" in table.colnames
+        assert "ps_mag_i" in table.colnames
+
+        # Typical quasar colors are between -1 and +2 roughly
+        # but it should fail at high z due to the Lyman-limit,
+        g_i_color = table["ps_mag_g"] - table["ps_mag_i"]
+        is_extreme = np.abs(g_i_color) > 5.0
+        is_nan = np.isnan(g_i_color)
+        
+        assert np.any(
+            is_extreme | is_nan
+        ), "At z>7, colors should be unphysical (extreme or NaN) due to Lyman-limit effects, but they are not. Check warning and SED generation logic."
 
 
 # Running the tests with pytest

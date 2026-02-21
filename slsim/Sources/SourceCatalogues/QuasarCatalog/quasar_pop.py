@@ -6,6 +6,7 @@ from astropy.cosmology import FlatLambdaCDM
 from astropy.units import Quantity
 from astropy.table import Table, vstack
 import os
+import warnings
 from pathlib import Path
 import speclite.filters
 from slsim.Sources.SourceCatalogues.QuasarCatalog.qsogen import Quasar_sed, params_agile
@@ -537,6 +538,16 @@ class QuasarRate(object):
 
         # --- QSOGEN SED FOR MULTIBAND PHOTOMETRY ---
         if self.use_qsogen_sed:
+            
+            if len(table_data["z"]) > 0 and np.max(table_data["z"]) > 7.0:
+                warnings.warn(
+                    "One or more quasars have z > 7. Anchoring the apparent magnitude to "
+                    "the i-band at these redshifts is physically unreliable, as the i-band "
+                    "begins to probe the Lyman-limit system. This may result in extremely "
+                    "amplified IR fluxes or unphysical colors.",
+                    UserWarning
+                )
+
             # Load filters once
             filters = speclite.filters.load_filters(*self.qsogen_bands)
 
