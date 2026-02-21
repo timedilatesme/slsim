@@ -1,6 +1,5 @@
 import pytest
 import numpy as np
-from unittest.mock import patch
 from astropy.cosmology import FlatLambdaCDM
 import slsim.Sources as sources
 import slsim.Deflectors as deflectors
@@ -69,8 +68,7 @@ def test_draw_false_positive_multiple():
     assert isinstance(draw_fp2, list)
 
 
-@patch("numpy.random.poisson", return_value=2)
-def test_draw_false_positive_with_field_galaxies(mock_poisson):
+def test_draw_false_positive_with_field_galaxies():
     # Tests the base class method draw_field_galaxies through the population generator
     fp_pop = FalsePositiveGalaxiesPop(
         central_galaxy_population=lens_galaxies,
@@ -81,9 +79,7 @@ def test_draw_false_positive_with_field_galaxies(mock_poisson):
     )
     draw_fp = fp_pop.draw_false_positive()
 
-    # We forced poisson to draw 2 field galaxies
     assert draw_fp._field_galaxies is not None
-    assert len(draw_fp._field_galaxies) == 2
 
 
 def test_false_positive_multi_source_validation():

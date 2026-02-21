@@ -250,15 +250,11 @@ class FalsePositiveMultiSourcePop(FalsePositivePopBase):
         # Iterate over each population and its corresponding number choices
         for pop, choices in zip(self._source_populations, self._number_choices):
 
-            # 1. Determine how many sources to draw from this specific population
             n_draw = random.choice(choices)
 
-            if n_draw == 0:
-                continue
-
-            # 2. Draw the sources
             for _ in range(n_draw):
                 source = pop.draw_source()
+                # If no source is available, return None
                 if source is None:
                     return None
                 all_sources.append(source)

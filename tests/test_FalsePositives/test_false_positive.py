@@ -156,6 +156,37 @@ def test_false_positive_toggles(fp_test_setup):
     # 1 source + 1 deflector + 1 field galaxy = 3 light models
     assert len(kwargs_model_field["lens_light_model_list"]) == 3
 
+def test_false_positive_overridden_physics_methods(fp_test_setup):
+    """
+    Tests the overridden methods in the FalsePositive class that enforce 
+    an 'unlensed' physical scenario (Lines 52, 61, and 69).
+    """
+    cosmo, lens_galaxies, source_galaxies = fp_test_setup
+
+    lens = lens_galaxies.draw_deflector()
+    source = source_galaxies.draw_source()
+
+    fp_instance = FalsePositive(
+        source_class=source,
+        deflector_class=lens,
+        cosmo=cosmo,
+    )
+
+    # 1. Test _image_position_from_source
+    x_source_test, y_source_test = 1.5, -0.75
+    x_img, y_img = fp_instance._image_position_from_source(
+        x_source=x_source_test, y_source=y_source_test, source_index=0
+    )
+    assert np.array_equal(x_img, np.array([x_source_test]))
+    assert np.array_equal(y_img, np.array([y_source_test]))
+
+    # 2. Test _point_source_magnification
+    mag = fp_instance._point_source_magnification(source_index=0)
+    assert np.array_equal(mag, np.array([1.0]))
+
+    # 3. Test _point_source_arrival_times
+    arrival_times = fp_instance._point_source_arrival_times(source_index=0)
+    assert np.array_equal(arrival_times, np.array([0.0]))
 
 if __name__ == "__main__":
     pytest.main()

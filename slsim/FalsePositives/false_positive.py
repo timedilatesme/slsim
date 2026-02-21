@@ -64,7 +64,7 @@ class FalsePositive(Lens):
         """Overrides time delay calculation.
 
         No lensing means no geometric or potential time delays relative
-        to the source itself.
+        to the unlensed light.
         """
         return np.array([0.0])
 
