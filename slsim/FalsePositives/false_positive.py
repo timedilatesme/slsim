@@ -17,6 +17,7 @@ class FalsePositive(Lens):
         cosmo,
         los_class=None,
         include_deflector_light=True,
+        field_galaxies=None,
     ):
         """
         :param source_class: A Source class instance or list of Source class instance
@@ -26,6 +27,11 @@ class FalsePositive(Lens):
         :param cosmo: astropy.cosmology instance
         :param los_class: line of sight dictionary (optional, takes these values instead of drawing from distribution)
         :type los_class: ~LOSIndividual() class object
+        :param include_deflector_light: whether to include the deflector light in the final lenstronomy kwargs output.  Default is True.
+        :type include_deflector_light: bool
+        :param field_galaxies: list of field galaxy instances to include in the lensing configuration, if any.
+        If provided, these galaxies will be included as additional light in the lens plane, and will not be explicitly included as deflectors in the lensing calculation.
+        :type field_galaxies: list of sources from slsim.Sources.SourcePopulation.galaxies class or None
         """
         Lens.__init__(
             self,
@@ -33,6 +39,7 @@ class FalsePositive(Lens):
             deflector_class=deflector_class,
             cosmo=cosmo,
             los_class=los_class,
+            field_galaxies=field_galaxies,
         )
         self._include_deflector_light = include_deflector_light
 
@@ -77,9 +84,18 @@ class FalsePositive(Lens):
         ) = self.deflector.light_model_lenstronomy(band=band)
 
         sources, sources_kwargs = self.source_light_model_lenstronomy(band=band)
-
         combined_lens_light_model_list = sources["source_light_model_list"]
         combined_kwargs_lens_light = sources_kwargs["kwargs_source"]
+
+        # field galaxies
+        if self._field_galaxies is not None:
+            field_galaxies_lens_model_list, kwargs_field_galaxies = (
+                self.field_galaxy_light_model_lenstronomy(band=band)
+            )
+            combined_lens_light_model_list += field_galaxies_lens_model_list
+            combined_kwargs_lens_light += kwargs_field_galaxies
+
+        # to include the deflector light
         if self._include_deflector_light:
             combined_lens_light_model_list += lens_light_model_list
             combined_kwargs_lens_light += kwargs_lens_light

@@ -18,10 +18,8 @@ kwargs_deflector_cut = {"band": "g", "band_max": 28, "z_min": 0.01, "z_max": 2.5
 kwargs_source_cut = {"band": "g", "band_max": 28, "z_min": 0.1, "z_max": 5.0}
 
 
-def test_false_positive():
-    # Mock objects for source_class and deflector_class
-
-    # Initialize a cosmology instance
+@pytest.fixture
+def fp_test_setup():
     cosmo = FlatLambdaCDM(H0=70, Om0=0.3)
     lens_galaxies = deflectors.EllipticalLensGalaxies(
         galaxy_list=galaxy_simulation_pipeline.red_galaxies,
@@ -39,6 +37,12 @@ def test_false_positive():
         catalog_type="skypy",
         **kwargs
     )
+    return cosmo, lens_galaxies, source_galaxies
+
+
+def test_false_positive(fp_test_setup):
+    cosmo, lens_galaxies, source_galaxies = fp_test_setup
+
     single_deflector = lens_galaxies.draw_deflector()
     single_source1 = source_galaxies.draw_source()
     single_source2 = source_galaxies.draw_source()
@@ -46,10 +50,9 @@ def test_false_positive():
     source = single_source1
     source2 = single_source2
     source_list = [source, source2]
-    # LOS configuration
     los_class = LOSIndividual()
 
-    # Create an instance of FalsePositive
+    # Create instances of FalsePositive
     false_positive_instance_1 = FalsePositive(
         source_class=source,
         deflector_class=lens,
@@ -120,6 +123,38 @@ def test_false_positive():
         )
         == required_keys
     )
+
+
+def test_false_positive_toggles(fp_test_setup):
+    """Test the include_deflector_light and field_galaxies additions."""
+    cosmo, lens_galaxies, source_galaxies = fp_test_setup
+
+    lens = lens_galaxies.draw_deflector()
+    source = source_galaxies.draw_source()
+    mock_field_galaxy = source_galaxies.draw_source()
+
+    # Test 1: Exclude deflector light
+    fp_no_def_light = FalsePositive(
+        source_class=source,
+        deflector_class=lens,
+        cosmo=cosmo,
+        include_deflector_light=False,
+    )
+    kwargs_model_no_def, _ = fp_no_def_light.lenstronomy_kwargs("i")
+    # Only the single source light model should be present
+    assert len(kwargs_model_no_def["lens_light_model_list"]) == 1
+
+    # Test 2: Include field galaxies
+    fp_with_field = FalsePositive(
+        source_class=source,
+        deflector_class=lens,
+        cosmo=cosmo,
+        include_deflector_light=True,
+        field_galaxies=[mock_field_galaxy]
+    )
+    kwargs_model_field, _ = fp_with_field.lenstronomy_kwargs("i")
+    # 1 source + 1 deflector + 1 field galaxy = 3 light models
+    assert len(kwargs_model_field["lens_light_model_list"]) == 3
 
 
 if __name__ == "__main__":
