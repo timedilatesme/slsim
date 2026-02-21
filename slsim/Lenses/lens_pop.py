@@ -283,9 +283,10 @@ class LensPop(LensedPopulationBase):
                     else:
                         final_sources = valid_sources
 
+                    field_galaxies = None
                     if self._field_galaxy_population is not None:
                         field_galaxies = self._draw_field_galaxies(
-                            area=test_area * 20, z_max=_source.redshift
+                            area=test_area * 10, z_max=_deflector.redshift #TODO: field galaxy area should come from the simulated image
                         )
                         if len(field_galaxies) == 0:
                             field_galaxies = None
