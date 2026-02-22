@@ -67,9 +67,9 @@ class FalsePositivePop(FalsePositivePopBase):
     combines the functionality of single-source and multi-source
     generation with flexible clustering modes.
 
-    Note that these sources are not necessarily lensed by the deflector,
+    Note that these sources are not lensed by the deflector,
     but are positioned in a way that they could be misidentified as
-    lensed images of the deflector, thus creating a "false positive"
+    lensed images of a source due to the deflector, thus creating a "false positive"
     lensing configuration.
     """
 
