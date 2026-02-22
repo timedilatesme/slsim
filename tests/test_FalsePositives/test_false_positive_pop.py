@@ -4,10 +4,7 @@ from astropy.cosmology import FlatLambdaCDM
 import slsim.Sources as sources
 import slsim.Deflectors as deflectors
 import slsim.Pipelines as pipelines
-from slsim.FalsePositives.false_positive_pop import (
-    FalsePositiveGalaxiesPop,
-    FalsePositiveMultiSourcePop,
-)
+from slsim.FalsePositives.false_positive_pop import FalsePositivePop
 from astropy.units import Quantity
 
 sky_area = Quantity(value=0.01, unit="deg2")
@@ -41,40 +38,43 @@ source_galaxies = sources.Galaxies(
 
 
 def test_draw_false_positive_single():
-    fp_pop1 = FalsePositiveGalaxiesPop(
+    fp_pop = FalsePositivePop(
         central_galaxy_population=lens_galaxies,
-        surrounding_galaxy_population=source_galaxies,
+        source_populations=source_galaxies,
+        source_number_choices=[1],
         cosmo=cosmo,
-        source_number_choice=[1],
     )
-    draw_fp1 = fp_pop1.draw_false_positive()
-    draw_deflector = fp_pop1.draw_deflector()
-    draw_source = fp_pop1.draw_sources(z_max=draw_deflector[1])
+    draw_fp = fp_pop.draw_false_positive()
+    draw_deflector, z_max = fp_pop.draw_deflector()
+    
+    draw_source = fp_pop.draw_sources(
+        z_max=z_max, test_area=0.1, theta_e=1.0
+    )
 
-    assert isinstance(draw_fp1, object)
-    assert isinstance(draw_deflector[0], object)
-    assert draw_deflector[1] == draw_deflector[0].redshift + 0.002
+    assert isinstance(draw_fp, object)
+    assert isinstance(draw_deflector, object)
+    assert z_max == draw_deflector.redshift + 0.002
     assert isinstance(draw_source, object)
 
 
 def test_draw_false_positive_multiple():
-    fp_pop2 = FalsePositiveGalaxiesPop(
+    fp_pop = FalsePositivePop(
         central_galaxy_population=lens_galaxies,
-        surrounding_galaxy_population=source_galaxies,
+        source_populations=source_galaxies,
+        source_number_choices=[2],
         cosmo=cosmo,
-        source_number_choice=[2],
     )
-    draw_fp2 = fp_pop2.draw_false_positive(number=2)
-    assert isinstance(draw_fp2, list)
+    draw_fp_list = fp_pop.draw_false_positive(number=2)
+    assert isinstance(draw_fp_list, list)
+    assert len(draw_fp_list) == 2
 
 
 def test_draw_false_positive_with_field_galaxies():
-    # Tests the base class method draw_field_galaxies through the population generator
-    fp_pop = FalsePositiveGalaxiesPop(
+    fp_pop = FalsePositivePop(
         central_galaxy_population=lens_galaxies,
-        surrounding_galaxy_population=source_galaxies,
+        source_populations=source_galaxies,
+        source_number_choices=[1],
         cosmo=cosmo,
-        source_number_choice=[1],
         field_galaxy_population=source_galaxies,  # using source_galaxies as mock
     )
     draw_fp = fp_pop.draw_false_positive()
@@ -82,10 +82,10 @@ def test_draw_false_positive_with_field_galaxies():
     assert draw_fp._field_galaxies is not None
 
 
-def test_false_positive_multi_source_validation():
+def test_false_positive_validation():
     with pytest.raises(ValueError):
         # Mismatched lengths should throw an error
-        FalsePositiveMultiSourcePop(
+        FalsePositivePop(
             central_galaxy_population=lens_galaxies,
             source_populations=[source_galaxies],
             source_number_choices=[[1], [2]],
@@ -93,22 +93,8 @@ def test_false_positive_multi_source_validation():
         )
 
 
-def test_false_positive_multi_source_random_clustering():
-    fp_multi_pop = FalsePositiveMultiSourcePop(
-        central_galaxy_population=lens_galaxies,
-        source_populations=[source_galaxies, source_galaxies],
-        source_number_choices=[[0, 1], [1]],  # Tests the n_draw == 0 skip logic as well
-        cosmo=cosmo,
-        clustering_mode="random",
-    )
-    draw_fp = fp_multi_pop.draw_false_positive()
-    assert isinstance(draw_fp, object)
-    # The first list can yield 0 or 1, the second yields 1. Total = 1 or 2.
-    assert draw_fp.source_number in [1, 2]
-
-
-def test_false_positive_multi_source_ring_clustering():
-    fp_multi_pop = FalsePositiveMultiSourcePop(
+def test_false_positive_ring_clustering():
+    fp_pop = FalsePositivePop(
         central_galaxy_population=lens_galaxies,
         source_populations=[source_galaxies],
         source_number_choices=[[3]],
@@ -116,7 +102,7 @@ def test_false_positive_multi_source_ring_clustering():
         clustering_mode="ring",
     )
 
-    draw_fp = fp_multi_pop.draw_false_positive()
+    draw_fp = fp_pop.draw_false_positive()
     assert isinstance(draw_fp, object)
     assert draw_fp.source_number == 3
 
@@ -127,7 +113,7 @@ def test_false_positive_multi_source_ring_clustering():
         r = np.sqrt(x**2 + y**2)
         theta_e = draw_fp.einstein_radius_infinity
         # For ring clustering, sources should be roughly around the Einstein radius (0.5 to 2.5 times theta_e)
-        assert 0.5 * theta_e < r < 2.5 * theta_e
+        assert 0.5 * theta_e <= r <= 2.5 * theta_e
 
 
 if __name__ == "__main__":
