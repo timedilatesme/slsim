@@ -62,11 +62,15 @@ class FalsePositivePop(FalsePositivePopBase):
     """Class to perform samples of false positive population.
 
     This class generates configurations consisting of a central
-    deflector and one or multiple sources drawn from provided populations
-    (e.g., surrounding galaxies, stars, quasars). It combines the functionality
-    of single-source and multi-source generation with flexible clustering modes.
+    deflector and one or multiple sources drawn from provided
+    populations (e.g., surrounding galaxies, stars, quasars). It
+    combines the functionality of single-source and multi-source
+    generation with flexible clustering modes.
 
-    Note that these sources are not necessarily lensed by the deflector, but are positioned in a way that they could be misidentified as lensed images of the deflector, thus creating a "false positive" lensing configuration.
+    Note that these sources are not necessarily lensed by the deflector,
+    but are positioned in a way that they could be misidentified as
+    lensed images of the deflector, thus creating a "false positive"
+    lensing configuration.
     """
 
     def __init__(
@@ -88,13 +92,13 @@ class FalsePositivePop(FalsePositivePopBase):
         :param source_number_choices: A list of integers (for a single population) or a list of
                lists containing integers (for multiple populations) representing the possible
                number of sources to draw. Defaults to [1, 2, 3].
-        :param weights_for_source_number: Weights corresponding to probabilities for `source_number_choices`. 
+        :param weights_for_source_number: Weights corresponding to probabilities for `source_number_choices`.
         Either a single list of weights (for a single population) or a list of lists of weights (for multiple populations).
         :param cosmo: astropy.cosmology instance
         :param los_pop: LOSPop instance.
         :param test_area_factor: A multiplicative factor for the test_area.
-        :param clustering_mode: 'area' (default) places sources within the calculated test area, 
-                                'ring' for ring-like clustering around the deflector (places sources in a ring within a range of 0.5 to 2.5 times the Einstein radius), 
+        :param clustering_mode: 'area' (default) places sources within the calculated test area,
+                                'ring' for ring-like clustering around the deflector (places sources in a ring within a range of 0.5 to 2.5 times the Einstein radius),
         :param include_central_galaxy_light: Whether to include central galaxy light.
         :param field_galaxy_population: Field galaxy population.
         """
@@ -110,11 +114,17 @@ class FalsePositivePop(FalsePositivePopBase):
         if not isinstance(source_populations, list):
             self._source_populations = [source_populations]
             self._number_choices = [source_number_choices]
-            self._weights = [weights_for_source_number] if weights_for_source_number else [None]
+            self._weights = (
+                [weights_for_source_number] if weights_for_source_number else [None]
+            )
         else:
             self._source_populations = source_populations
             self._number_choices = source_number_choices
-            self._weights = weights_for_source_number if weights_for_source_number else [None] * len(source_populations)
+            self._weights = (
+                weights_for_source_number
+                if weights_for_source_number
+                else [None] * len(source_populations)
+            )
 
         # Basic validation
         if len(self._source_populations) != len(self._number_choices):
@@ -127,21 +137,30 @@ class FalsePositivePop(FalsePositivePopBase):
         self._include_central_galaxy_light = include_central_galaxy_light
 
     def draw_sources(self, z_max, test_area=None, theta_e=None):
-        """Draws sources from all populations based on choices and positions them.
+        """Draws sources from all populations based on choices and positions
+        them.
 
         :param z_max: maximum redshift for drawn source.
-        :param test_area: area to draw source coordinates for 'area' clustering mode.
-        :param theta_e: Einstein radius of the deflector, needed for 'ring'/'random' modes.
+        :param test_area: area to draw source coordinates for 'area'
+            clustering mode.
+        :param theta_e: Einstein radius of the deflector, needed for
+            'ring'/'random' modes.
         :return: A Source instance or a list of Source instances.
         """
         all_sources = []
 
         # Iterate over each population and its corresponding number choices
-        for pop, choices, weights in zip(self._source_populations, self._number_choices, self._weights):
+        for pop, choices, weights in zip(
+            self._source_populations, self._number_choices, self._weights
+        ):
             if isinstance(choices, int):
                 n_draw = choices
             else:
-                n_draw = random.choices(choices, weights=weights)[0] if weights else random.choice(choices)
+                n_draw = (
+                    random.choices(choices, weights=weights)[0]
+                    if weights
+                    else random.choice(choices)
+                )
 
             for _ in range(n_draw):
                 source = pop.draw_source()
@@ -157,7 +176,9 @@ class FalsePositivePop(FalsePositivePopBase):
         for i, source in enumerate(all_sources):
             if self._clustering_mode == "ring":
                 r = random.uniform(0.5 * theta_e, 2.5 * theta_e)
-                phi = (2 * np.pi * i / total_sources) + random.uniform(-0.3, 0.3) # Adding some randomness to the angular position
+                phi = (2 * np.pi * i / total_sources) + random.uniform(
+                    -0.3, 0.3
+                )  # Adding some randomness to the angular position
                 source.update_center(center_x=r * np.cos(phi), center_y=r * np.sin(phi))
             else:
                 # Default "area" positioning architecture
@@ -169,8 +190,10 @@ class FalsePositivePop(FalsePositivePopBase):
     def draw_false_positive(self, number=1):
         """Draw given number of false positive systems.
 
-        :param number: number of false positive requested. The default value is 1.
-        :return: list of FalsePositive() instance (or single instance if number=1).
+        :param number: number of false positive requested. The default
+            value is 1.
+        :return: list of FalsePositive() instance (or single instance if
+            number=1).
         """
         false_positive_population = []
 
@@ -187,7 +210,9 @@ class FalsePositivePop(FalsePositivePopBase):
                 )
 
                 # Step 3: Draw and position sources
-                sources = self.draw_sources(z_max=z_max, test_area=test_area, theta_e=theta_e_infinity)
+                sources = self.draw_sources(
+                    z_max=z_max, test_area=test_area, theta_e=theta_e_infinity
+                )
                 if sources is None:
                     continue  # Retry if sources are invalid
 

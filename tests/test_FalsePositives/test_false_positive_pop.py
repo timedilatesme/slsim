@@ -46,10 +46,8 @@ def test_draw_false_positive_single():
     )
     draw_fp = fp_pop.draw_false_positive()
     draw_deflector, z_max = fp_pop.draw_deflector()
-    
-    draw_source = fp_pop.draw_sources(
-        z_max=z_max, test_area=0.1, theta_e=1.0
-    )
+
+    draw_source = fp_pop.draw_sources(z_max=z_max, test_area=0.1, theta_e=1.0)
 
     assert isinstance(draw_fp, object)
     assert isinstance(draw_deflector, object)
