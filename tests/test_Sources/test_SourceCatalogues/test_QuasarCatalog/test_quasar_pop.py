@@ -461,8 +461,6 @@ class TestQuasarSEDIntegration:
         # Verify that the redshifts were generated as expected
         mock_gen_z.assert_called_once()
 
-        print("table = ", table)
-
         # Verify the code completed and generated the table despite the extreme extrapolation
         assert len(table) > 0
         assert "ps_mag_g" in table.colnames
