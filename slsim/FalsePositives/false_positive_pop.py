@@ -91,7 +91,7 @@ class FalsePositivePop(FalsePositivePopBase):
         :param source_populations: A single source population or a list of source populations.
         :param source_number_choices: A list of integers (for a single population) or a list of
                lists containing integers (for multiple populations) representing the possible
-               number of sources to draw. Defaults to [1, 2, 3].
+               number of sources to draw. Defaults to [1, 2, 3]. Can also provide a single integer for a fixed number of sources.
         :param weights_for_source_number: Weights corresponding to probabilities for `source_number_choices`.
         Either a single list of weights (for a single population) or a list of lists of weights (for multiple populations).
         :param cosmo: astropy.cosmology instance
@@ -136,7 +136,7 @@ class FalsePositivePop(FalsePositivePopBase):
         self._test_area_factor = test_area_factor
         self._include_central_galaxy_light = include_central_galaxy_light
 
-    def draw_sources(self, z_max, test_area=None, theta_e=None):
+    def draw_sources(self, z_max=None, test_area=None, theta_e=None):
         """Draws sources from all populations based on choices and positions
         them.
 
@@ -163,7 +163,7 @@ class FalsePositivePop(FalsePositivePopBase):
                 )
 
             for _ in range(n_draw):
-                source = pop.draw_source()
+                source = pop.draw_source(z_max=z_max)
                 if source is None:
                     return None
                 all_sources.append(source)
