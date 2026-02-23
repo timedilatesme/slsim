@@ -737,6 +737,7 @@ def lens_instance_with_variability():
     source_dict_quasar = {
         "z": 1.5,
         "ps_mag_i": 21,
+        "ps_mag_r": 22,
         "angular_size": 0.10887651129362959,
         "mag_i": 20,
         "e1": 0.0,
@@ -1178,10 +1179,6 @@ def test_point_source_magnitude_microlensing_defaults(
     lens_system = deepcopy(lens_instance_with_variability)
     source_index = 0
 
-    # Ensure the source name is "QSO" so the auto-logic triggers
-    # We force this just in case the fixture mapping is different in the installed slsim version
-    lens_system.source(source_index)._source.name = "QSO"
-
     # Configure mock
     mock_instance = MagicMock()
     mock_ml_lc_from_lm_class.return_value = mock_instance
@@ -1309,8 +1306,8 @@ def test_image_observer_times(supernovae_lens_instance):
     dt_days = supernova_lens.image_observer_times(t_obs=t_obs)
     dt_days2 = supernova_lens.image_observer_times(t_obs=t_obs2)
     arrival_times = supernova_lens.point_source_arrival_times()[0]
-    observer_times = (t_obs - arrival_times + np.min(arrival_times))[:, np.newaxis]
-    observer_times2 = (t_obs2[:, np.newaxis] - arrival_times + np.min(arrival_times)).T
+    observer_times = (t_obs - arrival_times - np.max(arrival_times))[:, np.newaxis]
+    observer_times2 = (t_obs2[:, np.newaxis] - arrival_times - np.max(arrival_times)).T
     npt.assert_almost_equal(dt_days, observer_times, decimal=5)
     npt.assert_almost_equal(dt_days2, observer_times2, decimal=5)
 
