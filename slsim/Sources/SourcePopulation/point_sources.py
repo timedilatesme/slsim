@@ -82,11 +82,14 @@ class PointSources(SourcePopBase):
     def draw_source(self, z_max=None, z_min=None, point_source_index=None):
         """Choose source at random within the selected redshift range.
 
-        :param z_max: maximum redshift limit for the point source to be drawn.
-            If no point source is found for this limit, None will be returned.
-        :param z_min: minimum redshift limit for the point source to be drawn.
-            If no point source is found for this limit, None will be returned.
-        :param point_source_index: index of point source to pick (if provided)
+        :param z_max: maximum redshift limit for the point source to be
+            drawn. If no point source is found for this limit, None will
+            be returned.
+        :param z_min: minimum redshift limit for the point source to be
+            drawn. If no point source is found for this limit, None will
+            be returned.
+        :param point_source_index: index of point source to pick (if
+            provided)
         :return: instance of Source class
         """
         if point_source_index is not None:
@@ -97,12 +100,13 @@ class PointSources(SourcePopBase):
                 z_max = 1100
             if z_min is None:
                 z_min = 0
-            
+
             # Filter the selected catalog by redshift bounds
             filtered_sources = self._point_source_select[
-                (self._point_source_select["z"] < z_max) & (z_min < self._point_source_select["z"])
+                (self._point_source_select["z"] < z_max)
+                & (z_min < self._point_source_select["z"])
             ]
-            
+
             if len(filtered_sources) == 0:
                 return None
             else:
