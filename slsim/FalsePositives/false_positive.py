@@ -30,11 +30,11 @@ class FalsePositive(Lens):
         :type los_class: ~LOSIndividual() class object
         :param include_deflector_light: whether to include the deflector light in the final lenstronomy kwargs output.  Default is True.
         :type include_deflector_light: bool
-        :param field_galaxies: List of field galaxy instances to include in the lensing configuration. 
-            These contribute to the lens plane light but are not treated as mass deflectors. 
-            Instances should be generated via :meth:`slsim.Lenses.lens_pop.draw_field_galaxies` 
-            using a `slsim.Sources.SourcePopulation.Galaxies` population, based on the 
-            image area and redshift range to maintain a consistent number density. 
+        :param field_galaxies: List of field galaxy instances to include in the lensing configuration.
+            These contribute to the lens plane light but are not treated as mass deflectors.
+            Instances should be generated via :meth:`slsim.Lenses.lens_pop.draw_field_galaxies`
+            using a `slsim.Sources.SourcePopulation.Galaxies` population, based on the
+            image area and redshift range to maintain a consistent number density.
             If None, no field galaxies are included.
         :type field_galaxies: list[`slsim.Sources.source.Source`] or None
         """
