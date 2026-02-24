@@ -72,9 +72,13 @@ class Lens(LensedSystemBase):
         :type shear: bool
         :param convergence: whether to include external convergence in multi-plane lensing
         :type convergence: bool
-        :param field_galaxies: list of field galaxy instances to include in the lensing configuration, if any.
-        If provided, these galaxies will be included as additional light in the lens plane, and will not be explicitly included as deflectors in the lensing calculation.
-        :type field_galaxies: list of sources from slsim.Sources.SourcePopulation.galaxies class or None
+        :param field_galaxies: List of field galaxy instances to include in the lensing configuration. 
+            These contribute to the lens plane light but are not treated as mass deflectors. 
+            Instances should be generated via :meth:`slsim.Lenses.lens_pop.draw_field_galaxies` 
+            using a `slsim.Sources.SourcePopulation.Galaxies` population, based on the 
+            image area and redshift range to maintain a consistent number density. 
+            If None, no field galaxies are included.
+        :type field_galaxies: list[`slsim.Sources.source.Source`] or None
 
         """
         LensedSystemBase.__init__(

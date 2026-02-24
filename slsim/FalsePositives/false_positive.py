@@ -25,13 +25,18 @@ class FalsePositive(Lens):
         :param deflector_class: deflector instance
         :type deflector_class: Deflector class instance from slsim.Deflectors.deflector
         :param cosmo: astropy.cosmology instance
+        :type cosmo: astropy.cosmology instance
         :param los_class: line of sight dictionary (optional, takes these values instead of drawing from distribution)
         :type los_class: ~LOSIndividual() class object
         :param include_deflector_light: whether to include the deflector light in the final lenstronomy kwargs output.  Default is True.
         :type include_deflector_light: bool
-        :param field_galaxies: list of field galaxy instances to include in the lensing configuration, if any.
-        If provided, these galaxies will be included as additional light in the lens plane, and will not be explicitly included as deflectors in the lensing calculation.
-        :type field_galaxies: list of sources from slsim.Sources.SourcePopulation.galaxies class or None
+        :param field_galaxies: List of field galaxy instances to include in the lensing configuration. 
+            These contribute to the lens plane light but are not treated as mass deflectors. 
+            Instances should be generated via :meth:`slsim.Lenses.lens_pop.draw_field_galaxies` 
+            using a `slsim.Sources.SourcePopulation.Galaxies` population, based on the 
+            image area and redshift range to maintain a consistent number density. 
+            If None, no field galaxies are included.
+        :type field_galaxies: list[`slsim.Sources.source.Source`] or None
         """
         Lens.__init__(
             self,
