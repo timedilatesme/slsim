@@ -92,32 +92,40 @@ def test_false_positive(fp_test_setup):
     }
     assert false_positive_instance_1.source_number == 1
     assert false_positive_instance_2.source_number == 3
-    
+
     kw_model_1, _ = false_positive_instance_1.lenstronomy_kwargs("i")
     kw_model_2, _ = false_positive_instance_2.lenstronomy_kwargs("i")
-    
+
     assert kw_model_1["lens_light_model_list"][0] == "SERSIC_ELLIPSE"
     assert np.all(kw_model_1["lens_model_list"] == ["SIE", "SHEAR", "CONVERGENCE"])
-    
-    assert len(kw_model_2["lens_light_model_list"]) == 5  # 1 deflector + 2 extended sources + (2 extended sources from host double sersic) = 5 total lens light models
+
+    assert (
+        len(kw_model_2["lens_light_model_list"]) == 5
+    )  # 1 deflector + 2 extended sources + (2 extended sources from host double sersic) = 5 total lens light models
 
     assert false_positive_instance_1.source(0).extended_source.lensed is False
 
     # instance 2 has extended sources at index 0 and 1
     assert false_positive_instance_2.source(0).extended_source.lensed is False
     assert false_positive_instance_2.source(1).extended_source.lensed is False
-    
+
     # instance 2 has a Point+Extended source (Quasar+double-sersic host) at index 2
     assert false_positive_instance_2.source(2).extended_source is not None
     assert false_positive_instance_2.source(2).point_source is not None
     assert false_positive_instance_2.source(2).extended_source.lensed is False
     assert false_positive_instance_2.source(2).point_source.lensed is False
-    
+
     assert len(false_positive_instance_2.deflector_position) == 2
     assert false_positive_instance_2.deflector_redshift[0] == single_deflector.redshift
     assert false_positive_instance_1.source_redshift_list[0] == single_source1.redshift
     assert np.all(false_positive_instance_2.source_redshift_list) == np.all(
-        np.array([single_source1.redshift, single_source2.redshift, single_source_quasar.redshift])
+        np.array(
+            [
+                single_source1.redshift,
+                single_source2.redshift,
+                single_source_quasar.redshift,
+            ]
+        )
     )
     assert false_positive_instance_1.external_convergence < 0.1
     assert false_positive_instance_1.external_shear < 0.2
