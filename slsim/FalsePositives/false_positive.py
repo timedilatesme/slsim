@@ -88,6 +88,11 @@ class FalsePositive(Lens):
             kwargs_lens_light,
         ) = self.deflector.light_model_lenstronomy(band=band)
 
+        # turn off lensing
+        for i in range(self.source_number):
+            self.source(i).point_source.lensed = False
+            self.source(i).extended_source.lensed = False
+
         sources, sources_kwargs = self.source_light_model_lenstronomy(band=band)
         combined_lens_light_model_list = sources["source_light_model_list"]
         combined_kwargs_lens_light = sources_kwargs["kwargs_source"]
