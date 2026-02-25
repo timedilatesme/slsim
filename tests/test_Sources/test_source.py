@@ -193,6 +193,16 @@ class TestSource:
                 extendedsource_type="single_sersic",
             )
 
+    def test_point_source_property(self):
+        assert self.source.point_source is None
+        assert self.source_point.point_source == self.source_point._source
+        assert self.source_point_extended.point_source == self.source_point_extended._source._point_source
+
+    def test_extended_source_property(self):
+        assert self.source_point.extended_source is None
+        assert self.source.extended_source == self.source._source
+        assert self.source_point_extended.extended_source == self.source_point_extended._source._extended_source
+
 
 if __name__ == "__main__":
     pytest.main()
