@@ -169,6 +169,28 @@ class Source(object):
 
         return self._source.point_source_position
 
+    @property
+    def point_source(self):
+        """Returns the point source object if it exists, otherwise returns
+        None."""
+        if self.source_type in ["point_plus_extended"]:
+            return self._source._point_source
+        elif self.source_type in ["point_source"]:
+            return self._source
+        else:
+            return None
+
+    @property
+    def extended_source(self):
+        """Returns the extended source object if it exists, otherwise returns
+        None."""
+        if self.source_type in ["point_plus_extended"]:
+            return self._source._extended_source
+        elif self.source_type in ["extended"]:
+            return self._source
+        else:
+            return None
+
     def extended_source_magnitude(self, band):
         """Get the magnitude of the extended source in a specific band.
 

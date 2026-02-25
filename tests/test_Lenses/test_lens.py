@@ -617,6 +617,61 @@ class TestLens(object):
         # check that the lens model list is the same as the one returned by subhalos_only_lens_model
         assert subhalos_only_model.lens_model_list == subhalo_lens_model_list
 
+    def test_field_galaxies_integration(self):
+        """Test the integration of field galaxies into the lens light
+        models."""
+
+        # Use the existing self.source as a dummy field galaxy
+        dummy_field_galaxy = self.source
+
+        # Instantiate a Lens object WITH field_galaxies
+        lens_with_fg = Lens(
+            source_class=self.source,
+            deflector_class=self.deflector,
+            los_class=self.los_individual,
+            lens_equation_solver="lenstronomy_analytical",
+            cosmo=FlatLambdaCDM(H0=70, Om0=0.3),
+            use_jax=use_jax,
+            field_galaxies=[dummy_field_galaxy],
+        )
+
+        # Test A: Ensure field_galaxy_light_model_lenstronomy returns populated lists
+        fg_model_list, fg_kwargs_list = (
+            lens_with_fg.field_galaxy_light_model_lenstronomy(band="i")
+        )
+        assert (
+            len(fg_model_list) > 0
+        ), "Expected non-empty model list for field galaxies."
+        assert (
+            len(fg_kwargs_list) > 0
+        ), "Expected non-empty kwargs list for field galaxies."
+        assert len(fg_model_list) == len(fg_kwargs_list)
+
+        # Test B: Ensure lenstronomy_kwargs appends the field galaxy models to the lens light models
+        kwargs_model_fg, kwargs_params_fg = lens_with_fg.lenstronomy_kwargs(band="i")
+        kwargs_model_no_fg, kwargs_params_no_fg = self.gg_lens.lenstronomy_kwargs(
+            band="i"
+        )
+
+        # The lens with field galaxies should have more light models than the one without
+        assert len(kwargs_model_fg["lens_light_model_list"]) > len(
+            kwargs_model_no_fg["lens_light_model_list"]
+        )
+        assert len(kwargs_params_fg["kwargs_lens_light"]) > len(
+            kwargs_params_no_fg["kwargs_lens_light"]
+        )
+
+        # Test C: Ensure field_galaxy_light_model_lenstronomy correctly handles None (fallback)
+        empty_model_list, empty_kwargs_list = (
+            self.gg_lens.field_galaxy_light_model_lenstronomy(band="i")
+        )
+        assert (
+            empty_model_list == []
+        ), "Expected empty list when field_galaxies is None."
+        assert (
+            empty_kwargs_list == []
+        ), "Expected empty list when field_galaxies is None."
+
 
 @pytest.fixture
 def pes_lens_instance():
