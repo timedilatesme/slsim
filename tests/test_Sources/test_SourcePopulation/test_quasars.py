@@ -57,6 +57,16 @@ def test_draw_source_with_redshift_limits(Quasar_class):
     quasar_none = Quasar_class.draw_source(z_min=10.0, z_max=12.0)
     assert quasar_none is None
 
+    # Test with only z_min provided
+    quasar_zmin_only = Quasar_class.draw_source(z_min=1.0)
+    assert quasar_zmin_only is not None
+    assert quasar_zmin_only.redshift > 1.0
+
+    # Test with only z_max provided
+    quasar_zmax_only = Quasar_class.draw_source(z_max=3.0)
+    assert quasar_zmax_only is not None
+    assert 0 <= quasar_zmax_only.redshift < 3.0
+
 
 def test_draw_source_with_index(Quasar_class):
     # Test fetching a specific source by its index
