@@ -76,9 +76,9 @@ class FalsePositivePop(FalsePositivePopBase):
     def __init__(
         self,
         central_galaxy_population,
-        source_populations,
-        source_number_choices=[1, 2, 3],
-        weights_for_source_number=None,
+        intruder_populations,
+        intruder_number_choices=[1, 2, 3],
+        weights_for_intruder_number=None,
         cosmo=None,
         los_pop=None,
         test_area_factor=1,
@@ -88,11 +88,13 @@ class FalsePositivePop(FalsePositivePopBase):
     ):
         """
         :param central_galaxy_population: Deflector population as a deflectors class instance.
-        :param source_populations: A single source population or a list of source populations.
-        :param source_number_choices: A list of integers (for a single population) or a list of
+        :param intruder_populations: A single intruder population or a list of intruder populations. These can be instances of SourcePopulation or any class that has a `draw_source` method which returns a Source instance.
+         Each population represents a different type of "intruder" source (e.g., galaxies, stars, quasars) that can be drawn and positioned around the central deflector to create false positive configurations.
+         If a single population is provided, it will be used for all intruder draws.
+        :param intruder_number_choices: A list of integers (for a single population) or a list of
                lists containing integers (for multiple populations) representing the possible
-               number of sources to draw. Defaults to [1, 2, 3]. Can also provide a single integer for a fixed number of sources.
-        :param weights_for_source_number: Weights corresponding to probabilities for `source_number_choices`.
+               number of intruders to draw. Defaults to [1, 2, 3]. Can also provide a single integer for a fixed number of intruders.
+        :param weights_for_intruder_number: Weights corresponding to probabilities for `intruder_number_choices`.
         Either a single list of weights (for a single population) or a list of lists of weights (for multiple populations).
         :param cosmo: astropy.cosmology instance
         :param los_pop: LOSPop instance.
@@ -111,25 +113,25 @@ class FalsePositivePop(FalsePositivePopBase):
         )
 
         # Normalize populations and choices into lists for uniform handling
-        if not isinstance(source_populations, list):
-            self._source_populations = [source_populations]
-            self._number_choices = [source_number_choices]
+        if not isinstance(intruder_populations, list):
+            self._intruder_populations = [intruder_populations]
+            self._number_choices = [intruder_number_choices]
             self._weights = (
-                [weights_for_source_number] if weights_for_source_number else [None]
+                [weights_for_intruder_number] if weights_for_intruder_number else [None]
             )
         else:
-            self._source_populations = source_populations
-            self._number_choices = source_number_choices
+            self._intruder_populations = intruder_populations
+            self._number_choices = intruder_number_choices
             self._weights = (
-                weights_for_source_number
-                if weights_for_source_number
-                else [None] * len(source_populations)
+                weights_for_intruder_number
+                if weights_for_intruder_number
+                else [None] * len(intruder_populations)
             )
 
         # Basic validation
-        if len(self._source_populations) != len(self._number_choices):
+        if len(self._intruder_populations) != len(self._number_choices):
             raise ValueError(
-                "The length of 'source_populations' must match the length of 'source_number_choices'."
+                "The length of 'intruder_populations' must match the length of 'intruder_number_choices'."
             )
 
         self._clustering_mode = clustering_mode
@@ -151,7 +153,7 @@ class FalsePositivePop(FalsePositivePopBase):
 
         # Iterate over each population and its corresponding number choices
         for pop, choices, weights in zip(
-            self._source_populations, self._number_choices, self._weights
+            self._intruder_populations, self._number_choices, self._weights
         ):
             if isinstance(choices, int):
                 n_draw = choices

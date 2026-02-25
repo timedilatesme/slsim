@@ -54,8 +54,8 @@ def test_false_positive_core_and_area():
     methods."""
     fp_pop = FalsePositivePop(
         central_galaxy_population=lens_galaxies,
-        source_populations=source_galaxies,
-        source_number_choices=[1],
+        intruder_populations=source_galaxies,
+        intruder_number_choices=[1],
         cosmo=cosmo,
         field_galaxy_population=source_galaxies,
     )
@@ -79,9 +79,9 @@ def test_false_positive_multiple_and_ring():
     ring clustering."""
     fp_pop = FalsePositivePop(
         central_galaxy_population=lens_galaxies,
-        source_populations=[source_galaxies],
-        source_number_choices=[[2, 3]],
-        weights_for_source_number=[[1.0, 0.0]],  # Guarantee a pick of 2
+        intruder_populations=[source_galaxies],
+        intruder_number_choices=[[2, 3]],
+        weights_for_intruder_number=[[1.0, 0.0]],  # Guarantee a pick of 2
         cosmo=cosmo,
         clustering_mode="ring",
     )
@@ -109,15 +109,15 @@ def test_false_positive_edge_cases():
     with pytest.raises(ValueError):
         FalsePositivePop(
             central_galaxy_population=lens_galaxies,
-            source_populations=[source_galaxies],
-            source_number_choices=[[1], [2]],
+            intruder_populations=[source_galaxies],
+            intruder_number_choices=[[1], [2]],
         )
 
     # 2. List of populations but no weights branch
     fp_no_weights = FalsePositivePop(
         central_galaxy_population=lens_galaxies,
-        source_populations=[source_galaxies, source_quasars_high_z],
-        source_number_choices=[[1], [1]],
+        intruder_populations=[source_galaxies, source_quasars_high_z],
+        intruder_number_choices=[[1], [1]],
         cosmo=cosmo,
     )
     draw_fp_no_weights = fp_no_weights.draw_false_positive(number=1)
@@ -127,9 +127,9 @@ def test_false_positive_edge_cases():
     # 3. Integer choice, weights provided for single pop, and 'not all_sources' empty branch
     fp_pop_int = FalsePositivePop(
         central_galaxy_population=lens_galaxies,
-        source_populations=source_galaxies,
-        source_number_choices=0,  # Forces n_draw = 0
-        weights_for_source_number=[1.0],
+        intruder_populations=source_galaxies,
+        intruder_number_choices=0,  # Forces n_draw = 0
+        weights_for_intruder_number=[1.0],
         cosmo=cosmo,
     )
     assert fp_pop_int.draw_sources(z_max=5.0, test_area=0.1) is None
@@ -137,8 +137,8 @@ def test_false_positive_edge_cases():
     # 4. High-z retry loop branch (triggers 'source is None')
     fp_pop_high_z = FalsePositivePop(
         central_galaxy_population=lens_galaxies,
-        source_populations=source_quasars_high_z,
-        source_number_choices=[1],
+        intruder_populations=source_quasars_high_z,
+        intruder_number_choices=[1],
         cosmo=cosmo,
     )
     draw_fp_high_z = fp_pop_high_z.draw_false_positive()
