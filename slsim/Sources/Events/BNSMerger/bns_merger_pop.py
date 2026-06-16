@@ -94,7 +94,12 @@ class BNSMergerRate(object):
         unorm_BNS_rate_list = []
 
         for i in z:
-            t_z = self._cosmo.age(i).to_value()  # Time at given redshift z
+            t_z = self._cosmo.age(i).to_value() # Time at given redshift z
+            upper_limit = t_z - self._t_min
+
+            if upper_limit <= self._t_d_min:
+                unorm_BNS_rate_list.append(0.0)
+                continue
 
             numerator = integrate.quad(
                 self._numerator_integrand,

@@ -9,13 +9,13 @@ class EventLightcone(object):
         """
         :param cosmo: cosmology object
         :type cosmo: ~astropy.cosmology object
-        :param redshifts: redshifts for BNS merger density lightcone to be evaluated at
+        :param redshifts: redshifts for event density lightcone to be evaluated at
         :type redshifts: array-like
         :param sky_area: sky area for sampled event in [solid angle]
         :type sky_area: `~Astropy.units.Quantity`
-        :param noise: poisson-sample the number of event in supernovae density lightcone
+        :param noise: poisson-sample the number of event in the event density lightcone
         :type noise: bool
-        :param time_interval: time interval for supernovae density lightcone to be evaluated over
+        :param time_interval: time interval for event density lightcone to be evaluated over
         :type time_interval: `~Astropy.units.Quantity`
         :param model : name of model, chosen form "BNS" or "SNIa"
         :type model: string value
@@ -25,24 +25,26 @@ class EventLightcone(object):
         self._sky_area = sky_area
         self._noise = noise
         self._time_interval = time_interval
-        self._model = model
+        self._model = model 
 
         event_pop = EventPopulation(self._model, self._cosmo, self._input_redshifts[-1])
 
         # Convert source-frame event rate to observer-frame event rate
         rate_source_frame = event_pop.event_rate(self._input_redshifts)
         rate_observer_frame = rate_source_frame / (1 + self._input_redshifts)
-
+        
         self.density = self.convert_density(rate_observer_frame)
 
     def convert_density(self, density):
         """Converts event comoving densities from [yr^(-1)Mpc^(-3)] to have the
         desired time unit.
 
-        :param density: initial comoving density of event, such as BNS
-            merger or SNIa [yr^(-1)Mpc^(-3)]
-        :return: BNS merger comoving density with the desired time unit
+        :param density: initial comoving density of event, such as BNS merger or SNIa 
+            in unit [yr^(-1)Mpc^(-3)]
+
+        :return: event comoving density with the desired time unit
             [day^(-1)Mpc^(-3), hr^(-1)Mpc^(-3), etc.]
+        :return type: array-like
         """
         time_conversion = (1 * units.year).to(self._time_interval.unit)
         converted_density = density / time_conversion * self._time_interval.value

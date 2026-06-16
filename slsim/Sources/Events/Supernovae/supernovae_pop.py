@@ -88,12 +88,19 @@ class SNIaRate(object):
         C_Ia = 0.032
         denominator = self._denominator
         SNIa_rate_list = []
+        
 
         for i in z:
             t_z = self._cosmo.age(i).to_value()  # Time at given redshift z
+            t_d_min = 0.1
+            upper_limit = t_z - self._t_min
+
+            if upper_limit <= t_d_min:
+                SNIa_rate_list.append(0.0)
+                continue
 
             numerator = integrate.quad(
-                self._numerator_integrand, 0.1, t_z - self._t_min, args=(t_z,)
+                self._numerator_integrand, t_d_min, upper_limit, args=(t_z,)
             )
             SNIa_rate = eta * C_Ia * (numerator[0] / denominator[0])
             SNIa_rate_list.append(SNIa_rate)
