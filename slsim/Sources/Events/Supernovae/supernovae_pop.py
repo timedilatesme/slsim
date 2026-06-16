@@ -87,7 +87,7 @@ class SNIaRate(object):
         """
         C_Ia = 0.032
         denominator = self._denominator
-        SNIa_rate_list = []        
+        SNIa_rate_list = []
 
         for i in z:
             t_z = self._cosmo.age(i).to_value()  # Time at given redshift z
