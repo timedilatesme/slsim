@@ -242,7 +242,10 @@ def test_euclid_rgb_from_image_list_errors():
 
     with pytest.raises(ValueError, match="luminance_method"):
         euclid_rgb.euclid_rgb_from_image_list(
-            [vis, y, j], colour="VIS_Y_J", luminance_method="bad"
+            [vis, y, j],
+            colour="VIS_Y_J",
+            use_luminance=True,
+            luminance_method="bad",
         )
 
     with pytest.raises(ValueError, match="vis_red_fraction"):
