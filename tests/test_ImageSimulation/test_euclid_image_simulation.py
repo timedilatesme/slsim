@@ -90,6 +90,7 @@ def test_lens_image_euclid():
 
     assert np.shape(euclid_vis_lens_image)[0] == 61
 
+
 def test_euclid_nisp_num_pix_from_vis():
     assert euclid_rgb.euclid_nisp_num_pix_from_vis(61) == 21
 
