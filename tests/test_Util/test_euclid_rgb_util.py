@@ -3,6 +3,7 @@ from slsim.Util import euclid_rgb_util as euclid_rgb
 from slsim.Util.param_util import gaussian_psf
 import pytest
 
+
 def test_euclid_nisp_num_pix_from_vis():
     assert euclid_rgb.euclid_nisp_num_pix_from_vis(61) == 21
 
@@ -290,9 +291,7 @@ def test_compute_band_limit_errors():
         euclid_rgb.compute_uniform_scale_from_images([np.ones((2, 2))])
 
     with pytest.raises(ValueError, match="at most"):
-        euclid_rgb.compute_euclid_band_limits_from_image_lists(
-            [[np.ones((2, 2))]] * 5
-        )
+        euclid_rgb.compute_euclid_band_limits_from_image_lists([[np.ones((2, 2))]] * 5)
 
     with pytest.raises(ValueError, match="VIS, Y, J, and H"):
         euclid_rgb.compute_euclid_band_limits_from_image_lists(

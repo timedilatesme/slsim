@@ -12,7 +12,7 @@ Engine paper.
     We offer a variety of options for procedures not mentioned in the paper,
     or for methods used in the paper that are not applicable to the simulated data.
 
-Due to the features of simulation images, we also provide other, more conventional and general image 
+Due to the features of simulation images, we also provide other, more conventional and general image
 synthesis methods in addition to those described in the paper.
 
 The expected input order is ``[VIS, Y, J]`` or ``[VIS, Y, J, H]``. VIS is
@@ -761,9 +761,9 @@ def _auto_mtf_midtone(reference_channel, target_mean=0.2, region_size=100):
 
     The Euclid Q1 paper sets the MTF parameter automatically so that the
     central 100 x 100 pixels have a mean of 0.2 after stretching. This
-    helper implements the same idea with a bisection search.
-        See https://arxiv.org/pdf/2503.15324
-        for specific details on the Euclid Q1 image processing steps.
+    helper implements the same idea with a bisection search.     See
+    https://arxiv.org/pdf/2503.15324
+     for specific details on the Euclid Q1 image processing steps.
 
     :param reference_channel: normalised reference image, typically VIS.
     :type reference_channel: numpy.ndarray
@@ -863,7 +863,7 @@ def _apply_luminance(rgb, luminance, method="mean", eps=1e-8):
     """Replace RGB luminance with a target luminance image.
 
     For the coefficients used to compute the rec709 luminance are stem from
-    the ITU-R BT.709 video standard: 
+    the ITU-R BT.709 video standard:
         https://en.wikipedia.org/wiki/Rec._709
 
     :param rgb: input RGB image with shape ``(ny, nx, 3)``.
