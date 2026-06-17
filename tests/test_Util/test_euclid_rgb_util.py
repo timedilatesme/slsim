@@ -1,6 +1,5 @@
 import numpy as np
 from slsim.Util import euclid_rgb_util as euclid_rgb
-from slsim.Util.param_util import gaussian_psf
 import pytest
 
 
