@@ -5,13 +5,14 @@ import numpy as np
 
 
 class EventLightcone(object):
-    """Class to integrate observer-frame event rate density per comoving volume in a lightcone."""
+    """Class to integrate observer-frame event rate density per comoving volume
+    in a lightcone."""
 
     def __init__(self, cosmo, redshifts, sky_area, noise, time_interval, model):
         """
         :param cosmo: cosmology object
         :type cosmo: ~astropy.cosmology object
-        :param redshifts: redshifts for event density lightcone to be evaluated at. 
+        :param redshifts: redshifts for event density lightcone to be evaluated at.
             Must be sorted in ascending order.
         :type redshifts: array-like
         :param sky_area: sky area for sampled event in [solid angle]
@@ -35,24 +36,21 @@ class EventLightcone(object):
             raise ValueError("redshifts must be sorted in strictly increasing order.")
 
         event_pop = EventPopulation(
-            model=self._model, 
-            cosmo=self._cosmo, 
-            z_max=self._input_redshifts[-1]
+            model=self._model, cosmo=self._cosmo, z_max=self._input_redshifts[-1]
         )
 
         # Convert source-frame event rate to observer-frame event rate
         rate_source_frame = event_pop.event_rate(self._input_redshifts)
         rate_observer_frame = rate_source_frame / (1 + self._input_redshifts)
-        
+
         self._density = self.convert_density(rate_observer_frame)
 
     def convert_density(self, density):
-        """Converts event rate densities from [yr^(-1)Mpc^(-3)] to event density 
-        over the time interval.
+        """Converts event rate densities from [yr^(-1)Mpc^(-3)] to event
+        density over the time interval.
 
-        :param density: initial event rate density, such as BNS merger or SNIa, 
-            in unit [yr^(-1)Mpc^(-3)]
-
+        :param density: initial event rate density, such as BNS merger
+            or SNIa, in unit [yr^(-1)Mpc^(-3)]
         :return: event rate density in [Mpc^(-3)].
         :return type: array-like
         """
@@ -64,8 +62,8 @@ class EventLightcone(object):
     def event_sample(self):
         """Integrates event comoving density in light cone.
 
-        The input rate density is given in [yr^(-1) Mpc^(-3)] and integrated
-        over the input time interval in observer-frame years.
+        The input rate density is given in [yr^(-1) Mpc^(-3)] and
+        integrated over the input time interval in observer-frame years.
 
         :return: sampled event redshifts. Redshift is dimensionless.
         :return type: numpy.ndarray

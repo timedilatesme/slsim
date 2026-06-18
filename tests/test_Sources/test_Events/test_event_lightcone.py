@@ -126,7 +126,6 @@ class TestEventLightcone(object):
             (self.sne_lightcone, self.sne_pop),
         ]
 
-
         for lightcone, event_pop in lightcones:
             # Observed event redshift locations using event_sample()
             sample_output = lightcone.event_sample()
