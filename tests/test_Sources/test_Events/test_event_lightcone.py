@@ -42,7 +42,7 @@ class TestEventLightcone(object):
     def test_redshift_order(self):
         redshift_inverse = np.linspace(5, 0, 20)
         model = ["BNS", "SNIa"]
-        
+
         for name in model:
             with pytest.raises(ValueError) as error:
                 EventLightcone(
@@ -54,7 +54,10 @@ class TestEventLightcone(object):
                     model="BNS",
                 )
 
-            assert str(error.value) == "redshifts must be sorted in strictly increasing order."
+            assert (
+                str(error.value)
+                == "redshifts must be sorted in strictly increasing order."
+            )
 
     def test_convert_density(self):
         npt.assert_(isinstance(self.time_interval, units.Quantity))
