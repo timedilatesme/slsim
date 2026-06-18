@@ -5,8 +5,7 @@ import numpy as np
 
 
 class EventLightcone(object):
-    """Class to integrate observer-frame event rate density per comoving volume
-    in a lightcone."""
+    """Class to sample observer-frame events within a sky area as a function of redshift."""
 
     def __init__(self, cosmo, redshifts, sky_area, noise, time_interval, model):
         """
@@ -60,12 +59,14 @@ class EventLightcone(object):
         return converted_density
 
     def event_sample(self):
-        """Integrates event comoving density in light cone.
+        """Samples event redshifts in the light cone.
 
-        The input rate density is given in [yr^(-1) Mpc^(-3)] and
-        integrated over the input time interval in observer-frame years.
+        The sampled events correspond to the input sky area and input
+        observer-frame time interval.
 
-        :return: sampled event redshifts. Redshift is dimensionless.
+        :return: sampled event redshifts. The length of the array is the
+            number of sampled events over the input time interval. Redshift is
+            dimensionless.
         :return type: numpy.ndarray
         """
         if not hasattr(self, "_output_redshifts"):
