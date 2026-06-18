@@ -5,7 +5,8 @@ import numpy as np
 
 
 class EventLightcone(object):
-    """Class to sample observer-frame events within a sky area as a function of redshift."""
+    """Class to sample observer-frame events within a sky area as a function of
+    redshift."""
 
     def __init__(self, cosmo, redshifts, sky_area, noise, time_interval, model):
         """
@@ -65,8 +66,8 @@ class EventLightcone(object):
         observer-frame time interval.
 
         :return: sampled event redshifts. The length of the array is the
-            number of sampled events over the input time interval. Redshift is
-            dimensionless.
+            number of sampled events over the input time interval.
+            Redshift is dimensionless.
         :return type: numpy.ndarray
         """
         if not hasattr(self, "_output_redshifts"):
