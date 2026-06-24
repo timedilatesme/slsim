@@ -2,7 +2,6 @@ Citation Guidelines
 ===================
 
 We strive for open-source and reproducible science and all of our code is open-source available here.
-If you use part of this package for your research, we strive for open-source and reproducible science and all of our code is open-source available here.
 If you use part of this package for your research, please cite:
 `Khadka et al. (2026) <https://ui.adsabs.harvard.edu/abs/2026arXiv260317138K/abstract>`_.
 SLSim idividual modules depend on many external packages. Particularly, lenstronomy is used in a wide range of 
