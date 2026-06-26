@@ -1,3 +1,4 @@
+from slsim.Util.cosmo_util import z_time_interp
 from slsim.Sources.Events.BNSMerger.bns_merger_pop import BNSMergerRate
 from slsim.Sources.Events.Supernovae.supernovae_pop import SNIaRate
 
@@ -19,6 +20,10 @@ class EventPopulation(object):
         """
 
         self.model_name = model
+        self._cosmo = cosmo
+        self._z_max = z_max
+
+        self._z_from_time = z_time_interp(self._cosmo, self._z_max)
 
         if model == "BNS":
             self._model = BNSMergerRate(cosmo=cosmo, z_max=z_max)
