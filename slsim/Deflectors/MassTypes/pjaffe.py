@@ -1,8 +1,9 @@
 
 from slsim.Util.param_util import ellipticity_slsim_to_lenstronomy
+from slsim.Deflectors.MassTypes.mass_base import MassBase
 
 
-class PJAFFE(object):
+class PJAFFE(MassBase):
     """Class of a pseudo-Jaffe lens model .
     """
 
@@ -19,11 +20,10 @@ class PJAFFE(object):
         :param vel_disp: velocity dispersion [km/s]
          ATTENTION: consistency is not checked with mass profile.
         """
-        self._light = light
+        super().__init__(light=light, vel_disp=vel_disp)
         self._r_s = r_s
         self._r_a = r_a
         self._e1_mass, self._e2_mass = e1, e2
-        self._vel_disp = vel_disp
 
     def velocity_dispersion(self, cosmo=None):
         """Velocity dispersion of deflector. Simplified assumptions on

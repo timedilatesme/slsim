@@ -1,11 +1,8 @@
-from slsim.Deflectors.MassLightConnection.velocity_dispersion import (
-    vel_disp_composite_model,
-)
 from slsim.Util.param_util import ellipticity_slsim_to_lenstronomy
-from lenstronomy.Util import constants
+from slsim.Deflectors.MassTypes.mass_base import MassBase
 
 
-class NFW(object):
+class NFW(MassBase):
     """Class of a NFW+Hernquist lens model with a Hernquist light mode.
     """
 
@@ -22,11 +19,10 @@ class NFW(object):
         :param vel_disp: velocity dispersion [km/s], optional as pre-computed value.
          ATTENTION: consistency is not checked with mass profile.
         """
-        self._light = light
+        super().__init__(light=light, vel_disp=vel_disp)
         self._halo_mass = halo_mass
         self._concentration = concentration
         self._e1_mass, self._e2_mass = e1, e2
-        self._vel_disp = vel_disp
 
     def velocity_dispersion(self, cosmo=None):
         """Velocity dispersion of deflector. Simplified assumptions on

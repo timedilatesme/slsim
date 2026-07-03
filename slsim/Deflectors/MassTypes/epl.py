@@ -2,9 +2,10 @@ from slsim.Util.param_util import ellipticity_slsim_to_lenstronomy
 from slsim.Deflectors.MassLightConnection.velocity_dispersion import (
     theta_E_from_vel_disp_epl,
 )
+from slsim.Deflectors.MassTypes.mass_base import MassBase
 
 
-class EPL(object):
+class EPL(MassBase):
     """Deflector with an elliptical power-law and a Sersic light model.
 
     """
@@ -24,10 +25,9 @@ class EPL(object):
         if theta_E is None and vel_disp is None:
             raise ValueError("Either Einstein radius theta_E or velocity dispersion vel_disp argument need to be "
                              "provided for the EPL model.")
-        self._light = light
+        super().__init__(light=light, vel_disp=vel_disp)
         self._sis_convention = sis_convention
         self._theta_E = theta_E
-        self._vel_disp = vel_disp
         self._gamma_pl = gamma_pl
         self._e1_mass, self._e2_mass = e1, e2
 
