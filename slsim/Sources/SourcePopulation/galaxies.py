@@ -356,7 +356,11 @@ def _convert_catalog_to_source(galaxy, extended_source_type, catalog_type, size_
         kwargs_source["e1"], kwargs_source["e2"] = e1, e2
     if extended_source_type in ["single_sersic", "catalog_source"]:
         if "n_sersic" not in colnames:
-            kwargs_source["n_sersic"] = 1  # TODO make a better estimate with scatter
+            if "galaxy_type" in colnames and galaxy["galaxy_type"] == "red":
+                kwargs_source["n_sersic"] = 4
+            else:
+                kwargs_source["n_sersic"] = 1
+            # TODO make a better estimate with scatter and distinguish between blue and red galaxies
         else:
             kwargs_source["n_sersic"] = galaxy["n_sersic"]
 
@@ -434,7 +438,8 @@ def _convert_catalog_to_source(galaxy, extended_source_type, catalog_type, size_
             kwargs_source["n_sersic_1"] = galaxy["n_sersic_1"]
         kwargs_source["w0"] = galaxy["w0"]
         kwargs_source["w1"] = galaxy["w1"]
-
+    if "vel_disp" in colnames:
+        kwargs_source["vel_disp"] = galaxy["vel_disp"]
     if include_all_keywords is True:
         for key in colnames:
             if key not in kwargs_source:

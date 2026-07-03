@@ -42,6 +42,7 @@ class SourceBase(ABC):
         variability_model="NONE",
         kwargs_variability_model=None,
         stellar_mass=None,
+        vel_disp=None,
         allow_more_source_dict=False,
         **kwargs
     ):
@@ -72,6 +73,8 @@ class SourceBase(ABC):
         :type kwargs_variability_model: dict of dict
         :param stellar_mass: stellar mass [M_sol]
         :type stellar_mass: None or float
+        :param vel_disp: velocity dispersion [km/s]
+        :type vel_disp: float or None
         :param kwargs: ps_mag_<band> keyword arguments and mag_<band> to store magnitudes for different bands
         :type kwargs: dict
         :type source_dict: dict or astropy.table.Table
@@ -88,6 +91,7 @@ class SourceBase(ABC):
         self._point_source = point_source
         self._extended_source = extended_source
         self._stellar_mass = stellar_mass
+        self._vel_disp = vel_disp
         self.update_center(
             area=None, reference_position=None, center_x=center_x, center_y=center_y
         )

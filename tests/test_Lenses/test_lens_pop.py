@@ -92,7 +92,7 @@ def test_pes_lens_pop_instance():
     kwargs_deflector_cut = {"z_min": 0.01, "z_max": 2.5}
     kwargs_source_cut = {"band": "g", "band_max": 26, "z_min": 0.1, "z_max": 5.0}
 
-    lens_galaxies = deflectors.AllLensGalaxies(
+    lens_galaxies = deflectors.GalaxyDeflectors(
         red_galaxy_list=galaxy_simulation_pipeline.red_galaxies,
         blue_galaxy_list=galaxy_simulation_pipeline.blue_galaxies,
         kwargs_cut=kwargs_deflector_cut,
@@ -233,7 +233,7 @@ def test_galaxies_lens_pop_instance():
     kwargs_deflector_cut = {"band": "g", "band_max": 23, "z_min": 0.01, "z_max": 2.5}
     kwargs_source_cut = {"z_min": 0.1, "z_max": 5.0}
 
-    lens_galaxies = deflectors.AllLensGalaxies(
+    lens_galaxies = deflectors.GalaxyDeflectors(
         red_galaxy_list=galaxy_simulation_pipeline.red_galaxies,
         blue_galaxy_list=galaxy_simulation_pipeline.blue_galaxies,
         kwargs_cut=kwargs_deflector_cut,
@@ -286,7 +286,7 @@ def test_supernovae_plus_galaxies_lens_pop_instance_2():
 
     time_range = np.linspace(-20, 50, 500)
 
-    lens_galaxies = deflectors.AllLensGalaxies(
+    lens_galaxies = deflectors.GalaxyDeflectors(
         red_galaxy_list=galaxy_simulation_pipeline.red_galaxies,
         blue_galaxy_list=galaxy_simulation_pipeline.blue_galaxies,
         kwargs_cut=kwargs_deflector_cut,
