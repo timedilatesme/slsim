@@ -51,7 +51,7 @@ class Hernquist(object):
         else:
             lens_mass_model_list = ["HERNQUIST_ELLIPSE_CSE"]
 
-        rs_phys = lens_cosmo.dd * (self._light.angular_size * constants.arcsec)
+        rs_phys = lens_cosmo.dd * (self._light.angular_size / 1.815 * constants.arcsec)
         sigma0, rs_light_angle = lens_cosmo.hernquist_phys2angular(
             mass=self._light.stellar_mass, rs=rs_phys
         )

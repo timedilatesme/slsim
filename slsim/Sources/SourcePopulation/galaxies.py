@@ -18,7 +18,6 @@ from slsim.Sources.source import Source
 import os
 
 
-# TODO: Use type to determine galaxy_list type
 class Galaxies(SourcePopBase):
     """Class describing elliptical galaxies."""
 
@@ -113,18 +112,15 @@ class Galaxies(SourcePopBase):
         """
         return self._num_select
 
-    def draw_source_dict(self, z_max=None, z_min=None, galaxy_index=None, include_all_keywords=False):
-        """Choose source at random.
-        For speed, it is recommended not to use additional redshift selection here.
-        Instead use the kwargs_cut of the class initialization
+    def draw_galaxy(self, z_max=None, z_min=None, galaxy_index=None):
+        """
+        Chose galaxy at random
 
         :param z_max: maximum redshift limit for the galaxy to be drawn.
             If no galaxy is found for this limit, None will be returned.
         :param z_min: minimum redshift limit for the galaxy to be drawn.
             If no galaxy is found for this limit, None will be returned.
         :param galaxy_index: index of galaxy to pic (if provided)
-        :param include_all_keywords: if True, includes all keywords and not just the ones required
-        :type include_all_keywords: bool
         :return: dictionary of source in the form of the original catalog
         """
         if galaxy_index is not None:
@@ -146,6 +142,25 @@ class Galaxies(SourcePopBase):
         else:
             index = random.randint(0, self._num_select)
             galaxy = self._galaxy_select[index]
+        return galaxy
+
+    def draw_source_dict(self, z_max=None, z_min=None, galaxy_index=None, include_all_keywords=False):
+        """Choose source at random.
+        For speed, it is recommended not to use additional redshift selection here.
+        Instead use the kwargs_cut of the class initialization
+
+        :param z_max: maximum redshift limit for the galaxy to be drawn.
+            If no galaxy is found for this limit, None will be returned.
+        :param z_min: minimum redshift limit for the galaxy to be drawn.
+            If no galaxy is found for this limit, None will be returned.
+        :param galaxy_index: index of galaxy to pic (if provided)
+        :param include_all_keywords: if True, includes all keywords and not just the ones required
+        :type include_all_keywords: bool
+        :return: dictionary of source in the form of compatible with Source() class
+        """
+        galaxy = self.draw_galaxy(z_max=z_max, z_min=z_min, galaxy_index=galaxy_index)
+        if galaxy is None:
+            return None
 
         kwargs_source = _convert_catalog_to_source(galaxy=galaxy, extended_source_type=self._extended_source_type,
                                                         catalog_type=self._catalog_type, size_model=self._size_model,
@@ -328,10 +343,15 @@ def _convert_catalog_to_source(galaxy, extended_source_type, catalog_type, size_
 
     if "a_rot" in colnames:
         phi_rot = galaxy["a_rot"]
+        if catalog_type == "scotch":
+            phi_rot = np.deg2rad(phi_rot)
+    elif "p_g" in colnames:
+        # SL_hammock pipeline defines the position angle in degrees
+        phi_rot = np.deg2rad(galaxy["p_g"])
     else:
-        phi_rot = None
-    if catalog_type == "scotch" and phi_rot is not None:
-        phi_rot = np.deg2rad(phi_rot)
+        phi_rot = np.random.uniform(0, np.pi)
+
+
 
     if extended_source_type in ["single_sersic", "hernquist", "catalog_source"]:
         # get angular_size
@@ -407,7 +427,7 @@ def _convert_catalog_to_source(galaxy, extended_source_type, catalog_type, size_
             kwargs_source["e2_1"] = e2_1
         else:
             kwargs_source["e1_1"] = galaxy["e1_1"]
-            kwargs_source["e1_2"] = galaxy["e1_2"]
+            kwargs_source["e2_1"] = galaxy["e2_1"]
         if ["angular_size_0"] not in colnames or "angular_size_1" not in colnames:
             if "a0" in colnames and "b0" in colnames:
                 kwargs_source["angular_size_0"] = average_angular_size(
@@ -440,11 +460,12 @@ def _convert_catalog_to_source(galaxy, extended_source_type, catalog_type, size_
         kwargs_source["w1"] = galaxy["w1"]
     if "vel_disp" in colnames:
         kwargs_source["vel_disp"] = galaxy["vel_disp"]
+    if "stellar_mass" in colnames:
+        kwargs_source["stellar_mass"] = galaxy["stellar_mass"]
     if include_all_keywords is True:
         for key in colnames:
             if key not in kwargs_source:
                 kwargs_source[key] = galaxy[key]
-    # TODO: Hernquist not supported
     return kwargs_source
 
 def down_sample_to_dc2(galaxy_pop, sky_area):
