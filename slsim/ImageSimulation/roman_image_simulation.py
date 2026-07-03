@@ -143,9 +143,11 @@ def simulate_roman_image(
     num_pix += 6
 
     kwargs_model, kwargs_params = lens_class.lenstronomy_kwargs(
-        band=band, time=t_obs,
+        band=band,
+        time=t_obs,
         microlensing=microlensing,
-        kwargs_microlensing=kwargs_microlensing)
+        kwargs_microlensing=kwargs_microlensing,
+    )
 
     kwargs_single_band = image_quality_lenstronomy.kwargs_single_band(
         observatory="Roman", band=band, survey_mode=survey_mode
