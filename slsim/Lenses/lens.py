@@ -1000,8 +1000,8 @@ class Lens(LensedSystemBase):
     def _initialize_microlensing_model(
         self, source_index, band, kwargs_microlensing=None
     ):
-        """Instantiates the microlensing model and generates/caches magnification 
-        maps independently of lightcurve generation.
+        """Instantiates the microlensing model and generates/caches
+        magnification maps independently of lightcurve generation.
 
         :param source_index: index of a source in source list.
         :param band: imaging band
@@ -1105,9 +1105,9 @@ class Lens(LensedSystemBase):
         # 1. Check if the model is cached. If not, compute it.
         if source_index not in self._microlensing_model_class.keys():
             self._initialize_microlensing_model(
-                source_index=source_index, 
-                band=band, 
-                kwargs_microlensing=kwargs_microlensing
+                source_index=source_index,
+                band=band,
+                kwargs_microlensing=kwargs_microlensing,
             )
         else:
             # 2. Update existing instance with new parameters if needed
@@ -1127,7 +1127,7 @@ class Lens(LensedSystemBase):
             source_index
         ].generate_point_source_microlensing_magnitudes(time=time)
 
-        return microlensing_magnitudes # does not include the macro-lensing effect
+        return microlensing_magnitudes  # does not include the macro-lensing effect
 
     def microlensing_model_class(self, source_index):
         """Returns the MicrolensingLightCurveFromLensModel class instance
