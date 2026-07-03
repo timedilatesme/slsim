@@ -3,6 +3,21 @@ import numpy as np
 from slsim.Util import param_util
 from slsim.Sources.SourceVariability.variability import Variability
 
+_SUPPORTED_KEYS = ["M", "coeff", "physical_size", "ellipticity", "phi_G", "MJD"]
+# TODO: find a better way not to store these keywords in the SourceBase class for better stability
+_AGN_VARIABILITY_KEYS = [
+        "r_out",
+        "r_resolution",
+        "corona_height",
+        "inclination_angle",
+        "black_hole_mass_exponent",
+        "black_hole_spin",
+        "intrinsic_light_curve",
+        "eddington_ratio",
+        "driving_variability_model",
+        "accretion_disk",
+    ]
+
 
 class SourceBase(ABC):
     """Class of a single source with quantities only related to the source
@@ -12,6 +27,7 @@ class SourceBase(ABC):
         self,
         z,
         model_type="SourceBase",
+        name=None,
         lensed=True,
         point_source=False,
         extended_source=False,
@@ -25,6 +41,8 @@ class SourceBase(ABC):
         cosmo=None,
         variability_model="NONE",
         kwargs_variability_model=None,
+        stellar_mass=None,
+        allow_more_source_dict=False,
         **kwargs
     ):
         """
@@ -33,7 +51,8 @@ class SourceBase(ABC):
         :param model_type: the model type, mostly used for error messages and information to the user
         :type model_type: str
         :param lensed: if True, regards the model be part of the lensed source,
-         if False, it can be used as a deflector (unlensed) model
+         if False, it can be used as a foreground (unlensed) model.
+         This is different from Deflector() in the sense that it does not contain mass.
         :param point_source: whether a point source is involved
         :type point_source: bool
         :param extended_source: whether an extended source is involved
@@ -51,16 +70,24 @@ class SourceBase(ABC):
         :param kwargs_variability_model: Dictionary with bands as strings, each containing a dictionary for a
          Variability() class input configurations for point source variability
         :type kwargs_variability_model: dict of dict
-        :param kwargs: ps_mag_<band> keyword arguments
+        :param stellar_mass: stellar mass [M_sol]
+        :type stellar_mass: None or float
+        :param kwargs: ps_mag_<band> keyword arguments and mag_<band> to store magnitudes for different bands
         :type kwargs: dict
         :type source_dict: dict or astropy.table.Table
+        :param allow_more_source_dict: if True, will not check for consistency of the dictionary with what is required.
+         This is due to Extended+Point source models
+        :type allow_more_source_dict: bool
         """
-        self.name = "NONE"
+        if name is None:
+            name = "NONE"
+        self.name = name
         self._z = float(z)
         self.lensed = lensed
         self._model_type = model_type
         self._point_source = point_source
         self._extended_source = extended_source
+        self._stellar_mass = stellar_mass
         self.update_center(
             area=None, reference_position=None, center_x=center_x, center_y=center_y
         )
@@ -73,6 +100,16 @@ class SourceBase(ABC):
         else:
             self._offset = np.array([0, 0])
         self.source_dict = kwargs
+        if not allow_more_source_dict:
+            for key in self.source_dict:
+                if key.startswith("ps_mag_") or key.startswith("mag_"):
+                    pass
+                elif key in _SUPPORTED_KEYS or key in _AGN_VARIABILITY_KEYS:
+                    pass
+                else:
+                    raise ValueError("Dictionary in Source class has invalid arguments. "
+                                     "Key %s is not part of ps_mag_<band> and mag_<band> or the supported keys %s."
+                                     % (key, _SUPPORTED_KEYS + _AGN_VARIABILITY_KEYS))
 
         self._variability_bands = (
             {}
@@ -157,6 +194,13 @@ class SourceBase(ABC):
         physical_size = self.angular_size * 4.84814e-6 * ang_dist.value * 1000  # kPc
         return physical_size
 
+    @property
+    def stellar_mass(self):
+        """
+
+        :return: stellar mass of galaxy [M_sol]
+        """
+        return self._stellar_mass
     @property
     def ellipticity(self):
         """Returns ellipticity components of source for the both component of

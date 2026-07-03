@@ -122,6 +122,10 @@ class TestSource:
             point_source_type="general_lightcurve", z=1, MJD=[0, 1, 2]
         )
 
+    def test_empty_source(self):
+        source = Source(z=1)
+        assert source.name == "NONE"
+
     def test_redshift(self):
         assert self.source.redshift == 1.0
 
@@ -172,26 +176,6 @@ class TestSource:
         x_pos_2, y_pos_2 = self.source_point.point_source_position
         assert x_pos_1 == x_pos_2
         assert y_pos_1 == y_pos_2
-
-    def test_error(self):
-        cosmo = cosmology.FlatLambdaCDM(H0=70, Om0=0.3)
-        self.source_dict_extended = {
-            "z": 1.0,
-            "mag_i": 21,
-            "n_sersic": 1,
-            "angular_size": 0.2,
-            "e1": 0.005,
-            "e2": 0.003,
-            "center_x": 0.034,
-            "center_y": -0.06,
-        }
-        with pytest.raises(ValueError):
-            Source(
-                source_dict=self.source_dict_extended,
-                source_type="other",
-                cosmo=cosmo,
-                extendedsource_type="single_sersic",
-            )
 
     def test_point_source_property(self):
         assert self.source.point_source is None

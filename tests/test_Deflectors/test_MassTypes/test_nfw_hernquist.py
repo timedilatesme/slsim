@@ -1,4 +1,4 @@
-from slsim.Deflectors.DeflectorTypes.nfw_hernquist import NFWHernquist
+from slsim.Deflectors.MassTypes.nfw_hernquist import NFWHernquist
 from astropy.cosmology import FlatLambdaCDM
 import numpy.testing as npt
 from lenstronomy.Cosmo.lens_cosmo import LensCosmo

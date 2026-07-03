@@ -4,11 +4,13 @@ from slsim.Sources.SourceVariability.variability import (
     reprocess_with_lamppost_model,
 )
 from slsim.Sources.SourceVariability import agn
-from slsim.Sources.SourceTypes.source_base import SourceBase
+from slsim.Sources.SourceTypes.source_base import SourceBase, _AGN_VARIABILITY_KEYS
 from slsim.ImageSimulation.image_quality_lenstronomy import (
     get_speclite_filternames,
     get_all_supported_bands,
 )
+
+
 
 
 class Quasar(SourceBase):
@@ -44,8 +46,8 @@ class Quasar(SourceBase):
             input for the Variability class.
         :type variability_model: str
         :param kwargs_variability: Keyword arguments for variability class.
-            This is associated with an input for Variability class. By using these key
-            words, code search for quantities in source_dict with these names and creates
+            This is associated with an input for Variability class. By using these keywords,
+            code search for quantities in source_dict with these names and creates
             a dictionary and this dict should be passed to the Variability class.
         :type kwargs_variability: list of str
         :param kwargs_variability_model: Pre-computed variabilities for each band (default=None)
@@ -252,21 +254,9 @@ def extract_agn_kwargs_from_source_dict(source_dict):
         parameters.
     """
 
-    kwargs_variable_agn = [
-        "r_out",
-        "r_resolution",
-        "corona_height",
-        "inclination_angle",
-        "black_hole_mass_exponent",
-        "black_hole_spin",
-        "intrinsic_light_curve",
-        "eddington_ratio",
-        "driving_variability_model",
-        "accretion_disk",
-    ]
     # column_names = source_dict.colnames
     agn_kwarg_dict = {}
-    for kwarg in kwargs_variable_agn:
-        if kwarg in source_dict:
-            agn_kwarg_dict[kwarg] = source_dict[kwarg]  # .data[0]
+    for key in _AGN_VARIABILITY_KEYS:
+        if key in source_dict:
+            agn_kwarg_dict[key] = source_dict[key]  # .data[0]
     return agn_kwarg_dict

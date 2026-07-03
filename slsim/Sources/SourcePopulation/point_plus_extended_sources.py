@@ -4,22 +4,20 @@ from slsim.Sources.SourcePopulation.galaxies import Galaxies
 from slsim.Lenses.selection import object_cut
 
 
-class PointPlusExtendedSources(Galaxies, SourcePopBase):
-    """Class to describe point and extended sources."""
+class PointPlusExtendedSources(Galaxies):
+    """Class to describe population of point + extended sources."""
 
     def __init__(
         self,
         point_plus_extended_sources_list,
         cosmo,
         sky_area,
-        kwargs_cut,
-        list_type="astropy_table",
+        kwargs_cut=None,
         catalog_type=None,
-        source_size="Bernadi",
+        size_model=None,
         point_source_type=None,
         extended_source_type=None,
         point_source_kwargs={},
-        extendedsource_kwargs={},
     ):
         """
 
@@ -32,12 +30,10 @@ class PointPlusExtendedSources(Galaxies, SourcePopBase):
         :type sky_area: `~astropy.units.Quantity`
         :param kwargs_cut: cuts in parameters: band, band_mag, z_min, z_max
         :type kwargs_cut: dict
-        :param list_type: format of the source catalog file. Currently, it supports
-         a single astropy table or a list of astropy tables.
         :param catalog_type: type of the catalog. If someone wants to use scotch
          catalog, they need to specify it.
         :type catalog_type: str. eg: "scotch" or None
-        :param source_size: If "Bernardi", computes galaxy size using g-band
+        :param size_model: If "Bernardi", computes galaxy size using g-band
          magnitude otherwise rescales skypy source size to Shibuya et al. (2015):
          https://iopscience.iop.org/article/10.1088/0067-0049/219/2/15/pdf
         :param point_source_type: Keyword to specify type of the point source.
@@ -52,12 +48,11 @@ class PointPlusExtendedSources(Galaxies, SourcePopBase):
             "i", "r"], "sn_type": "Ia", "sn_absolute_mag_band": "bessellb",
             "sn_absolute_zpsys": "ab", "lightcurve_time": np.linspace(-50, 100, 150),
             "sn_modeldir": None}.
-        :param extendedsource_kwargs: dictionary of keyword arguments for ExtendedSource.
+        :param extended_source_kwargs: dictionary of keyword arguments for ExtendedSource.
          Please see documentation of ExtendedSource() class as well as specific extended source classes.
         """
         object_list = object_cut(
             point_plus_extended_sources_list,
-            list_type=list_type,
             object_type="point",
             **kwargs_cut
         )
@@ -67,37 +62,30 @@ class PointPlusExtendedSources(Galaxies, SourcePopBase):
             cosmo=cosmo,
             sky_area=sky_area,
             kwargs_cut={},
-            list_type=list_type,
             catalog_type=catalog_type,
-            source_size=source_size,
+            size_model=size_model,
             extended_source_type=extended_source_type,
-            extended_source_kwargs=extendedsource_kwargs,
+            # extended_source_kwargs=extended_source_kwargs,
         )
-        SourcePopBase.__init__(
-            self,
-            cosmo=cosmo,
-            sky_area=sky_area,
-        )
-        self.source_type = "point_plus_extended"
-        self.point_source_kwargs = point_source_kwargs
-        self.point_source_type = point_source_type
 
-    def draw_source(self, z_max=None):
+        self._point_source_kwargs = point_source_kwargs
+        self._point_source_type = point_source_type
+
+    def draw_source(self, z_max=None, z_min=None, galaxy_index=None):
         """Choose source at random.
 
         :param z_max: maximum redshift limit for the galaxy to be drawn.
             If no galaxy is found for this limit, None will be returned.
         :return: instance of Source class
         """
-        galaxy = self.draw_source_dict(z_max)
-        if galaxy is None:
+        kwargs_source = self.draw_source_dict(z_max=z_max, z_min=z_min, galaxy_index=galaxy_index,
+                                              include_all_keywords=True)
+        if kwargs_source is None:
             return None
         source_class = Source(
             cosmo=self._cosmo,
-            extended_source_type=self.light_profile,
-            point_source_type=self.point_source_type,
-            **self.point_source_kwargs,
-            **self.extendedsource_kwargs,
-            **galaxy
+            point_source_type=self._point_source_type,
+            **self._point_source_kwargs,
+            **kwargs_source
         )
         return source_class

@@ -20,7 +20,6 @@ class TestSupernovaEvent:
             "ps_mag_i": [21, 20, 19, 21, 22, 23],
         }
         kwargs_sn = {
-            "source_type": "supernova",
             "variability_model": "light_curve",
             "kwargs_variability": ["supernovae_lightcurve", "i", "r"],
             "sn_type": "Ia",
@@ -30,7 +29,7 @@ class TestSupernovaEvent:
             "sn_modeldir": None,
         }
         kwargs_sn_roman = {
-            "source_type": "supernova",
+
             "variability_model": "light_curve",
             "kwargs_variability": ["supernovae_lightcurve", "F062", "F129"],
             "sn_type": "Ia",
@@ -40,7 +39,6 @@ class TestSupernovaEvent:
             "sn_modeldir": None,
         }
         kwargs_sn_none = {
-            "source_type": "supernova",
             "variability_model": "light_curve",
             "kwargs_variability": None,
             "sn_type": "Ia",

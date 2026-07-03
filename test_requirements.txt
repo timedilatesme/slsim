@@ -5,6 +5,3 @@ galsim
 microlensing
 pyhalo
 mcfit
-tqdm
-sncosmo
-speclite

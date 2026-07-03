@@ -23,7 +23,6 @@ from slsim.ImageSimulation.image_quality_lenstronomy import (
 from scipy.ndimage import label
 
 from slsim.Lenses.lensed_system_base import LensedSystemBase
-from slsim.Deflectors.deflector import JAX_PROFILES
 import pandas as pd
 
 
@@ -643,7 +642,7 @@ class Lens(LensedSystemBase):
         :param source_index: index of the source.
         :return: effective Einstein radius for the lens-source pair.
         """
-        if self.deflector.deflector_type in ["EPL", "EPL_SERSIC"]:
+        if self.deflector.deflector_type in ["EPL"]:
             return self.einstein_radius[source_index]
         else:
             return self.einstein_radius_infinity
@@ -660,9 +659,9 @@ class Lens(LensedSystemBase):
         lens_model_class, kwargs_lens = self.deflector_mass_model_lenstronomy(
             source_index=source_index
         )
-        if self.deflector.deflector_type in ["EPL", "EPL_SERSIC"]:
+        if self.deflector.deflector_type in ["EPL"]:
             kappa_ext_convention = self.los_class.convergence
-            gamma_pl = self.deflector.halo_properties["gamma_pl"]
+            gamma_pl = self.deflector.mass_properties["gamma_pl"]
             theta_E_convention = kwargs_lens[0]["theta_E"]
             if (
                 self.source(source_index).redshift
@@ -1476,15 +1475,8 @@ class Lens(LensedSystemBase):
         else:
             lens_redshift_list = None
             # For significant speedup, use these mass profiles from jaxtronomy
-            if self._use_jax is True:
-                use_jax = []
-                for profile in self._lens_mass_model_list:
-                    if profile in JAX_PROFILES:
-                        use_jax.append(True)
-                    else:
-                        use_jax.append(False)
-            else:
-                use_jax = False
+            from slsim.Util.lenstronomy_util import jax_usage
+            use_jax = jax_usage(use_jax=self._use_jax, lens_mass_model_list=self._lens_mass_model_list)
         lens_model = LensModel(
             lens_model_list=self._lens_mass_model_list,
             cosmo=self.cosmo,

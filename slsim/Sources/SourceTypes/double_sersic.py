@@ -15,10 +15,10 @@ class DoubleSersic(SourceBase):
         n_sersic_1,
         w0,
         w1=None,
+        e1_0=0,
+        e2_0=0,
         e1_1=0,
         e2_1=0,
-        e1_2=0,
-        e2_2=0,
         **source_dict
     ):
         """
@@ -27,10 +27,10 @@ class DoubleSersic(SourceBase):
         :param angular_size_1: half-light radius of the second Sersic component [arcsec]
         :param n_sersic_0: Sersic index of first Sersic component
         :param n_sersic_1: Sersic index of first Sersic component
-        :param e1_1: eccentricity component of first Sersic
-        :param e2_1: eccentricity component of first Sersic
-        :param e1_2: eccentricity component of second Sersic
-        :param e2_2: eccentricity component of second Sersic
+        :param e1_0: eccentricity component of first Sersic
+        :param e2_0: eccentricity component of first Sersic
+        :param e1_1: eccentricity component of second Sersic
+        :param e2_1: eccentricity component of second Sersic
         :param w0: flux weight of first Sersic component
         :param w1: flux weight of second Sersic component, if =None, will be set w1 = 1 - w0, otherwise it has to match.
 
@@ -38,7 +38,6 @@ class DoubleSersic(SourceBase):
         :type source_dict: dict or astropy.table.Table
         """
         super().__init__(
-            model_type="DoubleSersic",
             extended_source=True,
             point_source=False,
             **source_dict
@@ -46,8 +45,8 @@ class DoubleSersic(SourceBase):
         self.name = "GAL"
         self._n_sersic = [n_sersic_0, n_sersic_1]
         self._angular_size_list = [angular_size_0, angular_size_1]
+        self._e1_0, self._e2_0 = e1_0, e2_0
         self._e1_1, self._e2_1 = e1_1, e2_1
-        self._e1_2, self._e2_2 = e1_2, e2_2
 
         s = w0 + w1
         w0 = w0 / s
@@ -128,14 +127,14 @@ class DoubleSersic(SourceBase):
         # convert from slsim to lenstronomy convention.
         e1_light_source_1_lenstronomy, e2_light_source_1_lenstronomy = (
             ellipticity_slsim_to_lenstronomy(
-                e1_slsim=self._e1_1,
-                e2_slsim=self._e2_1,
+                e1_slsim=self._e1_0,
+                e2_slsim=self._e2_0,
             )
         )
         e1_light_source_2_lenstronomy, e2_light_source_2_lenstronomy = (
             ellipticity_slsim_to_lenstronomy(
-                e1_slsim=self._e1_2,
-                e2_slsim=self._e2_2,
+                e1_slsim=self._e1_1,
+                e2_slsim=self._e2_1,
             )
         )
 
@@ -168,14 +167,14 @@ class DoubleSersic(SourceBase):
         """
         e1_light_source_1_lenstronomy, e2_light_source_1_lenstronomy = (
             ellipticity_slsim_to_lenstronomy(
-                e1_slsim=self._e1_1,
-                e2_slsim=self._e2_1,
+                e1_slsim=self._e1_0,
+                e2_slsim=self._e2_0,
             )
         )
         e1_light_source_2_lenstronomy, e2_light_source_2_lenstronomy = (
             ellipticity_slsim_to_lenstronomy(
-                e1_slsim=self._e1_2,
-                e2_slsim=self._e2_2,
+                e1_slsim=self._e1_1,
+                e2_slsim=self._e2_1,
             )
         )
 

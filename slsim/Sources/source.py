@@ -1,4 +1,5 @@
 from slsim.Sources.SourceTypes.point_plus_extended_source import PointPlusExtendedSource
+from slsim.Sources.SourceTypes.source_base import SourceBase
 from copy import deepcopy
 
 _SUPPORTED_POINT_SOURCES = ["supernova", "quasar", "general_lightcurve"]
@@ -7,6 +8,7 @@ _SUPPORTED_EXTENDED_SOURCES = [
     "double_sersic",
     "catalog_source",
     "interpolated",
+    "hernquist",
 ]
 
 
@@ -44,41 +46,37 @@ class Source(object):
             source_type = point_source_type
             self.source_type = "point_source"
         else:
-            raise ValueError(
-                "either extended_source_type or point_source_type needs to be set."
-            )
+            source_type = "NONE"
 
+        if source_type in ["NONE"]:
+            self._source = SourceBase(**source_dict)
         # point sources
-        if source_type in ["supernova"]:
+        elif source_type in ["supernova"]:
             from slsim.Sources.SourceTypes.supernova_event import SupernovaEvent
-
             self._source = SupernovaEvent(**source_dict)
         elif source_type in ["quasar"]:
             from slsim.Sources.SourceTypes.quasar import Quasar
-
             self._source = Quasar(**source_dict)
         elif source_type in ["general_lightcurve"]:
             from slsim.Sources.SourceTypes.general_lightcurve import GeneralLightCurve
-
             self._source = GeneralLightCurve(**source_dict)
 
         # extended sources
         elif source_type in ["single_sersic"]:
             from slsim.Sources.SourceTypes.single_sersic import SingleSersic
-
             self._source = SingleSersic(**source_dict)
         elif source_type in ["double_sersic"]:
             from slsim.Sources.SourceTypes.double_sersic import DoubleSersic
-
             self._source = DoubleSersic(**source_dict)
         elif source_type in ["catalog_source"]:
             from slsim.Sources.SourceTypes.catalog_source import CatalogSource
-
             self._source = CatalogSource(**source_dict)
         elif source_type in ["interpolated"]:
             from slsim.Sources.SourceTypes.interpolated_image import Interpolated
-
             self._source = Interpolated(**source_dict)
+        elif source_type in ["hernquist"]:
+            from slsim.Sources.SourceTypes.hernquist import Hernquist
+            self._source = Hernquist(**source_dict)
 
         # point source plus extended source
         elif source_type in ["point_plus_extended"]:
@@ -87,6 +85,7 @@ class Source(object):
                 point_source_type=point_source_type,
                 **source_dict,
             )
+
         else:
             raise ValueError(
                 "source type %s not supported. Chose among %s for extended sources and %s for point sources."
@@ -112,6 +111,14 @@ class Source(object):
         """Returns angular size of the extended source."""
 
         return self._source.angular_size
+
+    @property
+    def stellar_mass(self):
+        """
+
+        :return: stellar mass of galaxy [M_sol]
+        """
+        return self._source.stellar_mass
 
     @property
     def ellipticity(self):

@@ -100,7 +100,7 @@ def gg_roman_lens_pop_instance():
         cosmo=cosmo,
         sky_area=sky_area,
         catalog_type="skypy",
-        source_size=None,
+        size_model=None,
         extended_source_type="single_sersic",
     )
 

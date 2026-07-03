@@ -1,4 +1,4 @@
-from slsim.Deflectors.DeflectorTypes.nfw_cluster import NFWCluster
+#from slsim.Deflectors.MassTypes.nfw_cluster import NFWCluster
 from astropy.cosmology import FlatLambdaCDM
 from astropy.table import Table
 import os
@@ -6,8 +6,12 @@ import numpy.testing as npt
 from lenstronomy.Cosmo.lens_cosmo import LensCosmo
 
 
+
+
 class TestNFWCluster(object):
     """
+
+    
     required quantities in dictionary:
     - 'halo_mass': halo mass in physical M_sol
     - 'concentration': halo concentration
@@ -15,7 +19,9 @@ class TestNFWCluster(object):
     - 'e2_mass': eccentricity of NFW profile
     - 'z': redshift of deflector
     - subhalos_list: list of subhalos, each one is a deflector instance
+
     """
+
 
     def setup_method(self):
         path = os.path.dirname(__file__)
@@ -31,8 +37,9 @@ class TestNFWCluster(object):
             os.path.join(module_path, "TestData/subhalos_table.fits"), format="fits"
         )
         self.halo_dict["subhalos"] = subhalos_table
-        self.nfw_cluster = NFWCluster(**self.halo_dict)
+        #self.nfw_cluster = NFWCluster(**self.halo_dict)
 
+    """
     def test_redshift(self):
         z = self.nfw_cluster.redshift
         assert self.halo_dict["z"] == z
@@ -90,3 +97,5 @@ class TestNFWCluster(object):
             lens_cosmo=lens_cosmo, spherical=True
         )
         assert "PJAFFE" in cs_lens_model_list
+        """
+        

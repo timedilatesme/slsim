@@ -51,7 +51,7 @@ def fp_test_setup():
         point_source_type="quasar",
         point_source_kwargs={},
         extended_source_type="double_sersic",
-        extendedsource_kwargs={},
+        extended_source_kwargs={},
     )
     return cosmo, lens_galaxies, source_galaxies, source_quasars
 

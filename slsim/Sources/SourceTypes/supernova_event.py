@@ -20,6 +20,7 @@ class SupernovaEvent(SourceBase):
         sn_modeldir=None,
         kwargs_variability=None,
         cosmo=None,
+        name=None,
         **kwargs,
     ):
         """# TODO: is there a specific variability model needed for this class,
@@ -58,15 +59,18 @@ class SupernovaEvent(SourceBase):
          the host if host galaxy is available.
          eg: {"z": 0.8, "ra_off": 0.001, "dec_off": 0.005}
         """
-
+        if name is None:
+            name = "SN" + sn_type
         super().__init__(
             extended_source=False,
             point_source=True,
             cosmo=cosmo,
             variability_model=variability_model,
+            name=name,
             **kwargs,
         )
-        self.name = "SN" + sn_type
+
+
         self._variability_computed = False  # to be set to True once the light_curve() definition has been processed
         # These are the keywords that kwargs dict should contain
         self._kwargs_variability = kwargs_variability
