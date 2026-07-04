@@ -21,6 +21,13 @@ class Deflector(object):
                  center_x=None, center_y=None, kwargs_mass=None, kwargs_light=None):
         """
 
+        :param z: redshift of deflector
+        :param deflector_area: area [arcsec^2] in which to randomly place the center of the deflector,
+         if center is not provided.
+        :param center_x: center of deflector y-coordinate
+        :param center_y: center of deflector x-coordinate
+        :param kwargs_mass: dictionary as input to Mass() class
+        :param kwargs_light: dictionary as input to Source() class
         """
         if center_x is None or center_y is None:
 
@@ -177,26 +184,15 @@ class Deflector(object):
         :type band: str
         :return: surface brightness at position ra/dec [mag / arcsec^2]
         """
-        _mag_zero_dummy = 0  # from mag to amp conversion we need a dummy mag zero point. Irrelevant for this routine.
-        lens_light_model_list, kwargs_lens_light_mag = self.light.kwargs_extended_light(
+        lens_light_model_list, kwargs_lens_light_mag = self.light_model_lenstronomy(
             band=band
         )
-        lightModel = LightModel(light_model_list=lens_light_model_list)
+        return surface_brightness(ra, dec, lens_light_model_list, kwargs_lens_light_mag)
 
-        kwargs_lens_light_amp = data_util.magnitude2amplitude(
-            lightModel, kwargs_lens_light_mag, magnitude_zero_point=_mag_zero_dummy
-        )
-        flux_lens_light_local = lightModel.surface_brightness(
-            ra, dec, kwargs_lens_light_amp
-        )
-        mag_arcsec2 = param_util.amplitude_to_magnitude(
-            flux_lens_light_local, mag_zero_point=_mag_zero_dummy
-        )
-        return mag_arcsec2
 
     def theta_e_infinity(self, cosmo, use_jax=True):
         """Einstein radius for a source at infinity (or well passed where
-        galaxies exist.
+        galaxies exist).
 
         :param cosmo: astropy.cosmology instance
         :param use_jax: use JAX-accelerated lens models for lensing
@@ -204,11 +200,7 @@ class Deflector(object):
         :type use_jax: bool
         :return: Einstein radius for source at infinite [arcsec]
         :type cosmo: ~astropy.cosmology class
-        :param multi_plane: None for single-plane, 'Source' for multi-
-            source plane, 'Deflector' for multi-deflector plane, or
-            'Both' for both multi-deflector and multi-source plane
-        :type multi_plane: None or str
-        :return: Einstein radius [arcsec]
+        :return: Einstein radius for source at infinite [arcsec]
         """
         if hasattr(self, "_theta_e_infinity"):
             return self._theta_e_infinity
@@ -227,30 +219,32 @@ class Deflector(object):
                     lens_cosmo=lens_cosmo, spherical=True
                 )
             )
+            theta_E_infinity = lenstronomy_util.theta_E_numerical(lens_mass_model_list=lens_mass_model_list,
+                                               kwargs_lens_mass=kwargs_lens_mass, use_jax=use_jax)
 
-            lens_redshift_list = None
-            _use_jax = lenstronomy_util.jax_usage(use_jax, lens_mass_model_list)
-
-            lens_model = LensModel(
-                lens_model_list=lens_mass_model_list,
-                z_lens=self.redshift,
-                lens_redshift_list=lens_redshift_list,
-                z_source_convention=_z_source_infty,
-                multi_plane=False,
-                z_source=_z_source_infty,
-                cosmo=cosmo,
-                use_jax=_use_jax,
-            )
-
-            lens_analysis = LensProfileAnalysis(lens_model=lens_model)
-
-            theta_E_infinity = lens_analysis.effective_einstein_radius(
-                kwargs_lens_mass,
-                r_min=1e-3,
-                r_max=5e1,
-                num_points=40,
-                spherical_model=True,
-            )
-            theta_E_infinity = np.nan_to_num(theta_E_infinity, nan=0)
         self._theta_e_infinity = theta_E_infinity
         return theta_E_infinity
+
+
+def surface_brightness(ra, dec, lens_light_model_list, kwargs_lens_light_mag):
+    """Surface brightness at position ra/dec.
+
+    :param ra: position RA
+    :param dec: position DEC
+    :param lens_light_model_list: list of light models in lenstronomy conventions
+    :param kwargs_lens_light_mag: list of light model dictionaries with magnitudes
+    :return: surface brightness at position ra/dec [mag / arcsec^2]
+    """
+    _mag_zero_dummy = 0  # from mag to amp conversion we need a dummy mag zero point. Irrelevant for this routine.
+    lightModel = LightModel(light_model_list=lens_light_model_list)
+
+    kwargs_lens_light_amp = data_util.magnitude2amplitude(
+        lightModel, kwargs_lens_light_mag, magnitude_zero_point=_mag_zero_dummy
+    )
+    flux_lens_light_local = lightModel.surface_brightness(
+        ra, dec, kwargs_lens_light_amp
+    )
+    mag_arcsec2 = param_util.amplitude_to_magnitude(
+        flux_lens_light_local, mag_zero_point=_mag_zero_dummy
+    )
+    return mag_arcsec2

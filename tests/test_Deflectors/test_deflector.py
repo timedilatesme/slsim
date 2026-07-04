@@ -1,8 +1,6 @@
 import pytest
 import numpy.testing as npt
-import os
 from slsim.Deflectors.deflector import Deflector
-from astropy.table import Table
 from lenstronomy.Cosmo.lens_cosmo import LensCosmo
 
 
@@ -10,11 +8,6 @@ class TestDeflector(object):
     """Testing the Deflector class."""
 
     def setup_method(self):
-        path = os.path.dirname(__file__)
-        module_path, _ = os.path.split(path)
-        red_one = Table.read(
-            os.path.join(module_path, "TestData/red_one_modified.fits"), format="fits"
-        )
 
         kwargs_light = {"extended_source_type": "single_sersic",
                         "n_sersic": 1,
