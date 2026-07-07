@@ -1137,7 +1137,7 @@ class Lens(LensedSystemBase):
         :return: MicrolensingLightCurveFromLensModel class instance for
             the specified source.
         """
-        
+
         if source_index not in self._microlensing_model_class:
             raise AttributeError(
                 f"MicrolensingLightCurveFromLensModel class is not set for source index {source_index}. "
