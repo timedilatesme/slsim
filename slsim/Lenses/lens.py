@@ -99,7 +99,9 @@ class Lens(LensedSystemBase):
         )
         self._use_jax = use_jax
         self._field_galaxies = field_galaxies
-        self._microlensing_model_class = {} # initialize the microlensing model class dictionary to store microlensing models for different sources
+        self._microlensing_model_class = (
+            {}
+        )  # initialize the microlensing model class dictionary to store microlensing models for different sources
 
     def source(self, index=0):
         """
