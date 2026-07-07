@@ -99,6 +99,7 @@ class Lens(LensedSystemBase):
         )
         self._use_jax = use_jax
         self._field_galaxies = field_galaxies
+        self._microlensing_model_class = {} # initialize the microlensing model class dictionary to store microlensing models for different sources
 
     def source(self, index=0):
         """
@@ -1025,9 +1026,6 @@ class Lens(LensedSystemBase):
             MicrolensingLightCurveFromLensModel,
         )
 
-        if not hasattr(self, "_microlensing_model_class"):
-            self._microlensing_model_class = {}
-
         # 1. Fetch microlensing parameters
         kappa_star_images, kappa_tot_images, shear_images, shear_angle_images_rad = (
             self._microlensing_parameters_for_image_positions_single_source(
@@ -1099,8 +1097,6 @@ class Lens(LensedSystemBase):
             include the macro-magnification.
         :rtype: numpy array
         """
-        if not hasattr(self, "_microlensing_model_class"):
-            self._microlensing_model_class = {}
 
         # 1. Check if the model is cached. If not, compute it.
         if source_index not in self._microlensing_model_class.keys():
