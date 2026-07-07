@@ -1137,18 +1137,13 @@ class Lens(LensedSystemBase):
         :return: MicrolensingLightCurveFromLensModel class instance for
             the specified source.
         """
-        if hasattr(self, "_microlensing_model_class"):
-            if source_index not in self._microlensing_model_class:
-                raise AttributeError(
-                    f"MicrolensingLightCurveFromLensModel class is not set for source index {source_index}. "
-                    "Please run point_source_magnitude with microlensing=True."
-                )
-            return self._microlensing_model_class[source_index]
-        else:
+        
+        if source_index not in self._microlensing_model_class:
             raise AttributeError(
-                "MicrolensingLightCurveFromLensModel class is not set. "
+                f"MicrolensingLightCurveFromLensModel class is not set for source index {source_index}. "
                 "Please run point_source_magnitude with microlensing=True."
             )
+        return self._microlensing_model_class[source_index]
 
     def reset_microlensing_model_class(self, source_index):
         """Resets the MicrolensingLightCurveFromLensModel class instance for a
