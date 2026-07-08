@@ -20,6 +20,7 @@ class MassBase(ABC):
 
         self._vel_disp = vel_disp
         self._light = light
+        self.num_mass_models = 1
 
 
     @abstractmethod

@@ -27,6 +27,7 @@ class NFWHernquist(MassBase):
         super().__init__(light=light, vel_disp=vel_disp)
         self._nfw = NFW(light=light, halo_mass=halo_mass, concentration=concentration, e1=e1, e2=e2)
         self._hernquist = Hernquist(light=light)
+        self.num_mass_models = 2
 
 
     def velocity_dispersion(self, cosmo=None):

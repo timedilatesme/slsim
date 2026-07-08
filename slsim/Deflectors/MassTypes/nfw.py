@@ -1,5 +1,6 @@
 from slsim.Util.param_util import ellipticity_slsim_to_lenstronomy
 from slsim.Deflectors.MassTypes.mass_base import MassBase
+from slsim.Deflectors.MassLightConnection.velocity_dispersion import vel_disp_nfw
 
 
 class NFW(MassBase):
@@ -32,6 +33,10 @@ class NFW(MassBase):
         :type cosmo: ~astropy.cosmology class
         :return: velocity dispersion [km/s]
         """
+        if self._vel_disp is None:
+            self._vel_disp = vel_disp_nfw(
+                self._halo_mass, self._concentration, cosmo=cosmo, z_lens=self._light.redshift
+            )
         return self._vel_disp
 
     def mass_model_lenstronomy(self, lens_cosmo, spherical=False):

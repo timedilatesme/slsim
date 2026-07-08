@@ -1,4 +1,3 @@
-from slsim.Sources.SourcePopulation.source_pop_base import SourcePopBase
 from slsim.Sources.source import Source
 from slsim.Sources.SourcePopulation.galaxies import Galaxies
 from slsim.Lenses.selection import object_cut

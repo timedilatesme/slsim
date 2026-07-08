@@ -5,7 +5,7 @@ from slsim.Util import param_util
 from slsim.Sources.SourcePopulation.galaxies import Galaxies
 from slsim.Sources.SourcePopulation.galaxies import (
     galaxy_projected_eccentricity,
-    _convert_catalog_to_source,
+    convert_catalog_to_source,
     down_sample_to_dc2,
 )
 from astropy.table import Table
@@ -347,17 +347,17 @@ class TestGalaxies(object):
 
     def test_convert_to_slsim_convention(self):
         cosmo = FlatLambdaCDM(H0=70, Om0=0.3)
-        galaxies = _convert_catalog_to_source(galaxy=self.gal_list[0],
+        galaxies = convert_catalog_to_source(galaxy=self.gal_list[0],
+                                             extended_source_type="double_sersic",
+                                             catalog_type=None, size_model=None)
+        galaxies2 = convert_catalog_to_source(galaxy=self.gal_list2[0],
                                               extended_source_type="double_sersic",
-                                              catalog_type=None, size_model=None)
-        galaxies2 = _convert_catalog_to_source(galaxy=self.gal_list2[0],
-                                               extended_source_type="double_sersic",
-                                               catalog_type="scotch")
+                                              catalog_type="scotch")
 
-        galaxies3 = _convert_catalog_to_source(galaxy=self.galaxy_list2[0],
-                                               extended_source_type="single_sersic",
-                                               catalog_type="skypy", cosmo=self.cosmo,
-        )
+        galaxies3 = convert_catalog_to_source(galaxy=self.galaxy_list2[0],
+                                              extended_source_type="single_sersic",
+                                              catalog_type="skypy", cosmo=self.cosmo,
+                                              )
         galaxy_list = Table(
             [
                 [0.5, 0.5, 0.5],
@@ -369,7 +369,7 @@ class TestGalaxies(object):
             ],
             names=("z", "n0", "M", "ellipticity", "mag_i", "mag_g"),
         )
-        galaxies4 = _convert_catalog_to_source(
+        galaxies4 = convert_catalog_to_source(
             galaxy=galaxy_list[0],
             extended_source_type="single_sersic",
             catalog_type="skypy",

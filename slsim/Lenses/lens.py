@@ -545,30 +545,23 @@ class Lens(LensedSystemBase):
     @property
     def deflector_redshift(self):
         """
+        either gets the list of redshifts or a single redshift, depending on whether multi-plane is used or not
 
         :return: lens redshift
-
         """
-        deflector_redshifts = [self.deflector.redshift]
 
         if self.multi_plane or self.source_number > 1:
 
-            if self.deflector.deflector_type in ["NFW_CLUSTER"]:
-
-                if self.deflector.cored_profile:
-                    deflector_redshifts.append(self.deflector.redshift)
-
-                deflector_redshifts.extend(self.deflector.subhalo_redshifts)
-
+            deflector_redshifts = self.deflector.redshift_list
             if self.shear:
                 deflector_redshifts.append(self.deflector.redshift)
 
             if self.convergence:
                 deflector_redshifts.append(self.deflector.redshift)
-
             return deflector_redshifts
         else:
-            return deflector_redshifts[0]
+            return self.deflector.redshift
+
 
     @property
     def source_redshift_list(self):
@@ -630,7 +623,7 @@ class Lens(LensedSystemBase):
 
         if not hasattr(self, "_theta_E_infinity"):
             self._theta_E_infinity = self.deflector.theta_e_infinity(
-                self.cosmo, multi_plane=self.multi_plane, use_jax=self._use_jax
+                self.cosmo, use_jax=self._use_jax
             )
         return self._theta_E_infinity
 
@@ -1421,12 +1414,7 @@ class Lens(LensedSystemBase):
             z_source = self.source(source_index).redshift
         if hasattr(self, "_lens_mass_model_list") and hasattr(self, "_kwargs_lens"):
             pass
-        elif self.deflector.deflector_type in [
-            "EPL",
-            "EPL_SERSIC",
-            "NFW_HERNQUIST",
-            "NFW_CLUSTER",
-        ]:
+        else:
 
             lens_mass_model_list, kwargs_lens = self.deflector.mass_model_lenstronomy(
                 lens_cosmo=self._lens_cosmo
@@ -1456,11 +1444,6 @@ class Lens(LensedSystemBase):
             self._kwargs_lens = kwargs_lens
             self._lens_mass_model_list = lens_mass_model_list
 
-        else:
-            raise ValueError(
-                "Deflector model %s not supported for lenstronomy model"
-                % self.deflector.deflector_type
-            )
 
         # For significant speedup, use these mass profiles from jaxtronomy
 

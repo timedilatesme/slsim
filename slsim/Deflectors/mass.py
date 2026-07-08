@@ -82,3 +82,12 @@ class Mass(object):
         :return: lens_mass_model_list, kwargs_lens_mass
         """
         return self._mass.mass_model_lenstronomy(lens_cosmo=lens_cosmo, spherical=spherical)
+
+    @property
+    def num_mass_models(self):
+        """
+        number of mass models
+
+        :return: number of mass models
+        """
+        return self._mass.num_mass_models

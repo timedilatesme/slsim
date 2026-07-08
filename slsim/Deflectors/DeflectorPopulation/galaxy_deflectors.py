@@ -23,6 +23,8 @@ class GalaxyDeflectors(DeflectorsBase):
             kwargs_cut=None,
             gamma_pl=None,
             catalog_type="skypy",
+            mass_type="EPL",
+            light_type="single_sersic",
     ):
         """
         :param red_galaxy_list: list of dictionary with elliptical galaxy
@@ -43,6 +45,10 @@ class GalaxyDeflectors(DeflectorsBase):
          of a density slope for gaussian distribution or minimum and maximum values of
          gamma for uniform distribution. eg: gamma_pl=2.1, gamma_pl={"mean": a, "std_dev": b},
          gamma_pl={"gamma_min": c, "gamma_max": d}
+        :param mass_type: type of Deflector() mass model class
+        :type mass_type: string
+        :param light_type: type of Source() model class for the light distribution
+        :type light_type: string
         :param catalog_type: type of the catalog. If user is using deflector catalog
          other than generated from skypy pipeline, we require them to provide angular
          size of the galaxy in arcsec and specify catalog_type as None. Otherwise, by
@@ -61,6 +67,14 @@ class GalaxyDeflectors(DeflectorsBase):
             galaxy_list = vstack([red_galaxy_list, blue_galaxy_list])
         else:
             galaxy_list = red_galaxy_list
+        # Abundance matching with the SDSS velocity dispersion function matching the red galaxies
+        if "vel_disp" not in red_column_names:
+            self._f_vel_disp = vel_disp_abundance_matching(
+                red_galaxy_list, z_max=0.5, sky_area=sky_area, cosmo=cosmo
+            )
+            galaxy_list["vel_disp"] = self._f_vel_disp(
+                np.log10(galaxy_list["stellar_mass"])
+            )
 
         super().__init__(
             deflector_table=galaxy_list,
@@ -69,7 +83,9 @@ class GalaxyDeflectors(DeflectorsBase):
             sky_area=sky_area,
             gamma_pl=gamma_pl,
             kwargs_mass2light=kwargs_mass2light,
-            catalog_type=catalog_type
+            catalog_type=catalog_type,
+            mass_type=mass_type,
+            light_type=light_type
         )
 
         n = len(galaxy_list)
@@ -77,13 +93,7 @@ class GalaxyDeflectors(DeflectorsBase):
         if "vel_disp" not in column_names:
             galaxy_list["vel_disp"] = -np.ones(n)
 
-        self._f_vel_disp = vel_disp_abundance_matching(
-            galaxy_list, z_max=0.5, sky_area=sky_area, cosmo=cosmo
-        )
 
-        # Assign velocity dispersions through abundance matching if the "vel_disp" column is missing
-        if "vel_disp" not in column_names:
-            self._galaxy_select["vel_disp"] = self._f_vel_disp(
-                np.log10(self._galaxy_select["stellar_mass"])
-            )
+
+
 

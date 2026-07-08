@@ -153,21 +153,8 @@ class SourceBase(ABC):
             renders within area)
         :return: Source() instance updated with new center position
         """
-        if center_x is not None and center_y is not None:
-            self._center_source = np.array([float(center_x), float(center_y)])
-        else:
-            if reference_position is None:
-                reference_position = np.array([0, 0])
-            if area is None:
-                x_, y_ = 0, 0
-            else:
-                x_, y_ = param_util.draw_coord_in_circle(area=area, size=1)
-            self._center_source = np.array(
-                [
-                    reference_position[0] + x_,
-                    reference_position[1] + y_,
-                ]
-            )
+        self._center_source = param_util.update_center(area=area, reference_position=reference_position,
+                                                       center_x=center_x, center_y=center_y)
 
     @property
     def point_source_offset(self):

@@ -5,8 +5,6 @@ from slsim.Util import param_util, lenstronomy_util
 import numpy as np
 import lenstronomy.Util.constants as constants
 from lenstronomy.Cosmo.lens_cosmo import LensCosmo
-from lenstronomy.Analysis.lens_profile import LensProfileAnalysis
-from lenstronomy.LensModel.lens_model import LensModel
 
 from slsim.Sources.source import Source
 from slsim.Deflectors.mass import Mass
@@ -42,6 +40,16 @@ class Deflector(object):
         self.mass = Mass(light=self.light, **kwargs_mass)
 
     @property
+    def name(self):
+        """
+        takes name of light model
+
+
+        :return: name of object
+        """
+        return self.light.name
+
+    @property
     def deflector_type(self):
         """
         type of the mass deflector
@@ -58,6 +66,23 @@ class Deflector(object):
         :return: redshift
         """
         return float(self.light.redshift)
+
+    @property
+    def redshift_list(self):
+        """
+
+        :return: list of redshifts for all mass models
+        """
+        return [self.redshift] * self.num_mass_models
+
+    @property
+    def num_mass_models(self):
+        """
+
+        :return: number of mass models
+        :rtype: int
+        """
+        return self.mass.num_mass_models
 
     def velocity_dispersion(self, cosmo=None):
         """Velocity dispersion of deflector.
@@ -77,15 +102,24 @@ class Deflector(object):
         # TODO: this routine might not be needed
         return self._center_lens
 
-    def update_center(self, deflector_area):
+    def update_center(
+        self, area=None, reference_position=None, center_x=None, center_y=None
+    ):
         """Overwrites the deflector center position.
 
-        :param deflector_area: area (in solid angle arcseconds^2) to
-            dither the center of the deflector
-        :return:
+        :param reference_position: [RA, DEC] in arc-seconds of the
+            reference from where within a circle the source position is
+            being drawn from
+        :type reference_position: 2d numpy array
+        :param area: area (in solid angle arc-seconds^2) to dither the
+            center of the source
+        :param center_x: RA position [arc-seconds] (optional, otherwise
+            renders within area)
+        :param center_y: DEC position [arc-seconds] (optional, otherwise
+            renders within area)
+        :return: Source() instance updated with new center position
         """
-
-        self.light.update_center(deflector_area)
+        self.light.update_center(area=area, center_x=center_x, center_y=center_y, reference_position=reference_position)
         # TODO: these next lines of code might not be required if done properly
         center_x, center_y = self.light.extended_source_position
         self._center_lens = np.array([center_x, center_y])
@@ -137,7 +171,7 @@ class Deflector(object):
         """
         return self.mass.mass_ellipticity
 
-    def mass_model_lenstronomy(self, lens_cosmo):
+    def mass_model_lenstronomy(self, lens_cosmo, spherical=False):
         """Returns lens model instance and parameters in lenstronomy
         conventions.
 
@@ -147,7 +181,7 @@ class Deflector(object):
         """
         if lens_cosmo.z_lens >= lens_cosmo.z_source:
             return [], []
-        return self.mass.mass_model_lenstronomy(lens_cosmo=lens_cosmo)
+        return self.mass.mass_model_lenstronomy(lens_cosmo=lens_cosmo, spherical=spherical)
 
     def light_model_lenstronomy(self, band=None):
         """Returns lens model instance and parameters in lenstronomy

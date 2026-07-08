@@ -50,7 +50,7 @@ class TestDeflectorGroup(object):
 
     def test_update_center(self):
         deflector_group_copy = copy.deepcopy(self.deflector_group)
-        deflector_group_copy.update_center(deflector_area=1)
+        deflector_group_copy.update_center(area=1)
         _, kwargs_mass_model = deflector_group_copy.mass_model_lenstronomy(lens_cosmo=self.lens_cosmo)
         assert kwargs_mass_model[0]["center_x"] != 0
 

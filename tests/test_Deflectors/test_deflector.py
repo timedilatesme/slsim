@@ -138,7 +138,7 @@ class TestDeflector(object):
         theta_E_infinity_her = self.deflector_nfw_her.theta_e_infinity(
             cosmo=None, use_jax=use_jax
         )
-        npt.assert_almost_equal(theta_E_infinity_her, 1.0777, decimal=3)
+        npt.assert_almost_equal(theta_E_infinity_her, 1.228, decimal=3)
 
         # we do call the definition twice with use_jax=False to make sure it increases test coverage
         self.deflector_backup.theta_e_infinity(cosmo=None, use_jax=False)

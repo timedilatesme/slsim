@@ -54,7 +54,7 @@ class Galaxies(SourcePopBase):
          https://iopscience.iop.org/article/10.1088/0067-0049/219/2/15/pdf
         :param extended_source_type: Keyword to specify type of the extended source.
          Supported extended source types are "single_sersic", "double_sersic", "interpolated".
-        :type extended_source_type: str
+        :type extended_source_type: str or None
         :param extended_source_kwargs: dictionary of keyword arguments for ExtendedSource.
          Please see documentation of ExtendedSource() class as well as specific extended source classes.
         """
@@ -162,9 +162,9 @@ class Galaxies(SourcePopBase):
         if galaxy is None:
             return None
 
-        kwargs_source = _convert_catalog_to_source(galaxy=galaxy, extended_source_type=self._extended_source_type,
-                                                        catalog_type=self._catalog_type, size_model=self._size_model,
-                                                   cosmo=self._cosmo, include_all_keywords=include_all_keywords)
+        kwargs_source = convert_catalog_to_source(galaxy=galaxy, extended_source_type=self._extended_source_type,
+                                                  catalog_type=self._catalog_type, size_model=self._size_model,
+                                                  cosmo=self._cosmo, include_all_keywords=include_all_keywords)
         return kwargs_source
 
 
@@ -274,7 +274,10 @@ def _galaxy_size(galaxy, size_model, catalog_type, cosmo):
     """
 
     z = galaxy["z"]
-    col_names = galaxy.colnames
+    if isinstance(galaxy, dict):
+        col_names = list(galaxy.keys())
+    else:
+        col_names = galaxy.colnames
     if size_model == "Bernardi" and catalog_type == "skypy":
         # TODO: enable this scaling also for other catalogs. Currently not done to be backwards compatible
         # compute angular size from g-band magnitude.
@@ -282,7 +285,7 @@ def _galaxy_size(galaxy, size_model, catalog_type, cosmo):
             raise ValueError("mag_g needs to be in the arguments to use the Bernardi et al. g-band magnitude to "
                              "size conversion.")
         source_size = galaxy_size(
-            galaxy["mag_g"], z, cosmo
+            float(galaxy["mag_g"]), z, cosmo
         )
         physical_size = source_size[0] * u.kpc
         angular_size = source_size[1] * u.arcsec
@@ -325,18 +328,22 @@ def _galaxy_size(galaxy, size_model, catalog_type, cosmo):
     return angular_size.value, physical_size.value
 
 
-def _convert_catalog_to_source(galaxy, extended_source_type, catalog_type, size_model=None, cosmo=None,
-                               include_all_keywords=False):
+def convert_catalog_to_source(galaxy, extended_source_type, catalog_type, size_model=None, cosmo=None,
+                              include_all_keywords=False):
     """
     converts input table entries into the quantities used in slsim Source() class
 
+    :param galaxy: dictionary or table entry
     :param include_all_keywords: if True, includes all keywords and not just the ones required
     :type include_all_keywords: bool
     :param galaxy: entry in galaxy_list
     :return: dictionary compatible with Source() class
     """
-    colnames = galaxy.colnames
-    kwargs_source = {"z": galaxy["z"], "extended_source_type": extended_source_type, }
+    if isinstance(galaxy, dict):
+        colnames = list(galaxy.keys())
+    else:
+        colnames = galaxy.colnames
+    kwargs_source = {"z": float(galaxy["z"]), "extended_source_type": extended_source_type, }
     for key in colnames:
         if key.startswith("ps_mag_") or key.startswith("mag_"):
             kwargs_source[key] = galaxy[key]
@@ -361,7 +368,11 @@ def _convert_catalog_to_source(galaxy, extended_source_type, catalog_type, size_
         kwargs_source["physical_size"] = physical_size
 
     if extended_source_type in ["single_sersic", "hernquist", "catalog_source"]:
-        if "e1" not in colnames or "e2" not in colnames:
+        if "e1" in colnames and "e2" in colnames:
+            e1, e2 = galaxy["e1"], galaxy["e2"]
+        elif "e1_light" in colnames and "e2_light" in colnames:
+            e1, e2 = galaxy["e1_light"], galaxy["e2_light"]
+        else:
             if "ellipticity" in colnames:
                 ellipticity = galaxy["ellipticity"]
             elif "e" in colnames:
@@ -371,9 +382,8 @@ def _convert_catalog_to_source(galaxy, extended_source_type, catalog_type, size_
             e1, e2 = galaxy_projected_eccentricity(
                 float(ellipticity), rotation_angle=phi_rot
             )
-        else:
-            e1, e2 = galaxy["e1"], galaxy["e2"]
-        kwargs_source["e1"], kwargs_source["e2"] = e1, e2
+
+        kwargs_source["e1"], kwargs_source["e2"] = float(e1), float(e2)
     if extended_source_type in ["single_sersic", "catalog_source"]:
         if "n_sersic" not in colnames:
             if "galaxy_type" in colnames and galaxy["galaxy_type"] == "red":
@@ -382,10 +392,9 @@ def _convert_catalog_to_source(galaxy, extended_source_type, catalog_type, size_
                 kwargs_source["n_sersic"] = 1
             # TODO make a better estimate with scatter and distinguish between blue and red galaxies
         else:
-            kwargs_source["n_sersic"] = galaxy["n_sersic"]
+            kwargs_source["n_sersic"] = float(galaxy["n_sersic"])
 
     if extended_source_type == "double_sersic":
-
         if "e1_0" not in colnames or "e2_0" not in colnames:
             if "ellipticity0" in colnames:
                 ellipticity0 = galaxy["ellipticity0"]
@@ -428,7 +437,7 @@ def _convert_catalog_to_source(galaxy, extended_source_type, catalog_type, size_
         else:
             kwargs_source["e1_1"] = galaxy["e1_1"]
             kwargs_source["e2_1"] = galaxy["e2_1"]
-        if ["angular_size_0"] not in colnames or "angular_size_1" not in colnames:
+        if "angular_size_0" not in colnames or "angular_size_1" not in colnames:
             if "a0" in colnames and "b0" in colnames:
                 kwargs_source["angular_size_0"] = average_angular_size(
                     a=galaxy["a0"], b=galaxy["b0"]
@@ -436,7 +445,7 @@ def _convert_catalog_to_source(galaxy, extended_source_type, catalog_type, size_
             else:
                 raise ValueError(
                     "semi-major and semi-minor axis are missing for the first light"
-                    " profile in galaxy_list columns"
+                    " profile in galaxy_list columns %s" % colnames
                 )
             if "a1" in colnames and "b1" in colnames:
                 kwargs_source["angular_size_1"] = average_angular_size(
@@ -459,9 +468,9 @@ def _convert_catalog_to_source(galaxy, extended_source_type, catalog_type, size_
         kwargs_source["w0"] = galaxy["w0"]
         kwargs_source["w1"] = galaxy["w1"]
     if "vel_disp" in colnames:
-        kwargs_source["vel_disp"] = galaxy["vel_disp"]
+        kwargs_source["vel_disp"] = float(galaxy["vel_disp"])
     if "stellar_mass" in colnames:
-        kwargs_source["stellar_mass"] = galaxy["stellar_mass"]
+        kwargs_source["stellar_mass"] = float(galaxy["stellar_mass"])
     if include_all_keywords is True:
         for key in colnames:
             if key not in kwargs_source:

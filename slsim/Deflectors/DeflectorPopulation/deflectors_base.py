@@ -1,8 +1,8 @@
 import numpy as np
-
-from slsim.Sources.SourcePopulation.galaxies import Galaxies, galaxy_projected_eccentricity
-from slsim.Sources.SourcePopulation.galaxies import _convert_catalog_to_source
+from slsim.Sources.SourcePopulation.galaxies import Galaxies
+from slsim.Sources.SourcePopulation.galaxies import convert_catalog_to_source
 from slsim.Deflectors.deflector import Deflector
+from slsim.Deflectors import deflector_util
 
 
 class DeflectorsBase(Galaxies):
@@ -61,11 +61,9 @@ class DeflectorsBase(Galaxies):
 
         self.mass_type = mass_type
         self._kwargs_mass2light = kwargs_mass2light
-
-        # TODO: should be an individual routine
-        # set the power-law slope
-        galaxy_number = len(deflector_table)
         self._gamma_pl = gamma_pl
+        self._vel_disp_from_stellar_mass = None
+        # Will be overwriten by interpolation function deriving velocity dispersion from stellar mass
 
 
     def deflector_number(self):
@@ -76,78 +74,46 @@ class DeflectorsBase(Galaxies):
         return self.source_number_selected
 
 
-    def draw_deflector(self, z_max=None, z_min=None, galaxy_index=None):
+    def draw_deflector(self, z_max=None, z_min=None, deflector_index=None):
         """
 
         :param z_max: maximum redshift limit for the galaxy to be drawn.
             If no galaxy is found for this limit, None will be returned.
         :param z_min: minimum redshift limit for the galaxy to be drawn.
             If no galaxy is found for this limit, None will be returned.
-        :param galaxy_index: index of galaxy to pic (if provided)
+        :param deflector_index: index of galaxy to pic (if provided)
         :return: dictionary of complete parameterization of a deflector
         """
 
-        halo_gal = self.draw_galaxy(z_max=z_max, z_min=z_min, galaxy_index=galaxy_index)
+        halo_gal = self.draw_galaxy(z_max=z_max, z_min=z_min, galaxy_index=deflector_index)
 
-        kwargs_source = _convert_catalog_to_source(galaxy=halo_gal, extended_source_type=self._extended_source_type,
-                                                   catalog_type=self._catalog_type, size_model=self._size_model,
-                                                   cosmo=self._cosmo, include_all_keywords=False)
-        kwargs_mass = self._light2mass(kwargs_source, halo_dict=halo_gal, **self._kwargs_mass2light)
+        kwargs_source = convert_catalog_to_source(galaxy=halo_gal, extended_source_type=self._extended_source_type,
+                                                  catalog_type=self._catalog_type, size_model=self._size_model,
+                                                  cosmo=self._cosmo, include_all_keywords=False)
+        kwargs_mass = deflector_util.light2mass(kwargs_source, halo_dict=halo_gal, mass_type=self.mass_type,
+                                                **self._kwargs_mass2light,
+                                                )
+        kwargs_mass = self._update_mass(kwargs_mass=kwargs_mass, kwargs_source=kwargs_source)
         z = kwargs_source.pop("z")
         deflector_class = Deflector(z=z, kwargs_mass=kwargs_mass, kwargs_light=kwargs_source)
         return deflector_class
 
-    def _light2mass(self, kwargs_source, light2mass_e_scaling=1, light2mass_e_scatter=0.1, halo_dict=None):
+    def _update_mass(self, kwargs_mass, kwargs_source):
         """
+        additional updates on mass
 
-        :param kwargs_source: dictioinary for Source() class
-        :param light2mass_e_scaling: scaling factor of mass eccentricity /
-        light eccentricity
-        :param light2mass_e_scatter: scatter in light and mass
-            eccentricities from the scaling relation
-        :param light2mass_angle_scatter: scatter in orientation angle
-            between light and mass eccentricity
-        :param halo_dict: dictionary of halo
-        :type halo_dict: entry of object to act as deflector
-        :return: dictionary for Mass() class
+        :param kwargs_mass:
+        :param kwargs_source: dictionary matching the Source() input class
+        :return:
         """
-        if halo_dict is not None:
-            halo_columns = halo_dict.colnames
-        else:
-            halo_columns = []
-        kwargs_mass = {"mass_type": self.mass_type}
-        if self.mass_type in ["EPL", "NFW", "NFW_HERNQUIST"]:
-
-            if "e1_mass" in halo_columns and "e2_mass" in halo_columns:
-                e1_mass, e2_mass = halo_dict["e1_mass"], halo_dict["e2_mass"]
-            elif "e_h" in halo_columns and "p_h" in halo_columns:
-                # SL_hammock conventions
-                e1_mass, e2_mass = galaxy_projected_eccentricity(
-                    float(halo_dict["e_h"]), rotation_angle=np.deg2rad(halo_dict["p_h"])
-                )
-            else:
-                # scale light to mass ellipticity
-                e1_light, e2_light = kwargs_source["e1"], kwargs_source["e1"]
-                e1_mass, e2_mass = light2mass_e_scaling * e1_light, light2mass_e_scaling * e2_light
-                # add scatter in mass
-                e_mass_scatter = np.random.normal(loc=0, scale=light2mass_e_scatter)
-                phi_scatter = np.random.uniform(0, np.pi)
-                e1_mass += e_mass_scatter * np.cos(2 * phi_scatter)
-                e2_mass += e_mass_scatter * np.sin(2 * phi_scatter)
-            kwargs_mass["e1"] = e1_mass
-            kwargs_mass["e2"] = e2_mass
-
         if self.mass_type in ["EPL"]:
-            gamma_pl = _gamma_pl(self._gamma_pl)
-            kwargs_mass["gamma_pl"] = gamma_pl
-            kwargs_mass["vel_disp"] = kwargs_source["vel_disp"]
-        if self.mass_type in ["NFW", "NFW_HERNQUIST"]:
-            if halo_dict is None:
-                raise ValueError("halo_dict needs to be provided for mass_type %s" % self.mass_type)
-            kwargs_mass["halo_mass"] = halo_dict["halo_mass"]
-            kwargs_mass["concentration"] = halo_dict["concentration"]
-
-
+            if "gamma_pl" in kwargs_mass and kwargs_mass["gamma_pl"] is None:
+                kwargs_mass["gamma_pl"] = _gamma_pl(self._gamma_pl)
+        if "vel_disp" not in kwargs_mass and "stellar_mass" in kwargs_source and \
+                self._vel_disp_from_stellar_mass is not None:
+            kwargs_mass["vel_disp"] = self._vel_disp_from_stellar_mass(
+                np.log10(kwargs_source["stellar_mass"])
+            )
         return kwargs_mass
 
 def _gamma_pl(gamma_pl):
