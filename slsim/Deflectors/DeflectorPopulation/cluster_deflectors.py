@@ -139,6 +139,7 @@ class ClusterDeflectors(object):
             table=deflector,
             mass_type=self._halo_deflector.mass_type,
             extended_source_type=None,
+            cosmo=self._cosmo,
             **self._kwargs_mass2light,
         )
 
