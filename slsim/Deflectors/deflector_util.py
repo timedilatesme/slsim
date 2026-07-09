@@ -7,7 +7,7 @@ from slsim.Util import param_util
 import numpy as np
 
 
-def deflector_from_table(table, mass_type, extended_source_type):
+def deflector_from_table(table, mass_type, extended_source_type, cosmo=None):
     """Create a Deflector() instance from a single table combining the light
     and mass arguments.
 
@@ -18,7 +18,7 @@ def deflector_from_table(table, mass_type, extended_source_type):
     :rtype: ~slsim.Deflectors.deflector.Deflector() instance
     """
     z, center_x, center_y, kwargs_mass, kwargs_light = deflector_dict_from_table(
-        table, mass_type, extended_source_type
+        table=table, mass_type=mass_type, extended_source_type=extended_source_type, cosmo=cosmo
     )
     deflector = Deflector(
         z=z,
@@ -31,13 +31,14 @@ def deflector_from_table(table, mass_type, extended_source_type):
 
 
 def deflector_dict_from_table(
-    table, mass_type, extended_source_type, **kwargs_mass2light
+    table, mass_type, extended_source_type, cosmo=None, **kwargs_mass2light
 ):
     """Dictionaries to create a Deflector() instance from a single table
     combining the light and mass arguments.
 
     :param table: table of all the parameters of mass and light
     :param mass_type: type of mass model for Mass() class
+    :param cosmo: astropy cosmology
     :param extended_source_type: type of light model for Source() class
     :return: z, center_x, center_y, kwargs_mass, kwargs_light
     """
@@ -46,12 +47,12 @@ def deflector_dict_from_table(
         extended_source_type,
         catalog_type=None,
         size_model=None,
-        cosmo=None,
+        cosmo=cosmo,
         include_all_keywords=False,
     )
 
     kwargs_mass = light2mass(
-        kwargs_light, mass_type, **kwargs_mass2light, halo_dict=table
+        kwargs_light, mass_type, **kwargs_mass2light, halo_dict=table,
     )
     if isinstance(table, dict):
         colnames = list(table.keys())

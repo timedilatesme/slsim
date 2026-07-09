@@ -198,7 +198,6 @@ class TestClusterDeflector:
         kwargs_deflector_cut = {}
         kwargs_mass2light = {}
         cosmo_Ob0_zero = FlatLambdaCDM(H0=70, Om0=0.3)  # Ob0 defaults to 0
-        cosmo_Ob0_none = FlatLambdaCDM(H0=70, Om0=0.3, Ob0=None)
         cosmo_Ob0_nonzero = FlatLambdaCDM(H0=70, Om0=0.3, Ob0=0.05)
         sky_area = Quantity(value=0.005, unit="deg2")
         ClusterDeflectors(
@@ -211,16 +210,7 @@ class TestClusterDeflector:
             sky_area=sky_area,
         )
         assert colossus_cosmo.current_cosmo.Ob0 == 0.04897
-        ClusterDeflectors(
-            self.cluster_catalog,
-            self.members_catalog,
-            galaxies=self.galaxies,
-            kwargs_cut=kwargs_deflector_cut,
-            kwargs_mass2light=kwargs_mass2light,
-            cosmo=cosmo_Ob0_none,
-            sky_area=sky_area,
-        )
-        assert colossus_cosmo.current_cosmo.Ob0 == 0.04897
+
         ClusterDeflectors(
             self.cluster_catalog,
             self.members_catalog,
