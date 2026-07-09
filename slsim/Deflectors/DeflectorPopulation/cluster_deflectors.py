@@ -7,7 +7,10 @@ from colossus.cosmology import cosmology as colossus_cosmo
 
 from slsim.Deflectors.DeflectorPopulation.deflectors_base import DeflectorsBase
 from slsim.Deflectors.deflector_group import DeflectorGroup
-from slsim.Deflectors.deflector_util import deflector_dict_from_table, set_colossus_cosmo
+from slsim.Deflectors.deflector_util import (
+    deflector_dict_from_table,
+    set_colossus_cosmo,
+)
 
 from lenstronomy.Util.param_util import phi_q2_ellipticity
 from astropy import units as u
