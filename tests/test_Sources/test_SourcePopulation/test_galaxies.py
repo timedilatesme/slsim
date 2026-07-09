@@ -428,21 +428,31 @@ def test__galaxy_size():
         # Bernardi size model needs mag_g in columns
         galaxy = {"z": 1}
         size_model = "Bernardi"
-        angular_size, physical_size = _galaxy_size(galaxy, size_model, catalog_type="skypy", cosmo=cosmo)
+        angular_size, physical_size = _galaxy_size(
+            galaxy, size_model, catalog_type="skypy", cosmo=cosmo
+        )
     galaxy = {"physical_size": 1 * u.kpc}
-    angular_size, physical_size = _galaxy_size(galaxy, size_model="NONE", catalog_type="skypy", cosmo=cosmo)
+    angular_size, physical_size = _galaxy_size(
+        galaxy, size_model="NONE", catalog_type="skypy", cosmo=cosmo
+    )
     npt.assert_almost_equal(physical_size.value, 1, decimal=5)
 
-    galaxy = {"physical_size": 1./1000 * u.Mpc}
-    angular_size, physical_size = _galaxy_size(galaxy, size_model="NONE", catalog_type="skypy", cosmo=cosmo)
+    galaxy = {"physical_size": 1.0 / 1000 * u.Mpc}
+    angular_size, physical_size = _galaxy_size(
+        galaxy, size_model="NONE", catalog_type="skypy", cosmo=cosmo
+    )
     npt.assert_almost_equal(physical_size.value, 1, decimal=5)
 
     galaxy = {"angular_size": 1 * u.arcsec}
-    angular_size, physical_size = _galaxy_size(galaxy, size_model="NONE", catalog_type="skypy", cosmo=cosmo)
+    angular_size, physical_size = _galaxy_size(
+        galaxy, size_model="NONE", catalog_type="skypy", cosmo=cosmo
+    )
     npt.assert_almost_equal(angular_size.value, 1, decimal=5)
 
-    galaxy = {"angular_size": np.pi / 3600 /180 * u.rad}
-    angular_size, physical_size = _galaxy_size(galaxy, size_model="NONE", catalog_type="skypy", cosmo=cosmo)
+    galaxy = {"angular_size": np.pi / 3600 / 180 * u.rad}
+    angular_size, physical_size = _galaxy_size(
+        galaxy, size_model="NONE", catalog_type="skypy", cosmo=cosmo
+    )
     npt.assert_almost_equal(angular_size.value, 1, decimal=5)
 
 
