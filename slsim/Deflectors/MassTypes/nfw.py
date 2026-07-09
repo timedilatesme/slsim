@@ -83,7 +83,7 @@ class NFW(MassBase):
         return lens_mass_model_list, kwargs_lens_mass
 
     @property
-    def halo_properties(self):
+    def mass_properties(self):
         """Properties of the NFW halo.
 
         :return: halo mass M200 [physical M_sol], concentration r200/rs

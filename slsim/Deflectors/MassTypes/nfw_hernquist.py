@@ -84,12 +84,12 @@ class NFWHernquist(MassBase):
         )
 
     @property
-    def halo_properties(self):
+    def mass_properties(self):
         """Properties of the NFW halo.
 
         :return: halo mass M200 [physical M_sol], concentration r200/rs
         """
-        return self._nfw.halo_properties
+        return self._nfw.mass_properties
 
     @property
     def ellipticity(self):

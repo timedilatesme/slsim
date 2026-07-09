@@ -28,22 +28,19 @@ except ImportError:
 
 @pytest.fixture
 def pes_lens_instance():
-    path = os.path.dirname(__file__)
-    source_dict = Table.read(
-        os.path.join(path, "../TestData/source_dict_ps.fits"), format="fits"
-    )
-    # deflector_dict = Table.read(
-    #    os.path.join(path, "../TestData/deflector_dict_ps.fits"), format="fits"
-    # )
 
-    kwargs_source = convert_catalog_to_source(
-        source_dict,
-        extended_source_type="single_sersic",
-        catalog_type=None,
-        size_model=None,
-        cosmo=None,
-        include_all_keywords=False,
-    )
+    kwargs_source = {"extended_source_type": "single_sersic", "point_source_type": "quasar",
+                     "z": 2, "angular_size": 1, "n_sersic": 2, "e1": 0.1, "e2": -0.1, "mag_g": float(19),
+        "mag_r": float(20),
+        "mag_i": float(19),
+        "mag_z": float(21),
+        "mag_Y": float(22),
+                     "ps_mag_g": float(19),
+                     "ps_mag_r": float(20),
+                     "ps_mag_i": float(19),
+                     "ps_mag_z": float(21),
+                     "ps_mag_Y": float(22),
+                     }
 
     cosmo = FlatLambdaCDM(H0=70, Om0=0.3)
     kwargs_mass = {
@@ -57,8 +54,11 @@ def pes_lens_instance():
         "extended_source_type": "single_sersic",
         "n_sersic": 2,
         "angular_size": 0.5,
-        "mag_r": 20,
-        "mag_i": 19,
+        "mag_g": float(19),
+        "mag_r": float(20),
+        "mag_i": float(19),
+        "mag_z": float(21),
+        "mag_Y": float(22),
         "e1": 0,
         "e2": 0,
     }
@@ -80,7 +80,6 @@ def pes_lens_instance():
         }
         source = Source(
             cosmo=cosmo,
-            point_source_type="quasar",
             **kwargs_quasar,
             **kwargs_source,
         )

@@ -73,7 +73,7 @@ class Mass(object):
 
         :return: halo mass M200 [physical M_sol], concentration r200/rs
         """
-        return self._mass.halo_properties
+        return self._mass.mass_properties
 
     def mass_model_lenstronomy(self, lens_cosmo, spherical=False):
         """Returns lens model instance and parameters in lenstronomy

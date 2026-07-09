@@ -43,7 +43,7 @@ class TestNFWHernquist(object):
         assert self.deflector_dict["light"].redshift == z
 
     def test_halo_properties(self):
-        kwargs_halo = self.nfw_hernquist.halo_properties
+        kwargs_halo = self.nfw_hernquist.mass_properties
         assert kwargs_halo["halo_mass"] == self.deflector_dict["halo_mass"]
         assert kwargs_halo["concentration"] == self.deflector_dict["concentration"]
 

@@ -56,7 +56,7 @@ class MassBase(ABC):
         return e1_mass, e2_mass
 
     @property
-    def halo_properties(self):
+    def mass_properties(self):
         """Mass density logarithmic slope.
 
         :return: gamma (with =2 is isothermal), velocity dispersion

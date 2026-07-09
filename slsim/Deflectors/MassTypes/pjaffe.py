@@ -81,8 +81,8 @@ class PJAFFE(MassBase):
         return lens_mass_model_list, kwargs_lens
 
     @property
-    def halo_properties(self):
-        """Properties of the NFW halo.
+    def mass_properties(self):
+        """Properties of the PJAFFE profile.
 
         :return: halo mass M200 [physical M_sol], concentration r200/rs
         """

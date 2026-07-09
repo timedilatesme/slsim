@@ -135,7 +135,7 @@ class EPL(MassBase):
         return lens_mass_model_list, kwargs_lens_mass
 
     @property
-    def halo_properties(self):
+    def mass_properties(self):
         """Mass density logarithmic slope.
 
         :return: gamma (with =2 is isothermal), velocity dispersion
