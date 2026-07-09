@@ -97,9 +97,9 @@ class SkyPyPipeline:
         # convert angular sizes from radian to arcsec
         self._pipeline["blue"]["angular_size"].convert_unit_to(u.arcsec)
         self._pipeline["red"]["angular_size"].convert_unit_to(u.arcsec)
-        #self._pipeline["angular_size"] = self._pipeline["angular_size"] * 3600 * 180 / np.pi
+        # self._pipeline["angular_size"] = self._pipeline["angular_size"] * 3600 * 180 / np.pi
 
-        #*3600 * 180 / np.pi
+        # *3600 * 180 / np.pi
 
         # TODO: make filters work
 
