@@ -7,7 +7,7 @@ from colossus.cosmology import cosmology as colossus_cosmo
 
 from slsim.Deflectors.DeflectorPopulation.deflectors_base import DeflectorsBase
 from slsim.Deflectors.deflector_group import DeflectorGroup
-from slsim.Deflectors.deflector_util import deflector_dict_from_table
+from slsim.Deflectors.deflector_util import deflector_dict_from_table, set_colossus_cosmo
 
 from lenstronomy.Util.param_util import phi_q2_ellipticity
 from astropy import units as u
@@ -382,19 +382,4 @@ class ClusterDeflectors(object):
     def set_cosmo(self):
         """Set the cosmology in colossus to match the astropy.cosmology
         instance."""
-        params = dict(
-            flat=(self._cosmo.Ok0 == 0.0),
-            H0=self._cosmo.H0.value,
-            Om0=self._cosmo.Om0,
-            Ode0=self._cosmo.Ode0,
-            Ob0=(
-                self._cosmo.Ob0
-                if (self._cosmo.Ob0 is not None) and (self._cosmo.Ob0 != 0)
-                else 0.04897
-            ),
-            Tcmb0=self._cosmo.Tcmb0.value if self._cosmo.Tcmb0.value > 0 else 2.7255,
-            Neff=self._cosmo.Neff,
-            sigma8=0.8102,
-            ns=0.9660499,
-        )
-        colossus_cosmo.setCosmology(cosmo_name="halo_cosmo", **params)
+        set_colossus_cosmo(cosmo=self._cosmo)

@@ -5,6 +5,7 @@ from slsim.Halos.halo_population import concent_m_w_scatter
 from slsim.Deflectors.deflector import Deflector
 from slsim.Util import param_util
 import numpy as np
+from colossus.cosmology import cosmology as colossus_cosmo
 
 
 def deflector_from_table(table, mass_type, extended_source_type, cosmo=None):
@@ -164,3 +165,27 @@ def light2mass(
         kwargs_mass["concentration"] = concentration
 
     return kwargs_mass
+
+
+def set_colossus_cosmo(cosmo):
+    """Set the cosmology in colossus to match the astropy.cosmology
+    instance.
+
+    :param cosmo: astropy cosmology instance
+    """
+    params = dict(
+        flat=(cosmo.Ok0 == 0.0),
+        H0=cosmo.H0.value,
+        Om0=cosmo.Om0,
+        Ode0=cosmo.Ode0,
+        Ob0=(
+            cosmo.Ob0
+            if (cosmo.Ob0 is not None) and (cosmo.Ob0 != 0)
+            else 0.04897
+        ),
+        Tcmb0=cosmo.Tcmb0.value if cosmo.Tcmb0.value > 0 else 2.7255,
+        Neff=cosmo.Neff,
+        sigma8=0.8102,
+        ns=0.9660499,
+    )
+    colossus_cosmo.setCosmology(cosmo_name="halo_cosmo", **params)
