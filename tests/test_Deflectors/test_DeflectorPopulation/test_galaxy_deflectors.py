@@ -7,7 +7,6 @@ from slsim.Deflectors.MassLightConnection.velocity_dispersion import (
 )
 from slsim.Pipelines.skypy_pipeline import SkyPyPipeline
 from astropy.units import Quantity
-from astropy.table import Table
 import numpy as np
 import pytest
 import copy

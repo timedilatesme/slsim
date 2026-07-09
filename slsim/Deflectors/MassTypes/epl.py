@@ -11,7 +11,7 @@ class EPL(MassBase):
     """
 
     def __init__(self, light, theta_E=None, vel_disp=None, gamma_pl=2,
-                 e1=0, e2=0, sis_convention=True):
+                 e1=0, e2=0, sis_convention=False):
         """
 
         :param light: light model (mostly used for position of deflector)
@@ -53,7 +53,7 @@ class EPL(MassBase):
         :return: Einstein radius of the deflector
         """
         if self._theta_E is None:
-            if self._gamma_pl == 2 or self._sis_convention is True:
+            if self._gamma_pl == 2 or self._sis_convention is True or self._light.extended_source_type is None:
                 theta_E = lens_cosmo.sis_sigma_v2theta_E(self.velocity_dispersion())
                 return theta_E
             else:

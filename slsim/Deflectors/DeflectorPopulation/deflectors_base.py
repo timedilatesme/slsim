@@ -90,9 +90,11 @@ class DeflectorsBase(Galaxies):
         kwargs_source = convert_catalog_to_source(galaxy=halo_gal, extended_source_type=self._extended_source_type,
                                                   catalog_type=self._catalog_type, size_model=self._size_model,
                                                   cosmo=self._cosmo, include_all_keywords=False)
+        print(halo_gal, 'test halo_gal')
         kwargs_mass = deflector_util.light2mass(kwargs_source, halo_dict=halo_gal, mass_type=self.mass_type,
                                                 **self._kwargs_mass2light,
                                                 )
+        print(kwargs_mass, 'test kwargs_mass')
         kwargs_mass = self._update_mass(kwargs_mass=kwargs_mass, kwargs_source=kwargs_source)
         z = kwargs_source.pop("z")
         deflector_class = Deflector(z=z, kwargs_mass=kwargs_mass, kwargs_light=kwargs_source)
@@ -107,7 +109,7 @@ class DeflectorsBase(Galaxies):
         :return:
         """
         if self.mass_type in ["EPL"]:
-            if "gamma_pl" in kwargs_mass and kwargs_mass["gamma_pl"] is None:
+            if self._gamma_pl is not None:
                 kwargs_mass["gamma_pl"] = _gamma_pl(self._gamma_pl)
         if "vel_disp" not in kwargs_mass and "stellar_mass" in kwargs_source and \
                 self._vel_disp_from_stellar_mass is not None:

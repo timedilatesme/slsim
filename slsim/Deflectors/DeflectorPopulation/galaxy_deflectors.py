@@ -88,10 +88,6 @@ class GalaxyDeflectors(DeflectorsBase):
             light_type=light_type
         )
 
-        n = len(galaxy_list)
-        column_names = galaxy_list.colnames
-        if "vel_disp" not in column_names:
-            galaxy_list["vel_disp"] = -np.ones(n)
 
 
 

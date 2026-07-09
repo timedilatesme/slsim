@@ -73,10 +73,6 @@ class TestLens(object):
         self.kwargs_light = kwargs_light
         self.kwargs_mass = kwargs_mass
 
-
-
-
-
         self.los_individual = LOSIndividual(kappa=0.1, gamma=[-0.1, -0.2])
 
         mag_arc_limit = {"i": 35, "g": 35, "r": 35}
