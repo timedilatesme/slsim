@@ -353,18 +353,18 @@ class TestGalaxies(object):
             catalog_type=None,
             size_model=None,
         )
-        #galaxies2 = convert_catalog_to_source(
+        # galaxies2 = convert_catalog_to_source(
         #    galaxy=self.gal_list2[0],
         #    extended_source_type="double_sersic",
         #    catalog_type="scotch",
-        #)
+        # )
 
-        #galaxies3 = convert_catalog_to_source(
+        # galaxies3 = convert_catalog_to_source(
         #    galaxy=self.galaxy_list2[0],
         #    extended_source_type="single_sersic",
         #    catalog_type="skypy",
         #    cosmo=self.cosmo,
-        #-)
+        # -)
         galaxy_list = Table(
             [
                 [0.5, 0.5, 0.5],

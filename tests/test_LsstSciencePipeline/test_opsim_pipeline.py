@@ -34,7 +34,7 @@ def pes_lens_instance():
     )
     # deflector_dict = Table.read(
     #    os.path.join(path, "../TestData/deflector_dict_ps.fits"), format="fits"
-    #)
+    # )
 
     kwargs_source = convert_catalog_to_source(
         source_dict,
