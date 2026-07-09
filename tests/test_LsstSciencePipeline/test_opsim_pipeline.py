@@ -36,15 +36,32 @@ def pes_lens_instance():
         os.path.join(path, "../TestData/deflector_dict_ps.fits"), format="fits"
     )
 
-    kwargs_source = convert_catalog_to_source(source_dict, extended_source_type="single_sersic",
-                                              catalog_type=None, size_model=None, cosmo=None,
-                                              include_all_keywords=False)
+    kwargs_source = convert_catalog_to_source(
+        source_dict,
+        extended_source_type="single_sersic",
+        catalog_type=None,
+        size_model=None,
+        cosmo=None,
+        include_all_keywords=False,
+    )
 
     cosmo = FlatLambdaCDM(H0=70, Om0=0.3)
-    kwargs_mass = {'vel_disp': 250, "gamma_pl": 2.0, "e1": 0.1, "e2": 0,
-                   "mass_type": "EPL"}
-    kwargs_light = {"extended_source_type": "single_sersic", "n_sersic": 2, "angular_size": 0.5,
-                    "mag_r": 20, "mag_i": 19, "e1": 0, "e2": 0}
+    kwargs_mass = {
+        "vel_disp": 250,
+        "gamma_pl": 2.0,
+        "e1": 0.1,
+        "e2": 0,
+        "mass_type": "EPL",
+    }
+    kwargs_light = {
+        "extended_source_type": "single_sersic",
+        "n_sersic": 2,
+        "angular_size": 0.5,
+        "mag_r": 20,
+        "mag_i": 19,
+        "e1": 0,
+        "e2": 0,
+    }
     while True:
         variable_agn_kwarg_dict = {
             "length_of_light_curve": 500,
@@ -67,9 +84,7 @@ def pes_lens_instance():
             **kwargs_quasar,
             **kwargs_source,
         )
-        deflector = Deflector(z=0.2, kwargs_mass=kwargs_mass,
-                              kwargs_light=kwargs_light
-        )
+        deflector = Deflector(z=0.2, kwargs_mass=kwargs_mass, kwargs_light=kwargs_light)
         pes_lens = Lens(
             source_class=source,
             deflector_class=deflector,
@@ -188,9 +203,14 @@ def lens_class_instance():
     deflector_dict_ = dict(zip(deflector_dict.colnames, deflector_dict[0]))
     gamma_pl = 1.8
     deflector_dict_["gamma_pl"] = gamma_pl
-    source_dict1 = {'z': 1}
-    kwargs_mass = {'vel_disp': 250, "gamma_pl": gamma_pl, "e1": 0.1, "e2": 0,
-                   "mass_type": "EPL"}
+    source_dict1 = {"z": 1}
+    kwargs_mass = {
+        "vel_disp": 250,
+        "gamma_pl": gamma_pl,
+        "e1": 0.1,
+        "e2": 0,
+        "mass_type": "EPL",
+    }
     kwargs_light = {}
     while True:
         kwargs_point_extended = {
@@ -208,8 +228,7 @@ def lens_class_instance():
             **source_dict1,
             **kwargs_point_extended,
         )
-        deflector = Deflector(z=0.2, kwargs_mass=kwargs_mass, kwargs_light=kwargs_light
-        )
+        deflector = Deflector(z=0.2, kwargs_mass=kwargs_mass, kwargs_light=kwargs_light)
 
         lens_class1 = Lens(
             deflector_class=deflector,

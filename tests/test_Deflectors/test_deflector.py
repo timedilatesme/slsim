@@ -9,48 +9,87 @@ class TestDeflector(object):
 
     def setup_method(self):
 
-        kwargs_light = {"extended_source_type": "single_sersic",
-                        "n_sersic": 1,
-                        "e1": 0.1,
-                        "e2": 0.2,
-                        "angular_size": 0.5,
-                        "mag_r": 25.,
-                        "mag_g": 20.,
-                        "stellar_mass": 1e11}
-        kwargs_mass = {"mass_type": "EPL",
-                       "vel_disp": 250,
-                       "gamma_pl": 2,
-                       "e1": 0.1,
-                       "e2": -0.1,
-                       }
-        kwargs_mass2 = {"mass_type": "EPL",
-                       "theta_E": 0.8,
-                       "gamma_pl": 2,
-                       "e1": 0.1,
-                       "e2": -0.1,
-                       }
+        kwargs_light = {
+            "extended_source_type": "single_sersic",
+            "n_sersic": 1,
+            "e1": 0.1,
+            "e2": 0.2,
+            "angular_size": 0.5,
+            "mag_r": 25.0,
+            "mag_g": 20.0,
+            "stellar_mass": 1e11,
+        }
+        kwargs_mass = {
+            "mass_type": "EPL",
+            "vel_disp": 250,
+            "gamma_pl": 2,
+            "e1": 0.1,
+            "e2": -0.1,
+        }
+        kwargs_mass2 = {
+            "mass_type": "EPL",
+            "theta_E": 0.8,
+            "gamma_pl": 2,
+            "e1": 0.1,
+            "e2": -0.1,
+        }
         self.kwargs_light = kwargs_light
         self.kwargs_mass = kwargs_mass
 
-        self.deflector = Deflector(z=0.5, center_x=0.1, center_y=0, kwargs_light=kwargs_light, kwargs_mass=kwargs_mass)
-        self.deflector3 = Deflector(z=0.5, center_x=0.1, center_y=0, kwargs_light=kwargs_light, kwargs_mass=kwargs_mass)
+        self.deflector = Deflector(
+            z=0.5,
+            center_x=0.1,
+            center_y=0,
+            kwargs_light=kwargs_light,
+            kwargs_mass=kwargs_mass,
+        )
+        self.deflector3 = Deflector(
+            z=0.5,
+            center_x=0.1,
+            center_y=0,
+            kwargs_light=kwargs_light,
+            kwargs_mass=kwargs_mass,
+        )
 
-        self.deflector2 = Deflector(z=0.5, center_x=0.1, center_y=0, kwargs_light=kwargs_light,
-                                    kwargs_mass=kwargs_mass2)
+        self.deflector2 = Deflector(
+            z=0.5,
+            center_x=0.1,
+            center_y=0,
+            kwargs_light=kwargs_light,
+            kwargs_mass=kwargs_mass2,
+        )
         self.lens_cosmo = LensCosmo(z_lens=0.5, z_source=1.5)
 
-        kwargs_mass_nfw = {"mass_type": "NFW_HERNQUIST", "halo_mass": 10**13, "concentration": 10, "e1": 0.1, "e2": -0.1}
-        kwargs_light_hernquist = {"extended_source_type": "hernquist", "e1": -0.1, "e2": 0.1, "stellar_mass": 1e11,
-                                  "angular_size": 3., "mag_g": 20}
+        kwargs_mass_nfw = {
+            "mass_type": "NFW_HERNQUIST",
+            "halo_mass": 10**13,
+            "concentration": 10,
+            "e1": 0.1,
+            "e2": -0.1,
+        }
+        kwargs_light_hernquist = {
+            "extended_source_type": "hernquist",
+            "e1": -0.1,
+            "e2": 0.1,
+            "stellar_mass": 1e11,
+            "angular_size": 3.0,
+            "mag_g": 20,
+        }
 
-        self.deflector_nfw_her = Deflector(z=0.5, center_x=0, center_y=0, kwargs_mass=kwargs_mass_nfw, kwargs_light=kwargs_light_hernquist
+        self.deflector_nfw_her = Deflector(
+            z=0.5,
+            center_x=0,
+            center_y=0,
+            kwargs_mass=kwargs_mass_nfw,
+            kwargs_light=kwargs_light_hernquist,
         )
-        self.deflector_backup = Deflector(z=0.5, kwargs_mass=kwargs_mass_nfw,
-                                           kwargs_light=kwargs_light_hernquist
-                                           )
+        self.deflector_backup = Deflector(
+            z=0.5, kwargs_mass=kwargs_mass_nfw, kwargs_light=kwargs_light_hernquist
+        )
 
-        self.deflector_epl = Deflector(z=0.5, center_x=0.1, center_y=0, kwargs_light=None,
-                                       kwargs_mass=kwargs_mass)
+        self.deflector_epl = Deflector(
+            z=0.5, center_x=0.1, center_y=0, kwargs_light=None, kwargs_mass=kwargs_mass
+        )
 
     def test_light_ellipticity(self):
         e1_light, e2_light = self.deflector.light_ellipticity
@@ -112,7 +151,9 @@ class TestDeflector(object):
         band = "g"
         r_eff = 1
         mag_arcsec2_center = self.deflector.surface_brightness(ra, dec, band=band)
-        mag_arcsec2_r_eff = self.deflector.surface_brightness(ra + r_eff, dec, band=band)
+        mag_arcsec2_r_eff = self.deflector.surface_brightness(
+            ra + r_eff, dec, band=band
+        )
         # TODO: define a more meaningful test
         npt.assert_almost_equal(
             mag_arcsec2_center / mag_arcsec2_r_eff, 0.8558993, decimal=3
@@ -133,7 +174,7 @@ class TestDeflector(object):
             cosmo=None, use_jax=False
         )
         npt.assert_almost_equal(theta_E_infinity, theta_E_infinity_new, decimal=5)
-        npt.assert_almost_equal(theta_E_infinity,  1.8024, decimal=3)
+        npt.assert_almost_equal(theta_E_infinity, 1.8024, decimal=3)
 
         theta_E_infinity_her = self.deflector_nfw_her.theta_e_infinity(
             cosmo=None, use_jax=use_jax

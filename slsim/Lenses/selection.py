@@ -1,5 +1,6 @@
 from astropy.table import Table
 
+
 def object_cut(
     galaxy_list,
     z_min=0,

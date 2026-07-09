@@ -13,7 +13,7 @@ import pytest
 
 @pytest.fixture
 def supernovae_lens_instance():
-    
+
     path = os.path.dirname(os.path.dirname(os.path.dirname(__file__)))
     source_dict = {
         "z": 1.5,
@@ -54,9 +54,20 @@ def supernovae_lens_instance():
         deflector_dict_new = copy.deepcopy(source_dict)
         deflector_dict_new.pop("z")
         deflector_dict_new["extended_source_type"] = "double_sersic"
-        kwargs_mass = {"mass_type": "EPL", "theta_E": 1, "e1": 0.1, "e2": 0.05, "gamma_pl": 2.0}
-        deflector = Deflector(z=deflector_dict["z"], center_x=0.1, center_y=0, kwargs_mass=kwargs_mass,
-                              kwargs_light=deflector_dict_new)
+        kwargs_mass = {
+            "mass_type": "EPL",
+            "theta_E": 1,
+            "e1": 0.1,
+            "e2": 0.05,
+            "gamma_pl": 2.0,
+        }
+        deflector = Deflector(
+            z=deflector_dict["z"],
+            center_x=0.1,
+            center_y=0,
+            kwargs_mass=kwargs_mass,
+            kwargs_light=deflector_dict_new,
+        )
 
         supernovae_lens = Lens(
             deflector_class=deflector,
@@ -64,12 +75,13 @@ def supernovae_lens_instance():
             cosmo=cosmo,
         )
         print(supernovae_lens.deflector.deflector_center, "deflector center")
-        print(supernovae_lens.source(index=0).point_source_position, "supernovae position")
+        print(
+            supernovae_lens.source(index=0).point_source_position, "supernovae position"
+        )
         if supernovae_lens.validity_test():
 
             break
     return supernovae_lens
-
 
 
 def test_kwargs_model(supernovae_lens_instance):

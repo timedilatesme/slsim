@@ -1,4 +1,3 @@
-
 from lenstronomy.LightModel.light_model import LightModel
 from lenstronomy.Util import data_util
 from slsim.Util import param_util, lenstronomy_util
@@ -14,9 +13,15 @@ class Deflector(object):
     """Class of a single deflector with quantities only related to the
     deflector (independent of the source)"""
 
-    def __init__(self, z,
-                 deflector_area=0.01,
-                 center_x=None, center_y=None, kwargs_mass=None, kwargs_light=None):
+    def __init__(
+        self,
+        z,
+        deflector_area=0.01,
+        center_x=None,
+        center_y=None,
+        kwargs_mass=None,
+        kwargs_light=None,
+    ):
         """
 
         :param z: redshift of deflector
@@ -36,14 +41,14 @@ class Deflector(object):
         # make a Source() instance with the joint redshift and center position
         if kwargs_light is None:
             kwargs_light = {}
-        self.light = Source(z=z, lensed=False, center_x=center_x, center_y=center_y, **kwargs_light)
+        self.light = Source(
+            z=z, lensed=False, center_x=center_x, center_y=center_y, **kwargs_light
+        )
         self.mass = Mass(light=self.light, **kwargs_mass)
 
     @property
     def name(self):
-        """
-        takes name of light model
-
+        """Takes name of light model.
 
         :return: name of object
         """
@@ -51,8 +56,7 @@ class Deflector(object):
 
     @property
     def deflector_type(self):
-        """
-        type of the mass deflector
+        """Type of the mass deflector.
 
         :return: mass type
         :rtype: string
@@ -119,7 +123,12 @@ class Deflector(object):
             renders within area)
         :return: Source() instance updated with new center position
         """
-        self.light.update_center(area=area, center_x=center_x, center_y=center_y, reference_position=reference_position)
+        self.light.update_center(
+            area=area,
+            center_x=center_x,
+            center_y=center_y,
+            reference_position=reference_position,
+        )
         # TODO: these next lines of code might not be required if done properly
         center_x, center_y = self.light.extended_source_position
         self._center_lens = np.array([center_x, center_y])
@@ -133,7 +142,8 @@ class Deflector(object):
         return self.light.stellar_mass
 
     def magnitude(self, band):
-        """Apparent magnitude of the deflector for a given band (extended light).
+        """Apparent magnitude of the deflector for a given band (extended
+        light).
 
         :param band: imaging band
         :type band: string
@@ -181,7 +191,9 @@ class Deflector(object):
         """
         if lens_cosmo.z_lens >= lens_cosmo.z_source:
             return [], []
-        return self.mass.mass_model_lenstronomy(lens_cosmo=lens_cosmo, spherical=spherical)
+        return self.mass.mass_model_lenstronomy(
+            lens_cosmo=lens_cosmo, spherical=spherical
+        )
 
     def light_model_lenstronomy(self, band=None):
         """Returns lens model instance and parameters in lenstronomy
@@ -205,7 +217,8 @@ class Deflector(object):
     def mass_properties(self):
         """Properties of the NFW halo.
 
-        :return: dictionary of relevant mass properties, such as halo mass M200 [physical M_sol], concentration r200/rs
+        :return: dictionary of relevant mass properties, such as halo
+            mass M200 [physical M_sol], concentration r200/rs
         """
         return self.mass.mass_properties
 
@@ -222,7 +235,6 @@ class Deflector(object):
             band=band
         )
         return surface_brightness(ra, dec, lens_light_model_list, kwargs_lens_light_mag)
-
 
     def theta_e_infinity(self, cosmo, use_jax=True):
         """Einstein radius for a source at infinity (or well passed where
@@ -248,13 +260,14 @@ class Deflector(object):
             lens_cosmo = LensCosmo(
                 cosmo=cosmo, z_lens=self.redshift, z_source=_z_source_infty
             )
-            lens_mass_model_list, kwargs_lens_mass = (
-                self.mass.mass_model_lenstronomy(
-                    lens_cosmo=lens_cosmo, spherical=True
-                )
+            lens_mass_model_list, kwargs_lens_mass = self.mass.mass_model_lenstronomy(
+                lens_cosmo=lens_cosmo, spherical=True
             )
-            theta_E_infinity = lenstronomy_util.theta_E_numerical(lens_mass_model_list=lens_mass_model_list,
-                                               kwargs_lens_mass=kwargs_lens_mass, use_jax=use_jax)
+            theta_E_infinity = lenstronomy_util.theta_E_numerical(
+                lens_mass_model_list=lens_mass_model_list,
+                kwargs_lens_mass=kwargs_lens_mass,
+                use_jax=use_jax,
+            )
 
         self._theta_e_infinity = theta_E_infinity
         return theta_E_infinity
@@ -265,8 +278,10 @@ def surface_brightness(ra, dec, lens_light_model_list, kwargs_lens_light_mag):
 
     :param ra: position RA
     :param dec: position DEC
-    :param lens_light_model_list: list of light models in lenstronomy conventions
-    :param kwargs_lens_light_mag: list of light model dictionaries with magnitudes
+    :param lens_light_model_list: list of light models in lenstronomy
+        conventions
+    :param kwargs_lens_light_mag: list of light model dictionaries with
+        magnitudes
     :return: surface brightness at position ra/dec [mag / arcsec^2]
     """
     _mag_zero_dummy = 0  # from mag to amp conversion we need a dummy mag zero point. Irrelevant for this routine.

@@ -22,7 +22,6 @@ class MassBase(ABC):
         self._light = light
         self.num_mass_models = 1
 
-
     @abstractmethod
     def velocity_dispersion(self, cosmo=None):
         """Velocity dispersion of deflector.
@@ -60,7 +59,8 @@ class MassBase(ABC):
     def halo_properties(self):
         """Mass density logarithmic slope.
 
-        :return: gamma (with =2 is isothermal), velocity dispersion [km/s]
+        :return: gamma (with =2 is isothermal), velocity dispersion
+            [km/s]
         :rtype: dict
         """
         return {}
@@ -68,8 +68,7 @@ class MassBase(ABC):
     @property
     @abstractmethod
     def ellipticity(self):
-        """
-        Deflector eccentricities
+        """Deflector eccentricities.
 
         :return: e1, e2
         """

@@ -6,25 +6,26 @@ from slsim.Deflectors.DeflectorPopulation.deflectors_base import DeflectorsBase
 from astropy.table import vstack
 
 
-
 class GalaxyDeflectors(DeflectorsBase):
     """Class describing all-type galaxies.
-    Abundance matching of velocity dispersion only being applied to the red galaxies,
-    but retrieved scaling between stellar mass and velocity dispersion is being applied to all galaxies.
+
+    Abundance matching of velocity dispersion only being applied to the
+    red galaxies, but retrieved scaling between stellar mass and
+    velocity dispersion is being applied to all galaxies.
     """
 
     def __init__(
-            self,
-            red_galaxy_list,
-            kwargs_mass2light,
-            cosmo,
-            sky_area,
-            blue_galaxy_list=None,
-            kwargs_cut=None,
-            gamma_pl=None,
-            catalog_type="skypy",
-            mass_type="EPL",
-            light_type="single_sersic",
+        self,
+        red_galaxy_list,
+        kwargs_mass2light,
+        cosmo,
+        sky_area,
+        blue_galaxy_list=None,
+        kwargs_cut=None,
+        gamma_pl=None,
+        catalog_type="skypy",
+        mass_type="EPL",
+        light_type="single_sersic",
     ):
         """
         :param red_galaxy_list: list of dictionary with elliptical galaxy
@@ -85,11 +86,5 @@ class GalaxyDeflectors(DeflectorsBase):
             kwargs_mass2light=kwargs_mass2light,
             catalog_type=catalog_type,
             mass_type=mass_type,
-            light_type=light_type
+            light_type=light_type,
         )
-
-
-
-
-
-

@@ -4,8 +4,7 @@ from slsim.Deflectors.MassLightConnection.velocity_dispersion import vel_disp_nf
 
 
 class NFW(MassBase):
-    """Class of a NFW+Hernquist lens model with a Hernquist light mode.
-    """
+    """Class of a NFW+Hernquist lens model with a Hernquist light mode."""
 
     def __init__(self, light, halo_mass, concentration, e1=0, e2=0, vel_disp=None):
         """
@@ -35,7 +34,10 @@ class NFW(MassBase):
         """
         if self._vel_disp is None:
             self._vel_disp = vel_disp_nfw(
-                self._halo_mass, self._concentration, cosmo=cosmo, z_lens=self._light.redshift
+                self._halo_mass,
+                self._concentration,
+                cosmo=cosmo,
+                z_lens=self._light.redshift,
             )
         return self._vel_disp
 
@@ -60,7 +62,9 @@ class NFW(MassBase):
             lens_mass_model_list = ["NFW_ELLIPSE_CSE"]
 
         # halo mass, concentration, stellar mass
-        rs_halo, alpha_rs = lens_cosmo.nfw_physical2angle(M=self._halo_mass, c=self._concentration)
+        rs_halo, alpha_rs = lens_cosmo.nfw_physical2angle(
+            M=self._halo_mass, c=self._concentration
+        )
         center_x, center_y = self._light.extended_source_position
         kwargs_lens_mass = [
             {
@@ -88,8 +92,7 @@ class NFW(MassBase):
 
     @property
     def ellipticity(self):
-        """
-        Deflector eccentricities
+        """Deflector eccentricities.
 
         :return: e1, e2
         """

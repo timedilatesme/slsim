@@ -3,11 +3,14 @@ import pytest
 import numpy as np
 from astropy.cosmology import FlatLambdaCDM
 from slsim.LOS.los_individual import LOSIndividual
-#import slsim.Sources as sources
-#import slsim.Deflectors as deflectors
+
+# import slsim.Sources as sources
+# import slsim.Deflectors as deflectors
 from slsim.Sources.SourcePopulation.galaxies import Galaxies
 from slsim.Deflectors.DeflectorPopulation.galaxy_deflectors import GalaxyDeflectors
-from slsim.Sources.SourcePopulation.point_plus_extended_sources import PointPlusExtendedSources
+from slsim.Sources.SourcePopulation.point_plus_extended_sources import (
+    PointPlusExtendedSources,
+)
 
 import slsim.Pipelines as pipelines
 from slsim.FalsePositives.false_positive import FalsePositive
@@ -48,9 +51,9 @@ def fp_test_setup():
         os.path.join(path, "../TestData/qso_host_catalog.fits")
     )
     # 'e0_1', 'e0_2', 'e1_1', 'e1_2'
-    loaded_qso_host_catalog.rename_column('e0_1', 'e1_0')
-    loaded_qso_host_catalog.rename_column('e0_2', 'e2_0')
-    loaded_qso_host_catalog.rename_column('e1_2', 'e2_1')
+    loaded_qso_host_catalog.rename_column("e0_1", "e1_0")
+    loaded_qso_host_catalog.rename_column("e0_2", "e2_0")
+    loaded_qso_host_catalog.rename_column("e1_2", "e2_1")
     source_quasars = PointPlusExtendedSources(
         point_plus_extended_sources_list=loaded_qso_host_catalog,
         cosmo=cosmo,

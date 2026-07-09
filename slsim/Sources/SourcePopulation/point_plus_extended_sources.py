@@ -51,9 +51,7 @@ class PointPlusExtendedSources(Galaxies):
          Please see documentation of ExtendedSource() class as well as specific extended source classes.
         """
         object_list = object_cut(
-            point_plus_extended_sources_list,
-            object_type="point",
-            **kwargs_cut
+            point_plus_extended_sources_list, object_type="point", **kwargs_cut
         )
         Galaxies.__init__(
             self,
@@ -77,8 +75,12 @@ class PointPlusExtendedSources(Galaxies):
             If no galaxy is found for this limit, None will be returned.
         :return: instance of Source class
         """
-        kwargs_source = self.draw_source_dict(z_max=z_max, z_min=z_min, galaxy_index=galaxy_index,
-                                              include_all_keywords=True)
+        kwargs_source = self.draw_source_dict(
+            z_max=z_max,
+            z_min=z_min,
+            galaxy_index=galaxy_index,
+            include_all_keywords=True,
+        )
         if kwargs_source is None:
             return None
         source_class = Source(

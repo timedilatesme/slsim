@@ -4,8 +4,7 @@ from slsim.Deflectors.MassTypes.mass_base import MassBase
 
 
 class Hernquist(MassBase):
-    """Class of a Hernquist lens model from a Hernquist light mode.
-    """
+    """Class of a Hernquist lens model from a Hernquist light mode."""
 
     def __init__(self, light, vel_disp=None):
         """
@@ -63,19 +62,15 @@ class Hernquist(MassBase):
         ]
         if _spherical is False:
             e1_light_lenstronomy, e2_light_lenstronomy = (
-                ellipticity_slsim_to_lenstronomy(
-                    e1_slsim=e1_light, e2_slsim=e2_light
-                )
+                ellipticity_slsim_to_lenstronomy(e1_slsim=e1_light, e2_slsim=e2_light)
             )
             kwargs_lens_mass[0]["e1"] = e1_light_lenstronomy
             kwargs_lens_mass[0]["e2"] = e2_light_lenstronomy
         return lens_mass_model_list, kwargs_lens_mass
 
-
     @property
     def ellipticity(self):
-        """
-        Deflector eccentricities
+        """Deflector eccentricities.
 
         :return: e1, e2
         """

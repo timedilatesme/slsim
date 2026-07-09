@@ -37,7 +37,9 @@ class GeneralLightCurve(SourceBase):
         # These are the keywords that kwargs dict should contain
         self._MJD = MJD
 
-    def point_source_magnitude(self, band, image_observation_times=None, at_maximum=False):
+    def point_source_magnitude(
+        self, band, image_observation_times=None, at_maximum=False
+    ):
         """Get the magnitude of the point source in a specific band.
 
         :param band: Imaging band

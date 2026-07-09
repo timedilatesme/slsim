@@ -75,9 +75,7 @@ class TestQuasar:
             cosmo=None, **self.kwargs_quasar, **self.source_dict
         )
         self.source_agn_band_error = Quasar(
-            cosmo=cosmo,
-            **self.kwargs_quasar,
-            **self.source_dict3
+            cosmo=cosmo, **self.kwargs_quasar, **self.source_dict3
         )
 
         self.source_light_curve = Quasar(

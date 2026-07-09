@@ -11,17 +11,24 @@ import pytest
 import os
 
 
-class TestClusterDeflector():
+class TestClusterDeflector:
 
     def setup_method(self):
         cosmo = FlatLambdaCDM(H0=70, Om0=0.3)
         sky_area = Quantity(value=0.005, unit="deg2")
-        pipeline = SkyPyPipeline(skypy_config=None, sky_area=sky_area, filters=None, cosmo=cosmo)
+        pipeline = SkyPyPipeline(
+            skypy_config=None, sky_area=sky_area, filters=None, cosmo=cosmo
+        )
         self.red_gal = pipeline.red_galaxies
         kwargs_deflector_cut = {}
         kwargs_mass2light = {}
-        self.galaxies = Galaxies(galaxy_list=self.red_gal, cosmo=cosmo, sky_area=sky_area, kwargs_cut=kwargs_deflector_cut,
-                            catalog_type="skypy")
+        self.galaxies = Galaxies(
+            galaxy_list=self.red_gal,
+            cosmo=cosmo,
+            sky_area=sky_area,
+            kwargs_cut=kwargs_deflector_cut,
+            catalog_type="skypy",
+        )
 
         path = os.path.dirname(__file__)
         module_path = os.path.dirname(os.path.dirname(os.path.dirname(path)))
@@ -47,7 +54,6 @@ class TestClusterDeflector():
         num_deflectors = self.cluster_pop.deflector_number()
         assert num_deflectors == 80
 
-
     def test_draw_deflector(self):
 
         deflector = self.cluster_pop.draw_deflector()
@@ -56,15 +62,17 @@ class TestClusterDeflector():
         # test if the properties of the deflector are
         # as expected from the input catalog
         assert (deflector.redshift > 0.2) and (deflector.redshift < 1.0)
-        assert (deflector.deflector(deflector_index=0).mass_properties["halo_mass"] > 1e12) and (
+        assert (
+            deflector.deflector(deflector_index=0).mass_properties["halo_mass"] > 1e12
+        ) and (
             deflector.deflector(deflector_index=0).mass_properties["halo_mass"] < 3e15
         )
-        assert (deflector.deflector(deflector_index=0).mass_properties["concentration"] > 1) and \
-               (deflector.deflector(deflector_index=0).mass_properties["concentration"] < 15)
+        assert (
+            deflector.deflector(deflector_index=0).mass_properties["concentration"] > 1
+        ) and (
+            deflector.deflector(deflector_index=0).mass_properties["concentration"] < 15
+        )
         assert (len(members) >= 1) and (len(members) < 100)
-
-
-
 
     def test_missing_id(self):
         cluster_catalog = copy.deepcopy(self.cluster_catalog)
@@ -83,7 +91,6 @@ class TestClusterDeflector():
                 cosmo=cosmo,
                 sky_area=sky_area,
             )
-
 
     def test_missing_richness(self):
         cluster_catalog = copy.deepcopy(self.cluster_catalog)
@@ -167,7 +174,6 @@ class TestClusterDeflector():
         members = cluster_pop._draw_members(cluster_id=cluster["cluster_id"])
         assert members["center_x"][0] == 0.0
 
-
     def test_missing_magnitudes(self):
         members_catalog = copy.deepcopy(self.members_catalog)
         for col in members_catalog.colnames:
@@ -187,7 +193,6 @@ class TestClusterDeflector():
                 cosmo=cosmo,
                 sky_area=sky_area,
             )
-
 
     def test_cosmo_Ob0(self):
         kwargs_deflector_cut = {}
@@ -227,7 +232,6 @@ class TestClusterDeflector():
         )
         assert colossus_cosmo.current_cosmo.Ob0 == 0.05
 
-
     def test_get_deflector(self):
         cluster_pop = self.cluster_pop
         cluster = cluster_pop.draw_cluster(index=0)
@@ -240,10 +244,11 @@ class TestClusterDeflector():
         assert (mass_properties["halo_mass"] > 1e12) and (
             mass_properties["halo_mass"] < 3e15
         )
-        assert (mass_properties["concentration"] > 1) and (mass_properties["concentration"] < 15)
+        assert (mass_properties["concentration"] > 1) and (
+            mass_properties["concentration"] < 15
+        )
         assert (len(members) >= 1) and (len(members) < 100)
 
 
 if __name__ == "__main__":
     pytest.main()
-

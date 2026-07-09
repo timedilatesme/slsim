@@ -22,12 +22,23 @@ def supernovae_lens_instance():
     source_dict.rename_column("angular_size0", "angular_size_0")
     source_dict.rename_column("angular_size1", "angular_size_1")
 
-
     cosmo = FlatLambdaCDM(H0=70, Om0=0.3)
     z_lens = 0.5
-    kwargs_mass = {"vel_disp": 250, "gamma_pl": 2, "e1": 0.1, "e2": 0.01, "mass_type": "EPL"}
-    kwargs_light = {"extended_source_type": "single_sersic", "angular_size": 1., "e1": 0.1, "e2": 0.01, "n_sersic": 1,
-                    "mag_i": 20}
+    kwargs_mass = {
+        "vel_disp": 250,
+        "gamma_pl": 2,
+        "e1": 0.1,
+        "e2": 0.01,
+        "mass_type": "EPL",
+    }
+    kwargs_light = {
+        "extended_source_type": "single_sersic",
+        "angular_size": 1.0,
+        "e1": 0.1,
+        "e2": 0.01,
+        "n_sersic": 1,
+        "mag_i": 20,
+    }
     while True:
         kwargs_sn = {
             "variability_model": "light_curve",
@@ -45,8 +56,8 @@ def supernovae_lens_instance():
             **kwargs_sn,
             **source_dict,
         )
-        deflector = Deflector(z=z_lens, kwargs_mass=kwargs_mass,
-                              kwargs_light=kwargs_light
+        deflector = Deflector(
+            z=z_lens, kwargs_mass=kwargs_mass, kwargs_light=kwargs_light
         )
         supernovae_lens = Lens(
             deflector_class=deflector,

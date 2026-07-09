@@ -39,6 +39,7 @@ def all_lens_galaxies():
         sky_area=sky_area,
     )
 
+
 @pytest.fixture
 def red_galaxies():
     galaxy_list = copy.copy(galaxies)
@@ -148,6 +149,7 @@ def test_all_lens_galaxies_2():
             gamma_pl=[2.1, 0.16],
         )
         deflectors.draw_deflector()
+
 
 def test_elliptical_galaxies():
     galaxy_list = copy.copy(galaxies)

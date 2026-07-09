@@ -20,14 +20,16 @@ class TestEPLSersic(object):
 
     def setup_method(self):
 
-        self.kwargs_source = {"extended_source_type": "single_sersic",
-                              "angular_size": 0.1,
-                              "n_sersic": 1,
-                              "e1": -0.1,
-                              "e2": 0.1,
-                              "center_x": 0,
-                              "center_y": 0,
-                              "z": 0.5,}
+        self.kwargs_source = {
+            "extended_source_type": "single_sersic",
+            "angular_size": 0.1,
+            "n_sersic": 1,
+            "e1": -0.1,
+            "e2": 0.1,
+            "center_x": 0,
+            "center_y": 0,
+            "z": 0.5,
+        }
 
         source = Source(**self.kwargs_source)
 
@@ -36,8 +38,6 @@ class TestEPLSersic(object):
             "e1": 0.1,
             "e2": -0.1,
             "gamma_pl": 2,
-
-
         }
         # gamma_pl not given, hence using isothermal
         self.sie_sersic = EPL(light=source, **self.deflector_dict)
@@ -107,8 +107,6 @@ class TestEPLSersic(object):
     def test_halo_porperties(self):
         gamma = self.sie_sersic.halo_properties["gamma_pl"]
         assert gamma == 2.0
-
-
 
 
 if __name__ == "__main__":

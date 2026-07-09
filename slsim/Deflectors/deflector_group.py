@@ -1,4 +1,3 @@
-
 from slsim.Util import param_util, lenstronomy_util
 import numpy as np
 from lenstronomy.Cosmo.lens_cosmo import LensCosmo
@@ -6,16 +5,22 @@ from slsim.Deflectors.deflector import surface_brightness, Deflector
 
 
 class DeflectorGroup(object):
+    """Class to handle sets of deflectors that are bundled together.
+
+    They have joint redshift, and a centroid
     """
-    class to handle sets of deflectors that are bundled together. They have joint redshift, and a centroid
-    """
-    def __init__(self, z,
-                 kwargs_mass_list,
-                 kwargs_light_list,
-                 center_x_deflector_list,
-                 center_y_deflector_list,
-                 deflector_area=0.01,
-                 center_x=None, center_y=None):
+
+    def __init__(
+        self,
+        z,
+        kwargs_mass_list,
+        kwargs_light_list,
+        center_x_deflector_list,
+        center_y_deflector_list,
+        deflector_area=0.01,
+        center_x=None,
+        center_y=None,
+    ):
         """
 
         :param z: redshift of deflector
@@ -37,21 +42,37 @@ class DeflectorGroup(object):
         self._center_lens = np.array([center_x, center_y])
         # make a Source() instance with the joint redshift and center position
         if len(kwargs_mass_list) != len(kwargs_light_list):
-            raise ValueError("length of list of kwargs_mass = %s needs to be the same as the length of "
-                             "kwargs_light = %s" % (len(kwargs_mass_list), len(kwargs_light_list)))
+            raise ValueError(
+                "length of list of kwargs_mass = %s needs to be the same as the length of "
+                "kwargs_light = %s" % (len(kwargs_mass_list), len(kwargs_light_list))
+            )
 
         self._num_deflectors = len(kwargs_mass_list)
-        if len(center_x_deflector_list) != self._num_deflectors or len(center_y_deflector_list) != self._num_deflectors:
-            raise ValueError("length of list of center_x_deflector_list = %s and center_y_deflector_list = %s "
-                             "needs to be the same as the length of "
-                             "kwargs_light = %s" % (len(center_x_deflector_list), len(center_y_deflector_list),
-                                                    self._num_deflectors))
+        if (
+            len(center_x_deflector_list) != self._num_deflectors
+            or len(center_y_deflector_list) != self._num_deflectors
+        ):
+            raise ValueError(
+                "length of list of center_x_deflector_list = %s and center_y_deflector_list = %s "
+                "needs to be the same as the length of "
+                "kwargs_light = %s"
+                % (
+                    len(center_x_deflector_list),
+                    len(center_y_deflector_list),
+                    self._num_deflectors,
+                )
+            )
         self._deflector_list = []
         for i in range(self._num_deflectors):
             center_x_i = center_x + center_x_deflector_list[i]
             center_y_i = center_y + center_y_deflector_list[i]
-            deflector = Deflector(z=z, kwargs_mass=kwargs_mass_list[i], kwargs_light=kwargs_light_list[i],
-                                  center_x=center_x_i, center_y=center_y_i)
+            deflector = Deflector(
+                z=z,
+                kwargs_mass=kwargs_mass_list[i],
+                kwargs_light=kwargs_light_list[i],
+                center_x=center_x_i,
+                center_y=center_y_i,
+            )
             self._deflector_list.append(deflector)
         self._deflector_type = "group"
         self._z = float(z)
@@ -60,8 +81,7 @@ class DeflectorGroup(object):
 
     @property
     def deflector_type(self):
-        """
-        type of the mass deflector
+        """Type of the mass deflector.
 
         :return: mass type
         :rtype: string
@@ -89,8 +109,7 @@ class DeflectorGroup(object):
         return num_models
 
     def deflector(self, deflector_index=0):
-        """
-        single Deflector() class
+        """Single Deflector() class.
 
         :param deflector_index: index of deflector
         :return: ~slsim.Deflector() type
@@ -124,7 +143,7 @@ class DeflectorGroup(object):
         return self._center_lens
 
     def update_center(
-            self, area=None, reference_position=None, center_x=None, center_y=None
+        self, area=None, reference_position=None, center_x=None, center_y=None
     ):
         """Overwrites the deflector center position.
 
@@ -141,12 +160,18 @@ class DeflectorGroup(object):
         :return: Source() instance updated with new center position
         """
 
-        self._center_lens = param_util.update_center(area=area, reference_position=reference_position,
-                                                       center_x=center_x, center_y=center_y)
+        self._center_lens = param_util.update_center(
+            area=area,
+            reference_position=reference_position,
+            center_x=center_x,
+            center_y=center_y,
+        )
         center_x, center_y = self._center_lens[0], self._center_lens[1]
         for i, deflector in enumerate(self._deflector_list):
-            deflector.update_center(center_x=center_x + self._center_x_deflector_list[i],
-                                center_y=center_y + self._center_y_deflector_list[i])
+            deflector.update_center(
+                center_x=center_x + self._center_x_deflector_list[i],
+                center_y=center_y + self._center_y_deflector_list[i],
+            )
 
     @property
     def stellar_mass(self):
@@ -162,7 +187,8 @@ class DeflectorGroup(object):
         return stellar_mass
 
     def magnitude(self, band):
-        """Apparent magnitude of the deflector for a given band (extended light).
+        """Apparent magnitude of the deflector for a given band (extended
+        light).
 
         :param band: imaging band
         :type band: string
@@ -172,11 +198,10 @@ class DeflectorGroup(object):
         for deflector in self._deflector_list:
             mag_ = deflector.magnitude(band=band)
             if mag_ is not None:
-                flux_i = 10 **(-0.4 * mag_)
+                flux_i = 10 ** (-0.4 * mag_)
                 flux += flux_i
         mag_tot = -2.5 * np.log10(flux)
         return mag_tot
-
 
     def mass_model_lenstronomy(self, lens_cosmo, spherical=False):
         """Returns lens model instance and parameters in lenstronomy
@@ -184,7 +209,8 @@ class DeflectorGroup(object):
 
         :param lens_cosmo: lens cosmology model
         :type lens_cosmo: ~lenstronomy.Cosmo.LensCosmo instance
-        :param spherical: if True, removes ellipticity for simpler calculations
+        :param spherical: if True, removes ellipticity for simpler
+            calculations
         :type spherical: bool
         :return: lens_mass_model_list, kwargs_lens_mass
         """
@@ -193,7 +219,9 @@ class DeflectorGroup(object):
         lens_mass_model_list = []
         kwargs_lens_mass = []
         for deflect in self._deflector_list:
-            model_list, kwargs_mass = deflect.mass_model_lenstronomy(lens_cosmo=lens_cosmo, spherical=spherical)
+            model_list, kwargs_mass = deflect.mass_model_lenstronomy(
+                lens_cosmo=lens_cosmo, spherical=spherical
+            )
             lens_mass_model_list += model_list
             kwargs_lens_mass += kwargs_mass
         return lens_mass_model_list, kwargs_lens_mass
@@ -243,13 +271,14 @@ class DeflectorGroup(object):
         lens_cosmo = LensCosmo(
             cosmo=cosmo, z_lens=self.redshift, z_source=_z_source_infty
         )
-        lens_mass_model_list, kwargs_lens_mass = (
-            self.mass_model_lenstronomy(
-                lens_cosmo=lens_cosmo, spherical=True
-            )
+        lens_mass_model_list, kwargs_lens_mass = self.mass_model_lenstronomy(
+            lens_cosmo=lens_cosmo, spherical=True
         )
         print(kwargs_lens_mass, "test kwargs_lens_mass")
-        theta_E_infinity = lenstronomy_util.theta_E_numerical(lens_mass_model_list=lens_mass_model_list,
-                                                              kwargs_lens_mass=kwargs_lens_mass, use_jax=use_jax)
+        theta_E_infinity = lenstronomy_util.theta_E_numerical(
+            lens_mass_model_list=lens_mass_model_list,
+            kwargs_lens_mass=kwargs_lens_mass,
+            use_jax=use_jax,
+        )
         self._theta_e_infinity = theta_E_infinity
         return theta_E_infinity

@@ -6,7 +6,9 @@ from astropy.units import Quantity
 from astropy.table import Table
 
 from slsim.Pipelines.skypy_pipeline import SkyPyPipeline
-from slsim.Sources.SourcePopulation.point_plus_extended_sources import PointPlusExtendedSources
+from slsim.Sources.SourcePopulation.point_plus_extended_sources import (
+    PointPlusExtendedSources,
+)
 from slsim.Sources.SourcePopulation.galaxies import Galaxies
 from slsim.Deflectors.DeflectorPopulation.galaxy_deflectors import GalaxyDeflectors
 from slsim.FalsePositives.false_positive_pop import FalsePositivePop
@@ -14,9 +16,7 @@ from slsim.FalsePositives.false_positive_pop import FalsePositivePop
 # --- Setup Mock Data and Pipelines ---
 sky_area = Quantity(value=0.01, unit="deg2")
 cosmo = FlatLambdaCDM(H0=70, Om0=0.3)
-galaxy_simulation_pipeline = SkyPyPipeline(
-    skypy_config=None, sky_area=sky_area
-)
+galaxy_simulation_pipeline = SkyPyPipeline(skypy_config=None, sky_area=sky_area)
 
 lens_galaxies = GalaxyDeflectors(
     red_galaxy_list=galaxy_simulation_pipeline.red_galaxies,
@@ -40,9 +40,9 @@ loaded_qso_host_catalog = Table.read(
     os.path.join(path, "../TestData/qso_host_catalog.fits")
 )
 
-loaded_qso_host_catalog.rename_column('e0_1', 'e1_0')
-loaded_qso_host_catalog.rename_column('e0_2', 'e2_0')
-loaded_qso_host_catalog.rename_column('e1_2', 'e2_1')
+loaded_qso_host_catalog.rename_column("e0_1", "e1_0")
+loaded_qso_host_catalog.rename_column("e0_2", "e2_0")
+loaded_qso_host_catalog.rename_column("e1_2", "e2_1")
 
 source_quasars_high_z = PointPlusExtendedSources(
     point_plus_extended_sources_list=loaded_qso_host_catalog,

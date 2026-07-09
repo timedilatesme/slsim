@@ -4,11 +4,12 @@ from lenstronomy.Analysis.lens_profile import LensProfileAnalysis
 
 import numpy as np
 
-def jax_usage(use_jax, lens_mass_model_list):
-    """
-    get all the JAX profiles if enabled from jaxtronomy
 
-    :param use_jax: if True aims to use all the available jaxtronomy profiles
+def jax_usage(use_jax, lens_mass_model_list):
+    """Get all the JAX profiles if enabled from jaxtronomy.
+
+    :param use_jax: if True aims to use all the available jaxtronomy
+        profiles
     :type use_jax: bool
     :param lens_mass_model_list:
     :return:
@@ -27,11 +28,13 @@ def jax_usage(use_jax, lens_mass_model_list):
 
 
 def theta_E_numerical(lens_mass_model_list, kwargs_lens_mass, use_jax=False):
-    """
-    Calculate numerically the Einstein radius within a single deflector plane
+    """Calculate numerically the Einstein radius within a single deflector
+    plane.
 
-    :param lens_mass_model_list: lens model list in lenstronomy convention
-    :param kwargs_lens_mass: list of deflector dictionaries in lenstronomy conventions
+    :param lens_mass_model_list: lens model list in lenstronomy
+        convention
+    :param kwargs_lens_mass: list of deflector dictionaries in
+        lenstronomy conventions
     :param use_jax: whether JAX-acceleration are used
     :return: Einstein radius
     """

@@ -8,8 +8,7 @@ from slsim.Deflectors.MassTypes.mass_base import MassBase
 
 
 class NFWHernquist(MassBase):
-    """Class of a NFW+Hernquist lens model with a Hernquist light mode.
-    """
+    """Class of a NFW+Hernquist lens model with a Hernquist light mode."""
 
     def __init__(self, light, halo_mass, concentration, e1=0, e2=0, vel_disp=None):
         """
@@ -25,10 +24,11 @@ class NFWHernquist(MassBase):
          ATTENTION: consistency is not checked with mass profile.
         """
         super().__init__(light=light, vel_disp=vel_disp)
-        self._nfw = NFW(light=light, halo_mass=halo_mass, concentration=concentration, e1=e1, e2=e2)
+        self._nfw = NFW(
+            light=light, halo_mass=halo_mass, concentration=concentration, e1=e1, e2=e2
+        )
         self._hernquist = Hernquist(light=light)
         self.num_mass_models = 2
-
 
     def velocity_dispersion(self, cosmo=None):
         """Velocity dispersion of deflector. Simplified assumptions on
@@ -48,15 +48,15 @@ class NFWHernquist(MassBase):
         dd = cosmo.angular_diameter_distance(self._light.redshift).value
         rs_star = dd * (size_lens_arcsec * constants.arcsec)
         vel_disp = vel_disp_composite_model(
-                r=size_lens_arcsec,
-                m_star=self._light.stellar_mass,
-                rs_star=rs_star,
-                m_halo=self._nfw._halo_mass,
-                c_halo=self._nfw._concentration,
-                cosmo=cosmo,
-                z_lens=self._light.redshift,
-            )
-        self._vel_disp= vel_disp
+            r=size_lens_arcsec,
+            m_star=self._light.stellar_mass,
+            rs_star=rs_star,
+            m_halo=self._nfw._halo_mass,
+            c_halo=self._nfw._concentration,
+            cosmo=cosmo,
+            z_lens=self._light.redshift,
+        )
+        self._vel_disp = vel_disp
         return self._vel_disp
 
     def mass_model_lenstronomy(self, lens_cosmo, spherical=False):
@@ -69,12 +69,19 @@ class NFWHernquist(MassBase):
         :type spherical: bool
         :return: lens_mass_model_list, kwargs_lens_mass
         """
-        lens_mass_model_list_nfw, kwargs_lens_mass_nfw = self._nfw.mass_model_lenstronomy(lens_cosmo=lens_cosmo,
-                                                                                  spherical=spherical)
-        lens_mass_model_list_her, kwargs_lens_mass_her = self._hernquist.mass_model_lenstronomy(lens_cosmo=lens_cosmo,
-                                                                                          spherical=spherical)
+        lens_mass_model_list_nfw, kwargs_lens_mass_nfw = (
+            self._nfw.mass_model_lenstronomy(lens_cosmo=lens_cosmo, spherical=spherical)
+        )
+        lens_mass_model_list_her, kwargs_lens_mass_her = (
+            self._hernquist.mass_model_lenstronomy(
+                lens_cosmo=lens_cosmo, spherical=spherical
+            )
+        )
 
-        return lens_mass_model_list_nfw+lens_mass_model_list_her, kwargs_lens_mass_nfw + kwargs_lens_mass_her
+        return (
+            lens_mass_model_list_nfw + lens_mass_model_list_her,
+            kwargs_lens_mass_nfw + kwargs_lens_mass_her,
+        )
 
     @property
     def halo_properties(self):
@@ -86,8 +93,7 @@ class NFWHernquist(MassBase):
 
     @property
     def ellipticity(self):
-        """
-        Deflector eccentricities
+        """Deflector eccentricities.
 
         :return: e1, e2
         """

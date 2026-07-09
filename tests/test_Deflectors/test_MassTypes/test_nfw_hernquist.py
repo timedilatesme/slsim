@@ -20,14 +20,21 @@ class TestNFWHernquist(object):
     """
 
     def setup_method(self):
-        light = Source(z=0.5, extended_source_type="hernquist", angular_size=0.001 / 4.84813681109536e-06,
-                       stellar_mass=1e11, e1= -0.1, e2=0.1, mag_g=20)
+        light = Source(
+            z=0.5,
+            extended_source_type="hernquist",
+            angular_size=0.001 / 4.84813681109536e-06,
+            stellar_mass=1e11,
+            e1=-0.1,
+            e2=0.1,
+            mag_g=20,
+        )
         self.deflector_dict = {
             "halo_mass": 10**13,
             "concentration": 10,
             "e1": 0.1,
             "e2": -0.1,
-            "light": light
+            "light": light,
         }
         self.nfw_hernquist = NFWHernquist(**self.deflector_dict)
 

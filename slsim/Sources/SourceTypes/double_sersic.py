@@ -37,11 +37,7 @@ class DoubleSersic(SourceBase):
         :param source_dict: dictionary for SourceBase() option (see documentation)
         :type source_dict: dict or astropy.table.Table
         """
-        super().__init__(
-            extended_source=True,
-            point_source=False,
-            **source_dict
-        )
+        super().__init__(extended_source=True, point_source=False, **source_dict)
         self.name = "GAL"
         self._n_sersic = [n_sersic_0, n_sersic_1]
         self._angular_size_list = [angular_size_0, angular_size_1]

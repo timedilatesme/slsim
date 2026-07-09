@@ -20,7 +20,6 @@ DEFLECTOR_DICT = {
     "center_x": 0.10039720005025651,  # x-position of the center of the lens
     "center_y": -0.0002092046265491892,  # y-position of the center of the lens
     "extended_source_type": "single_sersic",
-
 }
 
 DEFLECTOR_MASS_DICT = {
@@ -55,9 +54,12 @@ transform_matrix = np.array([[0.101, 0], [0, 0.101]])
 
 BAND = "VIS"
 source = Source(cosmo=COSMO, **SOURCE_DICT)
-deflector = Deflector(z=DEFLECTOR_DICT.pop("z"), center_x=DEFLECTOR_DICT.pop("center_x"),
-                      center_y=DEFLECTOR_DICT.pop("center_y"),
-                      kwargs_mass=DEFLECTOR_MASS_DICT, kwargs_light=DEFLECTOR_DICT
+deflector = Deflector(
+    z=DEFLECTOR_DICT.pop("z"),
+    center_x=DEFLECTOR_DICT.pop("center_x"),
+    center_y=DEFLECTOR_DICT.pop("center_y"),
+    kwargs_mass=DEFLECTOR_MASS_DICT,
+    kwargs_light=DEFLECTOR_DICT,
 )
 los_class = LOSIndividual(kappa=0, gamma=[-0.005061965833762263, 0.028825761226555197])
 

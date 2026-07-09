@@ -256,24 +256,31 @@ def test_source1():
 
     # dummy, zero‑mass deflector
     kwargs_light = {
-            "extended_source_type": "single_sersic",
-            "e1": 0.0,
-            "e2": 0.0,
-            "angular_size": 0.05,
-            "n_sersic": 1.0,
-            "mag_g": 99.0,
-            "mag_r": 99.0,
-            "mag_i": 99.0,
-            "mag_z": 99.0,
-            "mag_y": 99.0,
-        }
-    kwargs_mass = {"mass_type": "EPL",
-                   "theta_E": 0.0,
-                   "gamma_pl": 2.0,
-                   "e1": 0.0,
-                   "e2": 0.0,
-                   }
-    deflector = Deflector(center_x=0, center_y=0, z=0.5, kwargs_light=kwargs_light, kwargs_mass=kwargs_mass)
+        "extended_source_type": "single_sersic",
+        "e1": 0.0,
+        "e2": 0.0,
+        "angular_size": 0.05,
+        "n_sersic": 1.0,
+        "mag_g": 99.0,
+        "mag_r": 99.0,
+        "mag_i": 99.0,
+        "mag_z": 99.0,
+        "mag_y": 99.0,
+    }
+    kwargs_mass = {
+        "mass_type": "EPL",
+        "theta_E": 0.0,
+        "gamma_pl": 2.0,
+        "e1": 0.0,
+        "e2": 0.0,
+    }
+    deflector = Deflector(
+        center_x=0,
+        center_y=0,
+        z=0.5,
+        kwargs_light=kwargs_light,
+        kwargs_mass=kwargs_mass,
+    )
 
     lens_class1 = Lens(
         source_class=source1,
@@ -354,8 +361,16 @@ def test_source2():
     source2 = Source(extended_source_type="single_sersic", cosmo=cosmo, **source_dict)
 
     # dummy, zero‑mass deflector
-    deflector = Deflector(center_x=0, center_y=0, z=0.5, kwargs_mass={"mass_type": "EPL", "theta_E": 0.0,
-                                                                      "gamma_pl": 2.0,}, kwargs_light={}
+    deflector = Deflector(
+        center_x=0,
+        center_y=0,
+        z=0.5,
+        kwargs_mass={
+            "mass_type": "EPL",
+            "theta_E": 0.0,
+            "gamma_pl": 2.0,
+        },
+        kwargs_light={},
     )
 
     lens_class1 = Lens(

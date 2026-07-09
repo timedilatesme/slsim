@@ -3,8 +3,13 @@ import pytest
 from colossus.cosmology import cosmology
 from scipy import stats
 
-from slsim.Deflectors.MassLightConnection.galaxy_population import galaxy_size, gals_init, modelscLognormal, set_gals_param, stellarmass_halomass
-
+from slsim.Deflectors.MassLightConnection.galaxy_population import (
+    galaxy_size,
+    gals_init,
+    modelscLognormal,
+    set_gals_param,
+    stellarmass_halomass,
+)
 
 
 def test_galaxy_size():

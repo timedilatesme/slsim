@@ -7,14 +7,23 @@ import numpy as np
 from numpy.testing import assert_raises
 import slsim.Sources as sources
 import slsim.Pipelines as pipelines
-#import slsim.Deflectors as deflectors
+
+# import slsim.Deflectors as deflectors
 from slsim.Deflectors.DeflectorPopulation.galaxy_deflectors import GalaxyDeflectors
-from slsim.Deflectors.DeflectorPopulation.compound_lens_halos_galaxies import CompoundLensHalosGalaxies
+from slsim.Deflectors.DeflectorPopulation.compound_lens_halos_galaxies import (
+    CompoundLensHalosGalaxies,
+)
 from slsim.Deflectors.DeflectorPopulation.cluster_deflectors import ClusterDeflectors
 from slsim.Sources.SourcePopulation.galaxies import Galaxies
-from slsim.Sources.SourceCatalogues.SupernovaeCatalog.supernovae_sample import SupernovaeCatalog
-from slsim.Sources.SourcePopulation.point_plus_extended_sources import PointPlusExtendedSources
-from slsim.Sources.SourceCatalogues.QuasarCatalog.simple_quasar import quasar_catalog_simple
+from slsim.Sources.SourceCatalogues.SupernovaeCatalog.supernovae_sample import (
+    SupernovaeCatalog,
+)
+from slsim.Sources.SourcePopulation.point_plus_extended_sources import (
+    PointPlusExtendedSources,
+)
+from slsim.Sources.SourceCatalogues.QuasarCatalog.simple_quasar import (
+    quasar_catalog_simple,
+)
 
 from astropy.units import Quantity
 from astropy.table import Table
@@ -172,7 +181,12 @@ def test_galaxies_lens_pop_halo_model_instance():
         sky_area=sky_area,
         use_jax=use_jax,
     )
-    assert g_lens_halo_model_pop._lens_galaxies.draw_deflector().mass_properties["halo_mass"] != 0
+    assert (
+        g_lens_halo_model_pop._lens_galaxies.draw_deflector().mass_properties[
+            "halo_mass"
+        ]
+        != 0
+    )
 
 
 def test_cluster_lens_pop_instance():
@@ -194,8 +208,11 @@ def test_cluster_lens_pop_instance():
     cluster_catalog = Table.read(cluster_catalog_path)
     members_catalog = Table.read(members_catalog_path)
 
-    galaxies = Galaxies(galaxy_list=galaxy_simulation_pipeline.red_galaxies, cosmo=cosmo,
-        sky_area=sky_area)
+    galaxies = Galaxies(
+        galaxy_list=galaxy_simulation_pipeline.red_galaxies,
+        cosmo=cosmo,
+        sky_area=sky_area,
+    )
 
     lens_clusters = ClusterDeflectors(
         cluster_list=cluster_catalog,

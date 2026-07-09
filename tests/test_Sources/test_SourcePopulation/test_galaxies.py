@@ -347,17 +347,24 @@ class TestGalaxies(object):
 
     def test_convert_to_slsim_convention(self):
         cosmo = FlatLambdaCDM(H0=70, Om0=0.3)
-        galaxies = convert_catalog_to_source(galaxy=self.gal_list[0],
-                                             extended_source_type="double_sersic",
-                                             catalog_type=None, size_model=None)
-        galaxies2 = convert_catalog_to_source(galaxy=self.gal_list2[0],
-                                              extended_source_type="double_sersic",
-                                              catalog_type="scotch")
+        galaxies = convert_catalog_to_source(
+            galaxy=self.gal_list[0],
+            extended_source_type="double_sersic",
+            catalog_type=None,
+            size_model=None,
+        )
+        galaxies2 = convert_catalog_to_source(
+            galaxy=self.gal_list2[0],
+            extended_source_type="double_sersic",
+            catalog_type="scotch",
+        )
 
-        galaxies3 = convert_catalog_to_source(galaxy=self.galaxy_list2[0],
-                                              extended_source_type="single_sersic",
-                                              catalog_type="skypy", cosmo=self.cosmo,
-                                              )
+        galaxies3 = convert_catalog_to_source(
+            galaxy=self.galaxy_list2[0],
+            extended_source_type="single_sersic",
+            catalog_type="skypy",
+            cosmo=self.cosmo,
+        )
         galaxy_list = Table(
             [
                 [0.5, 0.5, 0.5],
@@ -378,10 +385,10 @@ class TestGalaxies(object):
         )
         assert galaxies["z"] == 0.5
         assert galaxies["n_sersic_0"] == 1
-        e1 = np.sqrt(galaxies["e1_0"]**2 + galaxies["e2_0"]**2)
+        e1 = np.sqrt(galaxies["e1_0"] ** 2 + galaxies["e2_0"] ** 2)
         epsilon = param_util.e2epsilon(e1)
         npt.assert_almost_equal(epsilon, 0.1492770563596445, decimal=7)
-        #assert galaxies["ellipticity0"] == 0.1492770563596445
+        # assert galaxies["ellipticity0"] == 0.1492770563596445
         # assert galaxies2["a_rot"] == np.deg2rad(42)
         # assert galaxies3["ellipticity"] == 0.1492770563596445
         npt.assert_almost_equal(

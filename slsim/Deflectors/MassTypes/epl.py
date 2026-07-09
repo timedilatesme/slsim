@@ -6,12 +6,18 @@ from slsim.Deflectors.MassTypes.mass_base import MassBase
 
 
 class EPL(MassBase):
-    """Deflector with an elliptical power-law and a Sersic light model.
+    """Deflector with an elliptical power-law and a Sersic light model."""
 
-    """
-
-    def __init__(self, light, theta_E=None, vel_disp=None, gamma_pl=2,
-                 e1=0, e2=0, sis_convention=False):
+    def __init__(
+        self,
+        light,
+        theta_E=None,
+        vel_disp=None,
+        gamma_pl=2,
+        e1=0,
+        e2=0,
+        sis_convention=False,
+    ):
         """
 
         :param light: light model (mostly used for position of deflector)
@@ -23,8 +29,10 @@ class EPL(MassBase):
         :param sis_convention: if using the SIS convention to normalize the Einstein radius or not
         """
         if theta_E is None and vel_disp is None:
-            raise ValueError("Either Einstein radius theta_E or velocity dispersion vel_disp argument need to be "
-                             "provided for the EPL model.")
+            raise ValueError(
+                "Either Einstein radius theta_E or velocity dispersion vel_disp argument need to be "
+                "provided for the EPL model."
+            )
         super().__init__(light=light, vel_disp=vel_disp)
         self._sis_convention = sis_convention
         self._theta_E = theta_E
@@ -53,11 +61,17 @@ class EPL(MassBase):
         :return: Einstein radius of the deflector
         """
         if self._theta_E is None:
-            if self._gamma_pl == 2 or self._sis_convention is True or self._light.extended_source_type is None:
+            if (
+                self._gamma_pl == 2
+                or self._sis_convention is True
+                or self._light.extended_source_type is None
+            ):
                 theta_E = lens_cosmo.sis_sigma_v2theta_E(self.velocity_dispersion())
                 return theta_E
             else:
-                lens_light_model_list, kwargs_lens_light = self._light.kwargs_extended_light()
+                lens_light_model_list, kwargs_lens_light = (
+                    self._light.kwargs_extended_light()
+                )
                 theta_E = theta_E_from_vel_disp_epl(
                     vel_disp=float(self.velocity_dispersion()),
                     gamma=self._gamma_pl,
@@ -124,15 +138,15 @@ class EPL(MassBase):
     def halo_properties(self):
         """Mass density logarithmic slope.
 
-        :return: gamma (with =2 is isothermal), velocity dispersion [km/s]
+        :return: gamma (with =2 is isothermal), velocity dispersion
+            [km/s]
         :rtype: dict
         """
         return {"gamma_pl": self._gamma_pl, "vel_disp": self.velocity_dispersion()}
 
     @property
     def ellipticity(self):
-        """
-        Deflector eccentricities
+        """Deflector eccentricities.
 
         :return: e1, e2
         """

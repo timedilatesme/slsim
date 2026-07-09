@@ -1,4 +1,3 @@
-
 from slsim.Deflectors.DeflectorPopulation.deflectors_base import DeflectorsBase
 
 
@@ -7,7 +6,8 @@ class CompoundLensHalosGalaxies(DeflectorsBase):
     individual lens objects is described by a superposition of dark matter and
     stellar components.
 
-    This is effectively the DeflectorsBase() class with specific settings for default inputs.
+    This is effectively the DeflectorsBase() class with specific
+    settings for default inputs.
     """
 
     def __init__(
@@ -54,7 +54,8 @@ class CompoundLensHalosGalaxies(DeflectorsBase):
             mass_type=mass_type,
             light_type=light_type,
             kwargs_mass2light=kwargs_mass2light,
-            catalog_type=catalog_type
+            catalog_type=catalog_type,
         )
+
 
 # TODO: read in 'e_h', 'p_h',  'p_g', 'tb' as SLHammock catalog

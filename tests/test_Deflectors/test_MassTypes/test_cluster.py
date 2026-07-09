@@ -7,12 +7,10 @@ import numpy.testing as npt
 from lenstronomy.Cosmo.lens_cosmo import LensCosmo
 
 
-
-
 class TestNFWCluster(object):
     """
 
-    
+
     required quantities in dictionary:
     - 'halo_mass': halo mass in physical M_sol
     - 'concentration': halo concentration
@@ -23,22 +21,22 @@ class TestNFWCluster(object):
 
     """
 
-
     def setup_method(self):
         path = os.path.dirname(__file__)
         module_path = os.path.dirname(os.path.dirname(path))
         # a table with the dictionary for a single dark matter halo
         self.halo_dict = Table.read(
-                os.path.join(module_path, "TestData/halo_NFW.fits"), format="fits"
-            )
+            os.path.join(module_path, "TestData/halo_NFW.fits"), format="fits"
+        )
 
         # a table with the dictionary for 10 EPL+Sersic subhalos
         subhalos_table = Table.read(
             os.path.join(module_path, "TestData/subhalos_table.fits"), format="fits"
         )
         self.subhalos_table = subhalos_table
-        z, center_x, center_y, kwargs_mass, kwargs_light = deflector_dict_from_table(table=self.halo_dict, mass_type="NFW",
-                                                                                     extended_source_type=None)
+        z, center_x, center_y, kwargs_mass, kwargs_light = deflector_dict_from_table(
+            table=self.halo_dict, mass_type="NFW", extended_source_type=None
+        )
 
         kwargs_mass_list = [kwargs_mass]
         kwargs_light_list = [kwargs_light]
@@ -46,18 +44,24 @@ class TestNFWCluster(object):
         center_y_deflector_list = [0]
 
         for suhalo in subhalos_table:
-            _, center_x_i, center_y_i, kwargs_mass_i, kwargs_light_i = deflector_dict_from_table(table=suhalo, mass_type="EPL", extended_source_type="single_sersic")
+            _, center_x_i, center_y_i, kwargs_mass_i, kwargs_light_i = (
+                deflector_dict_from_table(
+                    table=suhalo, mass_type="EPL", extended_source_type="single_sersic"
+                )
+            )
             kwargs_mass_list.append(kwargs_mass_i)
             kwargs_light_list.append(kwargs_light_i)
             center_x_deflector_list.append(center_x_i)
             center_y_deflector_list.append(center_y_i)
-        self.deflector_group = DeflectorGroup(z=z,
-                 kwargs_mass_list=kwargs_mass_list,
-                 kwargs_light_list=kwargs_light_list,
-                 center_x_deflector_list=center_x_deflector_list,
-                 center_y_deflector_list=center_y_deflector_list,
-                                              center_x=0, center_y=0)
-
+        self.deflector_group = DeflectorGroup(
+            z=z,
+            kwargs_mass_list=kwargs_mass_list,
+            kwargs_light_list=kwargs_light_list,
+            center_x_deflector_list=center_x_deflector_list,
+            center_y_deflector_list=center_y_deflector_list,
+            center_x=0,
+            center_y=0,
+        )
 
     def test_redshift(self):
         z = self.deflector_group.redshift
@@ -101,4 +105,3 @@ class TestNFWCluster(object):
     def test_magnitude(self):
         magnitude = self.deflector_group.magnitude(band="r")
         npt.assert_almost_equal(magnitude, 18.632, decimal=3)
-

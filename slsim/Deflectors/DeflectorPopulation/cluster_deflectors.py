@@ -33,16 +33,15 @@ class ClusterDeflectors(object):
         members_list,
         galaxies,
         kwargs_cut,
-
         kwargs_mass2light,
         cosmo,
         sky_area,
-            halo_mass_type="NFW",
-            bcg_light_type="single_sersic",
-            subhalo_mass_type="EPL",
-            galaxy_light_type="single_sersic",
-            gamma_pl=None,
-            richness_fn="Abdullah2022",
+        halo_mass_type="NFW",
+        bcg_light_type="single_sersic",
+        subhalo_mass_type="EPL",
+        galaxy_light_type="single_sersic",
+        gamma_pl=None,
+        richness_fn="Abdullah2022",
         kwargs_draw_members=None,
         assign_galaxy_redshift=False,
     ):
@@ -84,9 +83,15 @@ class ClusterDeflectors(object):
         self._richness_fn = richness_fn
         # make sure kwargs_mass2light has m_star_v_disp_scaling=True set
         self._kwargs_mass2light = kwargs_mass2light
-        self._halo_deflector = DeflectorsBase(deflector_table=cluster_list, kwargs_cut=kwargs_cut, cosmo=cosmo,
-                                              sky_area=sky_area, mass_type=halo_mass_type, light_type=bcg_light_type,
-                                              kwargs_mass2light=kwargs_mass2light)
+        self._halo_deflector = DeflectorsBase(
+            deflector_table=cluster_list,
+            kwargs_cut=kwargs_cut,
+            cosmo=cosmo,
+            sky_area=sky_area,
+            mass_type=halo_mass_type,
+            light_type=bcg_light_type,
+            kwargs_mass2light=kwargs_mass2light,
+        )
         if kwargs_draw_members is None:
             kwargs_draw_members = {}
         self._kwargs_draw_members = kwargs_draw_members
@@ -107,7 +112,6 @@ class ClusterDeflectors(object):
         ]
 
         self._num_select = len(self._cluster_select)
-
 
     def deflector_number(self):
         """
@@ -131,36 +135,47 @@ class ClusterDeflectors(object):
         if deflector_index is None:
             deflector_index = random.randint(0, self._num_select - 1)
         deflector = self.draw_cluster(deflector_index)
-        z, center_x, center_y, kwargs_mass, kwargs_light = deflector_dict_from_table(table=deflector,
-                                                                                     mass_type=self._halo_deflector.mass_type,
-                                                                                     extended_source_type=None,
-                                                                                     **self._kwargs_mass2light
-                                                                                     )
+        z, center_x, center_y, kwargs_mass, kwargs_light = deflector_dict_from_table(
+            table=deflector,
+            mass_type=self._halo_deflector.mass_type,
+            extended_source_type=None,
+            **self._kwargs_mass2light,
+        )
 
         kwargs_mass_list = [kwargs_mass]
         kwargs_light_list = [kwargs_light]
         center_x_deflector_list = [0]
         center_y_deflector_list = [0]
 
-        members = self._draw_members(deflector["cluster_id"], use_radec=self._use_radec, **self._kwargs_draw_members)
+        members = self._draw_members(
+            deflector["cluster_id"],
+            use_radec=self._use_radec,
+            **self._kwargs_draw_members,
+        )
 
         for suhalo in members:
-            _, center_x_i, center_y_i, kwargs_mass_i, kwargs_light_i = deflector_dict_from_table(table=suhalo, mass_type=self._subhalo_mass_type,
-                                                                                                 extended_source_type=self._galaxy_light_type,
-                                                                                                 m_star_v_disp_scaling=True,
-                                                                                                 **self._kwargs_mass2light
-                                                                                                 )
+            _, center_x_i, center_y_i, kwargs_mass_i, kwargs_light_i = (
+                deflector_dict_from_table(
+                    table=suhalo,
+                    mass_type=self._subhalo_mass_type,
+                    extended_source_type=self._galaxy_light_type,
+                    m_star_v_disp_scaling=True,
+                    **self._kwargs_mass2light,
+                )
+            )
             kwargs_mass_list.append(kwargs_mass_i)
             kwargs_light_list.append(kwargs_light_i)
             center_x_deflector_list.append(center_x_i)
             center_y_deflector_list.append(center_y_i)
-        deflector_group = DeflectorGroup(z=z,
-                 kwargs_mass_list=kwargs_mass_list,
-                 kwargs_light_list=kwargs_light_list,
-                 center_x_deflector_list=center_x_deflector_list,
-                 center_y_deflector_list=center_y_deflector_list,
-                                              center_x=0, center_y=0)
-
+        deflector_group = DeflectorGroup(
+            z=z,
+            kwargs_mass_list=kwargs_mass_list,
+            kwargs_light_list=kwargs_light_list,
+            center_x_deflector_list=center_x_deflector_list,
+            center_y_deflector_list=center_y_deflector_list,
+            center_x=0,
+            center_y=0,
+        )
 
         return deflector_group
 
@@ -176,8 +191,12 @@ class ClusterDeflectors(object):
         cluster_dict = dict(cluster)
         if "halo_mass" not in halo_columns:
             if "richness" not in halo_columns:
-                raise ValueError("Either 'halo_mass' or 'richness' needs to be in cluster_catalog")
-            halo_mass = mass_richness_relation(cluster["richness"], relation=self._richness_fn)
+                raise ValueError(
+                    "Either 'halo_mass' or 'richness' needs to be in cluster_catalog"
+                )
+            halo_mass = mass_richness_relation(
+                cluster["richness"], relation=self._richness_fn
+            )
             cluster_dict["halo_mass"] = halo_mass
 
         if "e1_mass" not in halo_columns or "e2_mass" not in halo_columns:
@@ -187,9 +206,10 @@ class ClusterDeflectors(object):
             cluster_dict["e2_mass"] = e2
         return cluster_dict
 
-    def _draw_members(self, cluster_id, center_scatter=0., max_dist=80, bcg_band="r", use_radec=False):
-        """
-        draw cluster members relative to (0,0) as cluster center
+    def _draw_members(
+        self, cluster_id, center_scatter=0.0, max_dist=80, bcg_band="r", use_radec=False
+    ):
+        """Draw cluster members relative to (0,0) as cluster center.
 
         :param cluster_id: identifier of the cluster
         :type cluster_id: int
@@ -204,16 +224,19 @@ class ClusterDeflectors(object):
         """
         members = self._members_select[cluster_id == self._members_select["cluster_id"]]
 
-
         bcg_id = np.argmin(members[f"mag_{bcg_band}"])
         if use_radec:
 
             bcg_ra, bcg_dec = members["ra"][bcg_id], members["dec"][bcg_id]
             center_ra, center_dec = (
-                np.random.normal(bcg_ra, center_scatter / 3600 / np.cos(bcg_dec / 180 * np.pi)),
+                np.random.normal(
+                    bcg_ra, center_scatter / 3600 / np.cos(bcg_dec / 180 * np.pi)
+                ),
                 np.random.normal(bcg_dec, center_scatter / 3600),
             )
-            center_x = (members["ra"] - center_ra) * 3600 * np.cos(center_dec / 180 * np.pi)
+            center_x = (
+                (members["ra"] - center_ra) * 3600 * np.cos(center_dec / 180 * np.pi)
+            )
             center_y = (members["dec"] - center_dec) * 3600
         else:
             bcg_x = members["center_x"][bcg_id]
@@ -224,7 +247,7 @@ class ClusterDeflectors(object):
             center_y = members["center_y"] - bcg_y
         members["center_x"] = center_x
         members["center_y"] = center_y
-        center_dist = np.sqrt(center_x ** 2 + center_y ** 2)
+        center_dist = np.sqrt(center_x**2 + center_y**2)
         members = members[center_dist < max_dist]
         return members
 
@@ -329,11 +352,10 @@ class ClusterDeflectors(object):
 
     @staticmethod
     def _preprocess_members(cluster_list, members_list):
-        """
-        make sure members have redshift entries
+        """Make sure members have redshift entries.
 
         :param cluster_list: cluster list
-        :param members_list:  member list
+        :param members_list: member list
         :return: updated members list, use_radec
         """
         n_clusters = len(cluster_list)
@@ -346,13 +368,15 @@ class ClusterDeflectors(object):
                 z = cluster_list["z"][i]
                 members_list["z"][
                     members_list["cluster_id"] == cluster_list["cluster_id"][i]
-                    ] = z
+                ] = z
         if "center_x" not in column_names or "center_y" not in column_names:
             members_list["center_x"] = -np.ones(n_members)
             members_list["center_y"] = -np.ones(n_members)
             use_radec = True
             if "ra" not in column_names or "dec" not in column_names:
-                raise ValueError("either 'center_x', 'center_y' or 'ra', 'dec' have to be provided for members.")
+                raise ValueError(
+                    "either 'center_x', 'center_y' or 'ra', 'dec' have to be provided for members."
+                )
         else:
             use_radec = False
         return members_list, use_radec

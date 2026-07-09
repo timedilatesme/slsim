@@ -40,7 +40,6 @@ DEFLECTOR_MASS_DICT = {
     "e2": 0.0075210751726143355,
     "vel_disp": 295.2347999078027,
     "mass_type": "EPL",
-
 }
 
 LOS_DICT = {
@@ -80,9 +79,12 @@ supernova_source = Source(
     **SOURCE_DICT,
 )
 
-deflector = Deflector(z=DEFLECTOR_DICT.pop("z"), center_x=DEFLECTOR_DICT.pop("center_x"),
-                      center_y=DEFLECTOR_DICT.pop("center_y"),
-                      kwargs_mass=DEFLECTOR_MASS_DICT, kwargs_light=DEFLECTOR_DICT
+deflector = Deflector(
+    z=DEFLECTOR_DICT.pop("z"),
+    center_x=DEFLECTOR_DICT.pop("center_x"),
+    center_y=DEFLECTOR_DICT.pop("center_y"),
+    kwargs_mass=DEFLECTOR_MASS_DICT,
+    kwargs_light=DEFLECTOR_DICT,
 )
 LENS = Lens(
     source_class=source,

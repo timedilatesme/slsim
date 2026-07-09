@@ -1,13 +1,19 @@
-
 from slsim.Util.param_util import ellipticity_slsim_to_lenstronomy
 from slsim.Deflectors.MassTypes.mass_base import MassBase
 
 
 class PJAFFE(MassBase):
-    """Class of a pseudo-Jaffe lens model .
-    """
+    """Class of a pseudo-Jaffe lens model ."""
 
-    def __init__(self, light, r_s, r_a, vel_disp, e1=0, e2=0, ):
+    def __init__(
+        self,
+        light,
+        r_s,
+        r_a,
+        vel_disp,
+        e1=0,
+        e2=0,
+    ):
         """
 
         :param light: light model (used for position of deflector and stellar mass density profile)
@@ -54,13 +60,13 @@ class PJAFFE(MassBase):
         sigma0 = lens_cosmo.vel_disp_dPIED_sigma0(vel_disp, Ra=self._r_a, Rs=self._r_s)
         center_x, center_y = self._light.extended_source_position
         kwargs_lens = [
-                {
-                    "sigma0": sigma0,
-                    "Rs": self._r_s,
-                    "Ra": self._r_a,
-                    "center_x": center_x,
-                    "center_y": center_y,
-                },
+            {
+                "sigma0": sigma0,
+                "Rs": self._r_s,
+                "Ra": self._r_a,
+                "center_x": center_x,
+                "center_y": center_y,
+            },
         ]
 
         if _spherical:
@@ -84,8 +90,7 @@ class PJAFFE(MassBase):
 
     @property
     def ellipticity(self):
-        """
-        Deflector eccentricities
+        """Deflector eccentricities.
 
         :return: e1, e2
         """

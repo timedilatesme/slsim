@@ -18,9 +18,9 @@ from astropy.cosmology import default_cosmology
 def update_center(area=None, reference_position=None, center_x=None, center_y=None):
     """Overwrites the source center position.
 
-    :param reference_position: [RA, DEC] in arc-seconds of the
-        reference from where within a circle the source position is
-        being drawn from
+    :param reference_position: [RA, DEC] in arc-seconds of the reference
+        from where within a circle the source position is being drawn
+        from
     :type reference_position: 2d numpy array
     :param area: area (in solid angle arc-seconds^2) to dither the
         center of the source
@@ -46,7 +46,6 @@ def update_center(area=None, reference_position=None, center_x=None, center_y=No
             ]
         )
     return center_source
-
 
 
 def draw_coord_in_circle(area, size=1):

@@ -547,8 +547,8 @@ class Lens(LensedSystemBase):
 
     @property
     def deflector_redshift(self):
-        """
-        either gets the list of redshifts or a single redshift, depending on whether multi-plane is used or not
+        """Either gets the list of redshifts or a single redshift, depending on
+        whether multi-plane is used or not.
 
         :return: lens redshift
         """
@@ -564,7 +564,6 @@ class Lens(LensedSystemBase):
             return deflector_redshifts
         else:
             return self.deflector.redshift
-
 
     @property
     def source_redshift_list(self):
@@ -1483,7 +1482,6 @@ class Lens(LensedSystemBase):
             self._kwargs_lens = kwargs_lens
             self._lens_mass_model_list = lens_mass_model_list
 
-
         # For significant speedup, use these mass profiles from jaxtronomy
 
         # TODO: replace with change_source_redshift() currently not fully working
@@ -1498,7 +1496,10 @@ class Lens(LensedSystemBase):
             lens_redshift_list = None
             # For significant speedup, use these mass profiles from jaxtronomy
             from slsim.Util.lenstronomy_util import jax_usage
-            use_jax = jax_usage(use_jax=self._use_jax, lens_mass_model_list=self._lens_mass_model_list)
+
+            use_jax = jax_usage(
+                use_jax=self._use_jax, lens_mass_model_list=self._lens_mass_model_list
+            )
         lens_model = LensModel(
             lens_model_list=self._lens_mass_model_list,
             cosmo=self.cosmo,

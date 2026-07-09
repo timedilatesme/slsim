@@ -70,7 +70,6 @@ class SupernovaEvent(SourceBase):
             **kwargs,
         )
 
-
         self._variability_computed = False  # to be set to True once the light_curve() definition has been processed
         # These are the keywords that kwargs dict should contain
         self._kwargs_variability = kwargs_variability

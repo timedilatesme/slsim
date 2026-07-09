@@ -6,17 +6,17 @@ from slsim.Sources.SourceVariability.variability import Variability
 _SUPPORTED_KEYS = ["M", "coeff", "physical_size", "ellipticity", "phi_G", "MJD"]
 # TODO: find a better way not to store these keywords in the SourceBase class for better stability
 _AGN_VARIABILITY_KEYS = [
-        "r_out",
-        "r_resolution",
-        "corona_height",
-        "inclination_angle",
-        "black_hole_mass_exponent",
-        "black_hole_spin",
-        "intrinsic_light_curve",
-        "eddington_ratio",
-        "driving_variability_model",
-        "accretion_disk",
-    ]
+    "r_out",
+    "r_resolution",
+    "corona_height",
+    "inclination_angle",
+    "black_hole_mass_exponent",
+    "black_hole_spin",
+    "intrinsic_light_curve",
+    "eddington_ratio",
+    "driving_variability_model",
+    "accretion_disk",
+]
 
 
 class SourceBase(ABC):
@@ -111,9 +111,11 @@ class SourceBase(ABC):
                 elif key in _SUPPORTED_KEYS or key in _AGN_VARIABILITY_KEYS:
                     pass
                 else:
-                    raise ValueError("Dictionary in Source class has invalid arguments. "
-                                     "Key %s is not part of ps_mag_<band> and mag_<band> or the supported keys %s."
-                                     % (key, _SUPPORTED_KEYS + _AGN_VARIABILITY_KEYS))
+                    raise ValueError(
+                        "Dictionary in Source class has invalid arguments. "
+                        "Key %s is not part of ps_mag_<band> and mag_<band> or the supported keys %s."
+                        % (key, _SUPPORTED_KEYS + _AGN_VARIABILITY_KEYS)
+                    )
 
         self._variability_bands = (
             {}
@@ -153,8 +155,12 @@ class SourceBase(ABC):
             renders within area)
         :return: Source() instance updated with new center position
         """
-        self._center_source = param_util.update_center(area=area, reference_position=reference_position,
-                                                       center_x=center_x, center_y=center_y)
+        self._center_source = param_util.update_center(
+            area=area,
+            reference_position=reference_position,
+            center_x=center_x,
+            center_y=center_y,
+        )
 
     @property
     def point_source_offset(self):
@@ -192,6 +198,7 @@ class SourceBase(ABC):
         :return: stellar mass of galaxy [M_sol]
         """
         return self._stellar_mass
+
     @property
     def ellipticity(self):
         """Returns ellipticity components of source for the both component of

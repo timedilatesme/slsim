@@ -68,10 +68,16 @@ class Galaxies(SourcePopBase):
         if self._astropy_table:
             if extended_source_type == "double_sersic":
                 column_names = galaxy_list.colnames
-                tuples = [("n0", "n_sersic_0"), ("n1", "n_sersic_1"), ("e0", "ellipticity0"), ("e1", "ellipticity1"),
-                          ("angular_size0", "angular_size_0"), ("angular_size1", "angular_size_1")]
+                tuples = [
+                    ("n0", "n_sersic_0"),
+                    ("n1", "n_sersic_1"),
+                    ("e0", "ellipticity0"),
+                    ("e1", "ellipticity1"),
+                    ("angular_size0", "angular_size_0"),
+                    ("angular_size1", "angular_size_1"),
+                ]
 
-                for (old, new) in tuples:
+                for old, new in tuples:
                     if old in column_names:
                         galaxy_list.rename_column(old, new)
         # self.extendedsource_kwargs = extended_source_kwargs
@@ -113,15 +119,15 @@ class Galaxies(SourcePopBase):
         return self._num_select
 
     def draw_galaxy(self, z_max=None, z_min=None, galaxy_index=None):
-        """
-        Chose galaxy at random
+        """Chose galaxy at random.
 
         :param z_max: maximum redshift limit for the galaxy to be drawn.
             If no galaxy is found for this limit, None will be returned.
         :param z_min: minimum redshift limit for the galaxy to be drawn.
             If no galaxy is found for this limit, None will be returned.
         :param galaxy_index: index of galaxy to pic (if provided)
-        :return: dictionary of source in the form of the original catalog
+        :return: dictionary of source in the form of the original
+            catalog
         """
         if galaxy_index is not None:
             galaxy = self._full_galaxy_list[galaxy_index]
@@ -144,29 +150,37 @@ class Galaxies(SourcePopBase):
             galaxy = self._galaxy_select[index]
         return galaxy
 
-    def draw_source_dict(self, z_max=None, z_min=None, galaxy_index=None, include_all_keywords=False):
-        """Choose source at random.
-        For speed, it is recommended not to use additional redshift selection here.
-        Instead use the kwargs_cut of the class initialization
+    def draw_source_dict(
+        self, z_max=None, z_min=None, galaxy_index=None, include_all_keywords=False
+    ):
+        """Choose source at random. For speed, it is recommended not to use
+        additional redshift selection here. Instead use the kwargs_cut of the
+        class initialization.
 
         :param z_max: maximum redshift limit for the galaxy to be drawn.
             If no galaxy is found for this limit, None will be returned.
         :param z_min: minimum redshift limit for the galaxy to be drawn.
             If no galaxy is found for this limit, None will be returned.
         :param galaxy_index: index of galaxy to pic (if provided)
-        :param include_all_keywords: if True, includes all keywords and not just the ones required
+        :param include_all_keywords: if True, includes all keywords and
+            not just the ones required
         :type include_all_keywords: bool
-        :return: dictionary of source in the form of compatible with Source() class
+        :return: dictionary of source in the form of compatible with
+            Source() class
         """
         galaxy = self.draw_galaxy(z_max=z_max, z_min=z_min, galaxy_index=galaxy_index)
         if galaxy is None:
             return None
 
-        kwargs_source = convert_catalog_to_source(galaxy=galaxy, extended_source_type=self._extended_source_type,
-                                                  catalog_type=self._catalog_type, size_model=self._size_model,
-                                                  cosmo=self._cosmo, include_all_keywords=include_all_keywords)
+        kwargs_source = convert_catalog_to_source(
+            galaxy=galaxy,
+            extended_source_type=self._extended_source_type,
+            catalog_type=self._catalog_type,
+            size_model=self._size_model,
+            cosmo=self._cosmo,
+            include_all_keywords=include_all_keywords,
+        )
         return kwargs_source
-
 
     def draw_source(self, z_max=None, z_min=None, galaxy_index=None):
         """Choose source at random.
@@ -185,9 +199,7 @@ class Galaxies(SourcePopBase):
             return None
 
         source_class = Source(
-            cosmo=self._cosmo,
-            **kwargs_source,
-            **self._extended_source_kwargs
+            cosmo=self._cosmo, **kwargs_source, **self._extended_source_kwargs
         )
         return source_class
 
@@ -263,8 +275,7 @@ def _convert_scotch_catalog(galaxy_catalog):
 
 
 def _galaxy_size(galaxy, size_model, catalog_type, cosmo):
-    """
-    converts or adjusts galaxy size
+    """Converts or adjusts galaxy size.
 
     :param galaxy:
     :param size_model:
@@ -282,11 +293,11 @@ def _galaxy_size(galaxy, size_model, catalog_type, cosmo):
         # TODO: enable this scaling also for other catalogs. Currently not done to be backwards compatible
         # compute angular size from g-band magnitude.
         if "mag_g" not in col_names:
-            raise ValueError("mag_g needs to be in the arguments to use the Bernardi et al. g-band magnitude to "
-                             "size conversion.")
-        source_size = galaxy_size(
-            float(galaxy["mag_g"]), z, cosmo
-        )
+            raise ValueError(
+                "mag_g needs to be in the arguments to use the Bernardi et al. g-band magnitude to "
+                "size conversion."
+            )
+        source_size = galaxy_size(float(galaxy["mag_g"]), z, cosmo)
         physical_size = source_size[0] * u.kpc
         angular_size = source_size[1] * u.arcsec
         return angular_size, physical_size
@@ -312,7 +323,9 @@ def _galaxy_size(galaxy, size_model, catalog_type, cosmo):
         angular_size_rad = physical_size / cosmo.angular_diameter_distance(z).to(u.kpc)
         angular_size = (angular_size_rad * u.rad).to(u.arcsec)
     elif physical_size is None and angular_size is not None:
-        physical_size = angular_size.to(u.rad) * cosmo.angular_diameter_distance(z).to(u.kpc)
+        physical_size = angular_size.to(u.rad) * cosmo.angular_diameter_distance(z).to(
+            u.kpc
+        )
     elif angular_size is None and physical_size is None:
         raise ValueError("Either angular_size or physical_size need to be provided.")
 
@@ -328,13 +341,20 @@ def _galaxy_size(galaxy, size_model, catalog_type, cosmo):
     return angular_size.value, physical_size.value
 
 
-def convert_catalog_to_source(galaxy, extended_source_type, catalog_type, size_model=None, cosmo=None,
-                              include_all_keywords=False):
-    """
-    converts input table entries into the quantities used in slsim Source() class
+def convert_catalog_to_source(
+    galaxy,
+    extended_source_type,
+    catalog_type,
+    size_model=None,
+    cosmo=None,
+    include_all_keywords=False,
+):
+    """Converts input table entries into the quantities used in slsim Source()
+    class.
 
     :param galaxy: dictionary or table entry
-    :param include_all_keywords: if True, includes all keywords and not just the ones required
+    :param include_all_keywords: if True, includes all keywords and not
+        just the ones required
     :type include_all_keywords: bool
     :param galaxy: entry in galaxy_list
     :return: dictionary compatible with Source() class
@@ -343,7 +363,10 @@ def convert_catalog_to_source(galaxy, extended_source_type, catalog_type, size_m
         colnames = list(galaxy.keys())
     else:
         colnames = galaxy.colnames
-    kwargs_source = {"z": float(galaxy["z"]), "extended_source_type": extended_source_type, }
+    kwargs_source = {
+        "z": float(galaxy["z"]),
+        "extended_source_type": extended_source_type,
+    }
     for key in colnames:
         if key.startswith("ps_mag_") or key.startswith("mag_"):
             kwargs_source[key] = galaxy[key]
@@ -358,12 +381,11 @@ def convert_catalog_to_source(galaxy, extended_source_type, catalog_type, size_m
     else:
         phi_rot = np.random.uniform(0, np.pi)
 
-
-
     if extended_source_type in ["single_sersic", "hernquist", "catalog_source"]:
         # get angular_size
-        angular_size, physical_size = _galaxy_size(galaxy, size_model=size_model,
-                                                   catalog_type=catalog_type, cosmo=cosmo)
+        angular_size, physical_size = _galaxy_size(
+            galaxy, size_model=size_model, catalog_type=catalog_type, cosmo=cosmo
+        )
         kwargs_source["angular_size"] = angular_size
         kwargs_source["physical_size"] = physical_size
 
@@ -378,7 +400,9 @@ def convert_catalog_to_source(galaxy, extended_source_type, catalog_type, size_m
             elif "e" in colnames:
                 ellipticity = galaxy["e"]
             else:
-                raise ValueError("Ellipticity either as ('e1', 'e2'), 'e' or as 'ellipticity' is required.")
+                raise ValueError(
+                    "Ellipticity either as ('e1', 'e2'), 'e' or as 'ellipticity' is required."
+                )
             e1, e2 = galaxy_projected_eccentricity(
                 float(ellipticity), rotation_angle=phi_rot
             )
@@ -476,6 +500,7 @@ def convert_catalog_to_source(galaxy, extended_source_type, catalog_type, size_m
             if key not in kwargs_source:
                 kwargs_source[key] = galaxy[key]
     return kwargs_source
+
 
 def down_sample_to_dc2(galaxy_pop, sky_area):
     """Downsamples given galaxy pop above redshift 1.5 to DC2 galaxy

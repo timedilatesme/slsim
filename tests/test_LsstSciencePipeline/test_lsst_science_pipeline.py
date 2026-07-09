@@ -26,12 +26,18 @@ def pes_lens_instance():
 
     cosmo = FlatLambdaCDM(H0=70, Om0=0.3)
 
-    kwargs_light = convert_catalog_to_source(deflector_dict, extended_source_type="single_sersic",
-                                             catalog_type=None, size_model=None, cosmo=cosmo,
-                                             include_all_keywords=False)
+    kwargs_light = convert_catalog_to_source(
+        deflector_dict,
+        extended_source_type="single_sersic",
+        catalog_type=None,
+        size_model=None,
+        cosmo=cosmo,
+        include_all_keywords=False,
+    )
     z = kwargs_light.pop("z")
-    kwargs_mass = deflector_util.light2mass(kwargs_light, halo_dict=deflector_dict, mass_type="EPL")
-
+    kwargs_mass = deflector_util.light2mass(
+        kwargs_light, halo_dict=deflector_dict, mass_type="EPL"
+    )
 
     cosmo = FlatLambdaCDM(H0=70, Om0=0.3)
     while True:
@@ -58,8 +64,7 @@ def pes_lens_instance():
             **kwargs_quasar,
             **source_dict,
         )
-        deflector = Deflector(z=z, kwargs_light=kwargs_light, kwargs_mass=kwargs_mass
-        )
+        deflector = Deflector(z=z, kwargs_light=kwargs_light, kwargs_mass=kwargs_mass)
         pes_lens = Lens(
             source_class=source,
             deflector_class=deflector,

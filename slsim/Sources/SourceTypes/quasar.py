@@ -11,8 +11,6 @@ from slsim.ImageSimulation.image_quality_lenstronomy import (
 )
 
 
-
-
 class Quasar(SourceBase):
     """A class to manage a quasar."""
 

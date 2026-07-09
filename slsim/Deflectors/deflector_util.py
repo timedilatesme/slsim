@@ -8,8 +8,8 @@ import numpy as np
 
 
 def deflector_from_table(table, mass_type, extended_source_type):
-    """
-    create a Deflector() instance from a single table combining the light and mass arguments
+    """Create a Deflector() instance from a single table combining the light
+    and mass arguments.
 
     :param table: table of all the parameters of mass and light
     :param mass_type: type of mass model for Mass() class
@@ -17,24 +17,42 @@ def deflector_from_table(table, mass_type, extended_source_type):
     :return: Deflector() instance
     :rtype: ~slsim.Deflectors.deflector.Deflector() instance
     """
-    z, center_x, center_y, kwargs_mass, kwargs_light = deflector_dict_from_table(table, mass_type, extended_source_type)
-    deflector = Deflector(z=z, kwargs_mass=kwargs_mass, kwargs_light=kwargs_light, center_x=center_x, center_y=center_y)
+    z, center_x, center_y, kwargs_mass, kwargs_light = deflector_dict_from_table(
+        table, mass_type, extended_source_type
+    )
+    deflector = Deflector(
+        z=z,
+        kwargs_mass=kwargs_mass,
+        kwargs_light=kwargs_light,
+        center_x=center_x,
+        center_y=center_y,
+    )
     return deflector
 
 
-def deflector_dict_from_table(table, mass_type, extended_source_type, **kwargs_mass2light):
-    """
-    dictionaries to create a Deflector() instance from a single table combining the light and mass arguments
+def deflector_dict_from_table(
+    table, mass_type, extended_source_type, **kwargs_mass2light
+):
+    """Dictionaries to create a Deflector() instance from a single table
+    combining the light and mass arguments.
 
     :param table: table of all the parameters of mass and light
     :param mass_type: type of mass model for Mass() class
     :param extended_source_type: type of light model for Source() class
     :return: z, center_x, center_y, kwargs_mass, kwargs_light
     """
-    kwargs_light = convert_catalog_to_source(table, extended_source_type, catalog_type=None, size_model=None, cosmo=None,
-                              include_all_keywords=False)
+    kwargs_light = convert_catalog_to_source(
+        table,
+        extended_source_type,
+        catalog_type=None,
+        size_model=None,
+        cosmo=None,
+        include_all_keywords=False,
+    )
 
-    kwargs_mass = light2mass(kwargs_light, mass_type, **kwargs_mass2light, halo_dict=table)
+    kwargs_mass = light2mass(
+        kwargs_light, mass_type, **kwargs_mass2light, halo_dict=table
+    )
     if isinstance(table, dict):
         colnames = list(table.keys())
     else:
@@ -49,9 +67,15 @@ def deflector_dict_from_table(table, mass_type, extended_source_type, **kwargs_m
     return z, center_x, center_y, kwargs_mass, kwargs_light
 
 
-
-def light2mass(kwargs_source, mass_type, light2mass_e_scaling=1, light2mass_e_scatter=0.1, halo_dict=None,
-               m_star_v_disp_scaling=False, richness_fn="Abdullah2022"):
+def light2mass(
+    kwargs_source,
+    mass_type,
+    light2mass_e_scaling=1,
+    light2mass_e_scatter=0.1,
+    halo_dict=None,
+    m_star_v_disp_scaling=False,
+    richness_fn="Abdullah2022",
+):
     """
 
     :param kwargs_source: dictionary for Source() class
@@ -90,7 +114,10 @@ def light2mass(kwargs_source, mass_type, light2mass_e_scaling=1, light2mass_e_sc
         else:
             # scale light to mass ellipticity
             e1_light, e2_light = kwargs_source["e1"], kwargs_source["e1"]
-            e1_mass, e2_mass = light2mass_e_scaling * e1_light, light2mass_e_scaling * e2_light
+            e1_mass, e2_mass = (
+                light2mass_e_scaling * e1_light,
+                light2mass_e_scaling * e2_light,
+            )
             # add scatter in mass
             e_mass_scatter = np.random.normal(loc=0, scale=light2mass_e_scatter)
             phi_scatter = np.random.uniform(0, np.pi)
@@ -107,22 +134,30 @@ def light2mass(kwargs_source, mass_type, light2mass_e_scaling=1, light2mass_e_sc
     if "vel_disp" in kwargs_source:
         kwargs_mass["vel_disp"] = kwargs_source["vel_disp"]
     elif m_star_v_disp_scaling and "stellar_mass" in kwargs_source:
-        kwargs_mass["vel_disp"] = param_util.vel_disp_from_m_star(kwargs_source["stellar_mass"])
+        kwargs_mass["vel_disp"] = param_util.vel_disp_from_m_star(
+            kwargs_source["stellar_mass"]
+        )
     if mass_type in ["NFW", "NFW_HERNQUIST"]:
         if halo_dict is None:
-            raise ValueError("halo_dict needs to be provided for mass_type %s" % mass_type)
+            raise ValueError(
+                "halo_dict needs to be provided for mass_type %s" % mass_type
+            )
         if "halo_mass" not in halo_columns:
             if "richness" not in halo_columns:
-                raise ValueError("Either 'halo_mass' or 'richness' needs to be in 'halo_dict' for "
-                                 "mass_type %s." % mass_type)
+                raise ValueError(
+                    "Either 'halo_mass' or 'richness' needs to be in 'halo_dict' for "
+                    "mass_type %s." % mass_type
+                )
             halo_mass = mass_richness_relation(
-            float(halo_dict["richness"]), richness_fn
-        )
+                float(halo_dict["richness"]), richness_fn
+            )
         else:
             halo_mass = float(halo_dict["halo_mass"])
         kwargs_mass["halo_mass"] = halo_mass
         if "concentration" not in halo_columns:
-            concentration = concent_m_w_scatter(np.array([halo_mass]), kwargs_source["z"], sig=0.33)[0]
+            concentration = concent_m_w_scatter(
+                np.array([halo_mass]), kwargs_source["z"], sig=0.33
+            )[0]
         else:
             concentration = float(halo_dict["concentration"])
         kwargs_mass["concentration"] = concentration

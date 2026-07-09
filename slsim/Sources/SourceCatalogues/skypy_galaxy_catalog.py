@@ -36,4 +36,7 @@ class GalaxyCatalog(object):
         )
         galaxy_table_blue = pipeline.blue_galaxies
         galaxy_table_red = pipeline.red_galaxies
-        return vstack([galaxy_table_blue, galaxy_table_red], join_type="exact",)
+        return vstack(
+            [galaxy_table_blue, galaxy_table_red],
+            join_type="exact",
+        )

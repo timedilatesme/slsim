@@ -29,7 +29,6 @@ class TestSupernovaEvent:
             "sn_modeldir": None,
         }
         kwargs_sn_roman = {
-
             "variability_model": "light_curve",
             "kwargs_variability": ["supernovae_lightcurve", "F062", "F129"],
             "sn_type": "Ia",

@@ -1,10 +1,9 @@
-
 _SUPPORTED_DEFLECTORS = ["EPL", "NFW_HERNQUIST", "NFW", "HERNQUIST", "PJAFFE"]
 
-class Mass(object):
-    """
 
-    """
+class Mass(object):
+    """"""
+
     def __init__(self, light, mass_type, **mass_dict):
         """
 
@@ -19,18 +18,23 @@ class Mass(object):
 
         if mass_type in ["EPL"]:
             from slsim.Deflectors.MassTypes.epl import EPL
+
             self._mass = EPL(light=light, **mass_dict)
         elif mass_type in ["NFW_HERNQUIST"]:
             from slsim.Deflectors.MassTypes.nfw_hernquist import NFWHernquist
+
             self._mass = NFWHernquist(light=light, **mass_dict)
         elif mass_type in ["NFW"]:
             from slsim.Deflectors.MassTypes.nfw import NFW
+
             self._mass = NFW(light=light, **mass_dict)
         elif mass_type in ["HERNQUIST"]:
             from slsim.Deflectors.MassTypes.hernquist import Hernquist
+
             self._mass = Hernquist(light=light, **mass_dict)
         elif mass_type in ["PJAFFE"]:
             from slsim.Deflectors.MassTypes.pjaffe import PJAFFE
+
             self._mass = PJAFFE(light=light, **mass_dict)
         else:
             raise ValueError(
@@ -77,16 +81,18 @@ class Mass(object):
 
         :param lens_cosmo: lens cosmology model
         :type lens_cosmo: ~lenstronomy.Cosmo.LensCosmo instance
-        :param spherical: if True, removes ellipticity for simpler calculations
+        :param spherical: if True, removes ellipticity for simpler
+            calculations
         :type spherical: bool
         :return: lens_mass_model_list, kwargs_lens_mass
         """
-        return self._mass.mass_model_lenstronomy(lens_cosmo=lens_cosmo, spherical=spherical)
+        return self._mass.mass_model_lenstronomy(
+            lens_cosmo=lens_cosmo, spherical=spherical
+        )
 
     @property
     def num_mass_models(self):
-        """
-        number of mass models
+        """Number of mass models.
 
         :return: number of mass models
         """

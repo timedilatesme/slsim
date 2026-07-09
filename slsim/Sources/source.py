@@ -53,29 +53,37 @@ class Source(object):
         # point sources
         elif source_type in ["supernova"]:
             from slsim.Sources.SourceTypes.supernova_event import SupernovaEvent
+
             self._source = SupernovaEvent(**source_dict)
         elif source_type in ["quasar"]:
             from slsim.Sources.SourceTypes.quasar import Quasar
+
             self._source = Quasar(**source_dict)
         elif source_type in ["general_lightcurve"]:
             from slsim.Sources.SourceTypes.general_lightcurve import GeneralLightCurve
+
             self._source = GeneralLightCurve(**source_dict)
 
         # extended sources
         elif source_type in ["single_sersic"]:
             from slsim.Sources.SourceTypes.single_sersic import SingleSersic
+
             self._source = SingleSersic(**source_dict)
         elif source_type in ["double_sersic"]:
             from slsim.Sources.SourceTypes.double_sersic import DoubleSersic
+
             self._source = DoubleSersic(**source_dict)
         elif source_type in ["catalog_source"]:
             from slsim.Sources.SourceTypes.catalog_source import CatalogSource
+
             self._source = CatalogSource(**source_dict)
         elif source_type in ["interpolated"]:
             from slsim.Sources.SourceTypes.interpolated_image import Interpolated
+
             self._source = Interpolated(**source_dict)
         elif source_type in ["hernquist"]:
             from slsim.Sources.SourceTypes.hernquist import Hernquist
+
             self._source = Hernquist(**source_dict)
 
         # point source plus extended source
