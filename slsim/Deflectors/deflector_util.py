@@ -139,6 +139,8 @@ def light2mass(
             kwargs_mass["gamma_pl"] = float(halo_dict["gamma_pl"])
         else:
             kwargs_mass["gamma_pl"] = 2
+        if "theta_E" in halo_columns:
+            kwargs_mass["theta_E"] = halo_dict["theta_E"]
     if "vel_disp" in kwargs_source:
         kwargs_mass["vel_disp"] = kwargs_source["vel_disp"]
     elif m_star_v_disp_scaling and "stellar_mass" in kwargs_source:

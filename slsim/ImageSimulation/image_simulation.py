@@ -188,17 +188,11 @@ def sharp_image(
     sim_api = SimAPI(
         num_pix=num_pix, kwargs_single_band=kwargs_band, kwargs_model=kwargs_model
     )
-    print(
-        kwargs_params.get("kwargs_source", None)[0]["magnitude"],
-        "kwargs source with mag",
-    )
-    print(mag_zero_point, "test mag0")
     kwargs_lens_light, kwargs_source, kwargs_ps = sim_api.magnitude2amplitude(
         kwargs_lens_light_mag=kwargs_params.get("kwargs_lens_light", None),
         kwargs_source_mag=kwargs_params.get("kwargs_source", None),
         kwargs_ps_mag=kwargs_params.get("kwargs_ps", None),
     )
-    print(kwargs_source[0]["amp"], "test amp")
     kwargs_numerics = {"supersampling_factor": 5}
     image_model = sim_api.image_model_class(kwargs_numerics)
     kwargs_lens = kwargs_params.get("kwargs_lens", None)
@@ -684,7 +678,6 @@ def lens_image(
         with_source=with_source,
         with_deflector=with_deflector,
     )
-    print(np.sum(psf_kernel), np.max(deflector_source), "test psf and deflector_source")
     convolved_deflector_source = convolved_image(
         image=deflector_source, psf_kernel=psf_kernel
     )

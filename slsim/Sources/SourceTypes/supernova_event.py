@@ -90,17 +90,16 @@ class SupernovaEvent(SourceBase):
                     "Cosmology cannot be None for Supernova class. Please"
                     "provide a suitable astropy cosmology."
                 )
-            else:
-                lightcurve_class = random_supernovae.RandomizedSupernova(
-                    sn_type=self._sn_type,
-                    redshift=self._z,
-                    absolute_mag=None,
-                    absolute_mag_band=self._sn_absolute_mag_band,
-                    mag_zpsys=self._sn_absolute_zpsys,
-                    cosmo=self._cosmo,
-                    modeldir=self._sn_modeldir,
-                )
-                self._lightcurve_class = lightcurve_class
+            lightcurve_class = random_supernovae.RandomizedSupernova(
+                sn_type=self._sn_type,
+                redshift=self._z,
+                absolute_mag=None,
+                absolute_mag_band=self._sn_absolute_mag_band,
+                mag_zpsys=self._sn_absolute_zpsys,
+                cosmo=self._cosmo,
+                modeldir=self._sn_modeldir,
+            )
+            self._lightcurve_class = lightcurve_class
 
             # Filter the input list against the global registry to ignore non-band parameters and unrecognized bands
             supported_bands = get_all_supported_bands()
