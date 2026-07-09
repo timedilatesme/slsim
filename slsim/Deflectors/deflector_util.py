@@ -1,7 +1,7 @@
 from slsim.Sources.SourcePopulation.galaxies import convert_catalog_to_source
 from slsim.Sources.SourcePopulation.galaxies import galaxy_projected_eccentricity
 from slsim.Deflectors.MassLightConnection.richness2mass import mass_richness_relation
-from slsim.Halos.halo_population import gene_e_ang_halo, concent_m_w_scatter
+from slsim.Halos.halo_population import concent_m_w_scatter
 from slsim.Deflectors.deflector import Deflector
 from slsim.Util import param_util
 import numpy as np

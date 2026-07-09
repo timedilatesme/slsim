@@ -32,9 +32,9 @@ def pes_lens_instance():
     source_dict = Table.read(
         os.path.join(path, "../TestData/source_dict_ps.fits"), format="fits"
     )
-    deflector_dict = Table.read(
-        os.path.join(path, "../TestData/deflector_dict_ps.fits"), format="fits"
-    )
+    # deflector_dict = Table.read(
+    #    os.path.join(path, "../TestData/deflector_dict_ps.fits"), format="fits"
+    #)
 
     kwargs_source = convert_catalog_to_source(
         source_dict,

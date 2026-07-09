@@ -1,4 +1,3 @@
-import numpy as np
 from astropy.table import vstack
 
 from slsim.Pipelines.skypy_pipeline import SkyPyPipeline

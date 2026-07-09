@@ -5,7 +5,6 @@ import pickle
 
 import numpy as np
 from numpy.testing import assert_raises
-import slsim.Sources as sources
 import slsim.Pipelines as pipelines
 
 # import slsim.Deflectors as deflectors

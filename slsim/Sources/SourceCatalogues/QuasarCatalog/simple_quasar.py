@@ -33,8 +33,8 @@ def quasar_catalog_simple(
     magnitude_r = np.random.uniform(m_min, m_max, num_quasars)
     magnitude_g = magnitude_r - 0.5
     magnitude_i = magnitude_r + 0.2
-    amplitude = np.random.uniform(amp_min, amp_max, num_quasars)
-    frequency = np.random.uniform(freq_min, freq_max, num_quasars)
+    # amplitude = np.random.uniform(amp_min, amp_max, num_quasars)
+    # frequency = np.random.uniform(freq_min, freq_max, num_quasars)
 
     point_source_catalog = Table(
         [redshifts, magnitude_r, magnitude_g, magnitude_i],

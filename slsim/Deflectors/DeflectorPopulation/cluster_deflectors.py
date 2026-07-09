@@ -1,12 +1,10 @@
 import numpy as np
 import numpy.random as random
-from slsim.Util import param_util
 from slsim.Lenses.selection import object_cut
 from slsim.Deflectors.MassLightConnection.richness2mass import mass_richness_relation
 from slsim.Halos.halo_population import gene_e_ang_halo
 from colossus.cosmology import cosmology as colossus_cosmo
 
-from slsim.Deflectors.DeflectorPopulation.galaxy_deflectors import GalaxyDeflectors
 from slsim.Deflectors.DeflectorPopulation.deflectors_base import DeflectorsBase
 from slsim.Deflectors.deflector_group import DeflectorGroup
 from slsim.Deflectors.deflector_util import deflector_dict_from_table

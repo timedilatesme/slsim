@@ -2,7 +2,6 @@ import os
 from skypy.pipeline import Pipeline
 import tempfile
 import slsim.Util.param_util as util
-import numpy as np
 import astropy.units as u
 
 

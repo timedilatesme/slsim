@@ -636,17 +636,6 @@ class TestLens(object):
         subhalos_table = Table.read(
             os.path.join(path, "../TestData/subhalos_table.fits"), format="fits"
         )
-        deflector_dict = {
-            "halo_mass": 10**14,
-            "concentration": 5,
-            "e1_mass": 0.1,
-            "e2_mass": -0.1,
-            "z": 0.42,
-            "subhalos": subhalos_table,
-        }
-        subhalos_table = Table.read(
-            os.path.join(path, "../TestData/subhalos_table.fits"), format="fits"
-        )
         deflector_dict_nfw = {
             "halo_mass": 10**14,
             "concentration": 5,
@@ -906,7 +895,7 @@ def pes_lens_instance():
 
     cosmo = FlatLambdaCDM(H0=70, Om0=0.3)
     print(source_dict.colnames, "source_dict")
-    kwargs_qso = {"ps_mag_r": 20, "ps_mag_g": 19, "ps_mag_i": 18}
+    # kwargs_qso = {"ps_mag_r": 20, "ps_mag_g": 19, "ps_mag_i": 18}
 
     kwargs_source = convert_catalog_to_source(
         source_dict,
@@ -1713,7 +1702,6 @@ class TestDifferentLens(object):
 
         self.source_dict = blue_one
         self.deflector_dict = red_one
-        kwargs = {"extended_source_type": "single_sersic"}
         self.source6 = Source(cosmo=self.cosmo, **kwargs_source)
         self.deflector6 = Deflector(
             z=z, kwargs_mass=kwargs_mass, kwargs_light=kwargs_light

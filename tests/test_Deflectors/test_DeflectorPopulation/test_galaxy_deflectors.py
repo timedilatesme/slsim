@@ -44,7 +44,7 @@ def all_lens_galaxies():
 def red_galaxies():
     galaxy_list = copy.copy(galaxies)
     red_galaxies = galaxy_list[0]
-    blue_galaxies = galaxy_list[1]
+    # blue_galaxies = galaxy_list[1]
     kwargs_deflector_cut = {}
     kwargs_mass2light = {}
     cosmo = FlatLambdaCDM(H0=70, Om0=0.3)
