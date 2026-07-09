@@ -47,10 +47,16 @@ class TestPJaffe(object):
 
     def test_mass_model_lenstronomy(self):
         cosmo = FlatLambdaCDM(H0=70, Om0=0.3)
-        z_source =2
-        lens_cosmo = LensCosmo(z_lens=self.kwargs_light["z"], z_source=z_source, cosmo=cosmo)
+        z_source = 2
+        lens_cosmo = LensCosmo(
+            z_lens=self.kwargs_light["z"], z_source=z_source, cosmo=cosmo
+        )
 
-        lens_mass_model_list, kwargs_lens = self.mass.mass_model_lenstronomy(lens_cosmo, spherical=False)
+        lens_mass_model_list, kwargs_lens = self.mass.mass_model_lenstronomy(
+            lens_cosmo, spherical=False
+        )
         assert lens_mass_model_list[0] == "PJAFFE_ELLIPSE_POTENTIAL"
-        lens_mass_model_list, kwargs_lens = self.mass.mass_model_lenstronomy(lens_cosmo, spherical=True)
+        lens_mass_model_list, kwargs_lens = self.mass.mass_model_lenstronomy(
+            lens_cosmo, spherical=True
+        )
         assert lens_mass_model_list[0] == "PJAFFE"
