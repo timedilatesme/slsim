@@ -2,9 +2,10 @@ skypy
 jaxtronomy
 lenstronomy>=1.14.1
 astropy>=5.2
-numpy
+numpy>=2.0.0
 #scipy<=1.13.1
-scipy<=1.11.4
+#scipy<=1.11.4
+scipy
 colossus
 speclite
 pyyaml
