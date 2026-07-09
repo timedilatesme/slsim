@@ -18,7 +18,10 @@ def deflector_from_table(table, mass_type, extended_source_type, cosmo=None):
     :rtype: ~slsim.Deflectors.deflector.Deflector() instance
     """
     z, center_x, center_y, kwargs_mass, kwargs_light = deflector_dict_from_table(
-        table=table, mass_type=mass_type, extended_source_type=extended_source_type, cosmo=cosmo
+        table=table,
+        mass_type=mass_type,
+        extended_source_type=extended_source_type,
+        cosmo=cosmo,
     )
     deflector = Deflector(
         z=z,
@@ -52,7 +55,10 @@ def deflector_dict_from_table(
     )
 
     kwargs_mass = light2mass(
-        kwargs_light, mass_type, **kwargs_mass2light, halo_dict=table,
+        kwargs_light,
+        mass_type,
+        **kwargs_mass2light,
+        halo_dict=table,
     )
     if isinstance(table, dict):
         colnames = list(table.keys())
