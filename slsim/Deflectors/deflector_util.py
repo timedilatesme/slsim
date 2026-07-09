@@ -174,8 +174,7 @@ def light2mass(
 
 
 def set_colossus_cosmo(cosmo):
-    """Set the cosmology in colossus to match the astropy.cosmology
-    instance.
+    """Set the cosmology in colossus to match the astropy.cosmology instance.
 
     :param cosmo: astropy cosmology instance
     """
@@ -184,11 +183,7 @@ def set_colossus_cosmo(cosmo):
         H0=cosmo.H0.value,
         Om0=cosmo.Om0,
         Ode0=cosmo.Ode0,
-        Ob0=(
-            cosmo.Ob0
-            if (cosmo.Ob0 is not None) and (cosmo.Ob0 != 0)
-            else 0.04897
-        ),
+        Ob0=(cosmo.Ob0 if (cosmo.Ob0 is not None) and (cosmo.Ob0 != 0) else 0.04897),
         Tcmb0=cosmo.Tcmb0.value if cosmo.Tcmb0.value > 0 else 2.7255,
         Neff=cosmo.Neff,
         sigma8=0.8102,
