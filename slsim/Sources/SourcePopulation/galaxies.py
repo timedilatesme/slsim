@@ -305,7 +305,7 @@ def _galaxy_size(galaxy, size_model, catalog_type, cosmo):
     if "physical_size" in col_names:
         physical_size = galaxy["physical_size"]
         if isinstance(physical_size, u.Quantity):
-            physical_size = physical_size.to(u.kpc)
+            physical_size = physical_size.convert_unit_to(u.kpc)
         else:
             physical_size *= u.kpc
     else:
@@ -313,7 +313,7 @@ def _galaxy_size(galaxy, size_model, catalog_type, cosmo):
     if "angular_size" in col_names:
         angular_size = galaxy["angular_size"]
         if isinstance(angular_size, u.Quantity):
-            angular_size = angular_size.to(u.arcsec)
+            angular_size = angular_size.convert_unit_to(u.arcsec)
         else:
             angular_size *= u.arcsec
     else:
@@ -407,7 +407,7 @@ def convert_catalog_to_source(
                 float(ellipticity), rotation_angle=phi_rot
             )
 
-        kwargs_source["e1"], kwargs_source["e2"] = float(e1), float(e2)
+        kwargs_source["e1"], kwargs_source["e2"] = e1, e2
     if extended_source_type in ["single_sersic", "catalog_source"]:
         if "n_sersic" not in colnames:
             if "galaxy_type" in colnames and galaxy["galaxy_type"] == "red":

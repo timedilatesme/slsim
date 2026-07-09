@@ -61,6 +61,8 @@ class DeflectorsBase(Galaxies):
         )
 
         self.mass_type = mass_type
+        if kwargs_mass2light is None:
+            kwargs_mass2light = {}
         self._kwargs_mass2light = kwargs_mass2light
         self._gamma_pl = gamma_pl
         self._vel_disp_from_stellar_mass = None
@@ -96,14 +98,12 @@ class DeflectorsBase(Galaxies):
             cosmo=self._cosmo,
             include_all_keywords=False,
         )
-        print(halo_gal, "test halo_gal")
         kwargs_mass = deflector_util.light2mass(
             kwargs_source,
             halo_dict=halo_gal,
             mass_type=self.mass_type,
             **self._kwargs_mass2light,
         )
-        print(kwargs_mass, "test kwargs_mass")
         kwargs_mass = self._update_mass(
             kwargs_mass=kwargs_mass, kwargs_source=kwargs_source
         )
