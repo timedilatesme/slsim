@@ -188,7 +188,10 @@ def sharp_image(
     sim_api = SimAPI(
         num_pix=num_pix, kwargs_single_band=kwargs_band, kwargs_model=kwargs_model
     )
-    print(kwargs_params.get("kwargs_source", None)[0]["magnitude"], "kwargs source with mag")
+    print(
+        kwargs_params.get("kwargs_source", None)[0]["magnitude"],
+        "kwargs source with mag",
+    )
     print(mag_zero_point, "test mag0")
     kwargs_lens_light, kwargs_source, kwargs_ps = sim_api.magnitude2amplitude(
         kwargs_lens_light_mag=kwargs_params.get("kwargs_lens_light", None),

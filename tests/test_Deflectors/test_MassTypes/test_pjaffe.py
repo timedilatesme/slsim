@@ -2,15 +2,29 @@ from slsim.Deflectors.MassTypes.pjaffe import PJAFFE
 from slsim.Sources.source import Source
 import numpy.testing as npt
 
+
 class TestPJaffe(object):
 
     def setup_method(self):
 
-        self.kwargs_light = {"extended_source_type": "single_sersic", "z": 0.5,
-                        "mag_r": 20, "angular_size": 1, "n_sersic": 1, "e1": 0, "e2": 0}
+        self.kwargs_light = {
+            "extended_source_type": "single_sersic",
+            "z": 0.5,
+            "mag_r": 20,
+            "angular_size": 1,
+            "n_sersic": 1,
+            "e1": 0,
+            "e2": 0,
+        }
         light = Source(**self.kwargs_light)
 
-        self.kwargs_mass = {"r_s": 0.2, "r_a": 2, "vel_disp": 250, "e1": 0.1, "e2": -0.1}
+        self.kwargs_mass = {
+            "r_s": 0.2,
+            "r_a": 2,
+            "vel_disp": 250,
+            "e1": 0.1,
+            "e2": -0.1,
+        }
 
         self.mass = PJAFFE(light=light, **self.kwargs_mass)
 
@@ -32,5 +46,4 @@ class TestPJaffe(object):
     def test_mass_model_lenstronomy(self):
         pass
 
-        #self.mass.mass_model_lenstronomy(lens_cosmo, spherical=False)
-
+        # self.mass.mass_model_lenstronomy(lens_cosmo, spherical=False)

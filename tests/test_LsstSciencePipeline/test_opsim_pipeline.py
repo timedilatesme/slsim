@@ -29,18 +29,25 @@ except ImportError:
 @pytest.fixture
 def pes_lens_instance():
 
-    kwargs_source = {"extended_source_type": "single_sersic", "point_source_type": "quasar",
-                     "z": 2, "angular_size": 1, "n_sersic": 2, "e1": 0.1, "e2": -0.1, "mag_g": float(19),
+    kwargs_source = {
+        "extended_source_type": "single_sersic",
+        "point_source_type": "quasar",
+        "z": 2,
+        "angular_size": 1,
+        "n_sersic": 2,
+        "e1": 0.1,
+        "e2": -0.1,
+        "mag_g": float(19),
         "mag_r": float(20),
         "mag_i": float(19),
         "mag_z": float(21),
         "mag_Y": float(22),
-                     "ps_mag_g": float(19),
-                     "ps_mag_r": float(20),
-                     "ps_mag_i": float(19),
-                     "ps_mag_z": float(21),
-                     "ps_mag_Y": float(22),
-                     }
+        "ps_mag_g": float(19),
+        "ps_mag_r": float(20),
+        "ps_mag_i": float(19),
+        "ps_mag_z": float(21),
+        "ps_mag_Y": float(22),
+    }
 
     cosmo = FlatLambdaCDM(H0=70, Om0=0.3)
     kwargs_mass = {
