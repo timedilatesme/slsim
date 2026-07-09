@@ -2,7 +2,7 @@ from astropy.cosmology import FlatLambdaCDM
 from astropy.units import Quantity
 from astropy import units as u
 from slsim.Util import param_util
-from slsim.Sources.SourcePopulation.galaxies import Galaxies
+from slsim.Sources.SourcePopulation.galaxies import Galaxies, _galaxy_size
 from slsim.Sources.SourcePopulation.galaxies import (
     galaxy_projected_eccentricity,
     convert_catalog_to_source,
@@ -419,6 +419,31 @@ def test_down_sample_to_dc2():
     assert max(results[0]["z"]) < 2.5
     assert min(results[5]["z"]) >= 4.5
     assert max(results[5]["z"]) < 5
+
+
+def test__galaxy_size():
+
+    cosmo = FlatLambdaCDM(H0=70, Om0=0.3)
+    with npt.assert_raises(ValueError):
+        # Bernardi size model needs mag_g in columns
+        galaxy = {"z": 1}
+        size_model = "Bernardi"
+        angular_size, physical_size = _galaxy_size(galaxy, size_model, catalog_type="skypy", cosmo=cosmo)
+    galaxy = {"physical_size": 1 * u.kpc}
+    angular_size, physical_size = _galaxy_size(galaxy, size_model="NONE", catalog_type="skypy", cosmo=cosmo)
+    npt.assert_almost_equal(physical_size.value, 1, decimal=5)
+
+    galaxy = {"physical_size": 1./1000 * u.Mpc}
+    angular_size, physical_size = _galaxy_size(galaxy, size_model="NONE", catalog_type="skypy", cosmo=cosmo)
+    npt.assert_almost_equal(physical_size.value, 1, decimal=5)
+
+    galaxy = {"angular_size": 1 * u.arcsec}
+    angular_size, physical_size = _galaxy_size(galaxy, size_model="NONE", catalog_type="skypy", cosmo=cosmo)
+    npt.assert_almost_equal(angular_size.value, 1, decimal=5)
+
+    galaxy = {"angular_size": np.pi / 3600 /180 * u.rad}
+    angular_size, physical_size = _galaxy_size(galaxy, size_model="NONE", catalog_type="skypy", cosmo=cosmo)
+    npt.assert_almost_equal(angular_size.value, 1, decimal=5)
 
 
 if __name__ == "__main__":
