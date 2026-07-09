@@ -1,5 +1,7 @@
 from slsim.Deflectors.MassTypes.pjaffe import PJAFFE
 from slsim.Sources.source import Source
+from astropy.cosmology import FlatLambdaCDM
+from lenstronomy.Cosmo.lens_cosmo import LensCosmo
 import numpy.testing as npt
 
 
@@ -44,6 +46,11 @@ class TestPJaffe(object):
         npt.assert_almost_equal(e2, self.kwargs_mass["e2"])
 
     def test_mass_model_lenstronomy(self):
-        pass
+        cosmo = FlatLambdaCDM(H0=70, Om0=0.3)
+        z_source =2
+        lens_cosmo = LensCosmo(z_lens=self.kwargs_light["z"], z_source=z_source, cosmo=cosmo)
 
-        # self.mass.mass_model_lenstronomy(lens_cosmo, spherical=False)
+        lens_mass_model_list, kwargs_lens = self.mass.mass_model_lenstronomy(lens_cosmo, spherical=False)
+        assert lens_mass_model_list[0] == "PJAFFE_ELLIPSE_POTENTIAL"
+        lens_mass_model_list, kwargs_lens = self.mass.mass_model_lenstronomy(lens_cosmo, spherical=True)
+        assert lens_mass_model_list[0] == "PJAFFE"
