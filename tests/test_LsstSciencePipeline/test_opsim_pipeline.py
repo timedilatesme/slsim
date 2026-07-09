@@ -9,7 +9,6 @@ from slsim.LsstSciencePipeline.util_lsst import (
     transient_data_with_cadence,
     extract_lightcurves_in_different_bands,
 )
-from slsim.Sources.SourcePopulation.galaxies import convert_catalog_to_source
 from slsim.Sources.source import Source
 from slsim.Deflectors.deflector import Deflector
 import astropy.coordinates as coord
