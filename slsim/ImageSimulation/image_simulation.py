@@ -647,8 +647,8 @@ def lens_image(
     :param psf_kernel: psf kernel for the exposures being.
     :param transform_pix2angle: transformation matrix (2x2) of pixels
         into coordinate displacements
-    :param exposure_time: exposure time for the exposure. It could
-        be single exposure time or an exposure map.
+    :param exposure_time: exposure time for the exposure. It could be
+        single exposure time or an exposure map.
     :param t_obs: an observation time [day]. This is applicable only for
         variable source. In case of point source, if we do not provide
         t_obs, considers no variability in the lens.
