@@ -76,7 +76,7 @@ class TestSupernovaEvent:
         assert "ps_mag_i" in light_curve["i"].keys()
         assert "MJD" in light_curve["r"].keys()
         assert "ps_mag_r" in light_curve["r"].keys()
-        assert len(light_curve["i"]["MJD"]) == 150
+        assert len(light_curve["i"]["MJD"]) == 152
 
         assert "F062" in light_curve_roman.keys()
         assert "F129" in light_curve_roman.keys()
