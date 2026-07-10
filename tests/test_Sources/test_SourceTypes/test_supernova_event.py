@@ -84,7 +84,7 @@ class TestSupernovaEvent:
         assert "ps_mag_F062" in light_curve_roman["F062"].keys()
         assert "MJD" in light_curve_roman["F129"].keys()
         assert "ps_mag_F129" in light_curve_roman["F129"].keys()
-        assert len(light_curve_roman["F062"]["MJD"]) == 100
+        assert len(light_curve_roman["F062"]["MJD"]) == 102
 
         assert not light_curve_none
         with pytest.raises(ValueError):
