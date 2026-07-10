@@ -19,7 +19,7 @@ class Source(object):
         self,
         extended_source_type=None,
         point_source_type=None,
-        time_zero_point=0.,
+        time_zero_point=0.0,
         **source_dict,
     ):
         """
@@ -234,7 +234,9 @@ class Source(object):
         :return: Magnitude of the point source in the specified band
         :rtype: float
         """
-        source_observation_time = self._image_to_source_time_translation(image_observation_times)
+        source_observation_time = self._image_to_source_time_translation(
+            image_observation_times
+        )
         return self._source.point_source_magnitude(
             band=band, image_observation_times=source_observation_time
         )
@@ -295,10 +297,11 @@ class Source(object):
         return self._source.surface_brightness_reff(band=band)
 
     def _image_to_source_time_translation(self, image_observation_times):
-        """
-        translates times in the observer frame to time in the source frame relative to a defined zero time point
+        """Translates times in the observer frame to time in the source frame
+        relative to a defined zero time point.
 
-        :param image_observation_times: observed times in the observer frame
+        :param image_observation_times: observed times in the observer
+            frame
         :return: corresponding times in the source frame
         """
         if image_observation_times is None:
