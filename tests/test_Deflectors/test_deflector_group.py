@@ -10,7 +10,7 @@ import copy
 class TestDeflectorGroup(object):
 
     def setup_method(self):
-        kwargs_light = {
+        self.kwargs_light = {
             "extended_source_type": "single_sersic",
             "n_sersic": 1,
             "e1": 0.1,
@@ -20,7 +20,7 @@ class TestDeflectorGroup(object):
             "mag_g": 20.0,
             "stellar_mass": 1e11,
         }
-        kwargs_mass = {
+        self.kwargs_mass = {
             "mass_type": "EPL",
             "vel_disp": 250,
             "gamma_pl": 2,
@@ -34,20 +34,55 @@ class TestDeflectorGroup(object):
             z=z,
             center_x=center_x,
             center_y=center_y,
-            kwargs_light=kwargs_light,
-            kwargs_mass=kwargs_mass,
+            kwargs_light=self.kwargs_light,
+            kwargs_mass=self.kwargs_mass,
         )
         self.deflector_group = DeflectorGroup(
             z=z,
-            kwargs_mass_list=[kwargs_mass],
-            kwargs_light_list=[kwargs_light],
+            kwargs_mass_list=[self.kwargs_mass],
+            kwargs_light_list=[self.kwargs_light],
             center_x_deflector_list=[0],
             center_y_deflector_list=[0],
             center_x=center_x,
             center_y=center_y,
         )
+        self.deflector_group2 = DeflectorGroup(
+            z=z,
+            kwargs_mass_list=[self.kwargs_mass],
+            kwargs_light_list=[self.kwargs_light],
+            center_x_deflector_list=[0],
+            center_y_deflector_list=[0],
+            center_x=None,
+            center_y=None,
+        )
+
         self.cosmo = FlatLambdaCDM(H0=70, Om0=0.3)
         self.lens_cosmo = LensCosmo(z_lens=z, z_source=1.5, cosmo=self.cosmo)
+
+    def test_init(self):
+        with npt.assert_raises(ValueError):
+            # test raise for different length in mass and light
+            DeflectorGroup(
+                z=0.5,
+                kwargs_mass_list=[self.kwargs_mass, self.kwargs_mass],
+                kwargs_light_list=[self.kwargs_light],
+                center_x_deflector_list=[0, 0],
+                center_y_deflector_list=[0, 0],
+                center_x=None,
+                center_y=None,
+            )
+
+        with npt.assert_raises(ValueError):
+            # test raise for different length in mass and light
+            DeflectorGroup(
+                z=0.5,
+                kwargs_mass_list=[self.kwargs_mass],
+                kwargs_light_list=[self.kwargs_light],
+                center_x_deflector_list=[],
+                center_y_deflector_list=[0, 0],
+                center_x=None,
+                center_y=None,
+            )
 
     def test_deflector_type(self):
         assert self.deflector_group.deflector_type == "group"
@@ -88,6 +123,11 @@ class TestDeflectorGroup(object):
         npt.assert_almost_equal(
             kwargs_list_[0]["theta_E"], kwargs_list[0]["theta_E"], decimal=5
         )
+        lens_cosmo = LensCosmo(z_lens=1, z_source=0.5)
+        model_list_, kwargs_list_ = self.deflector.mass_model_lenstronomy(
+            lens_cosmo=lens_cosmo
+        )
+        assert len(model_list_) == 0
 
     def test_light_model_lenstronomy(self):
         model_list, kwargs_list = self.deflector_group.light_model_lenstronomy(band="g")

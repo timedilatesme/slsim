@@ -1530,7 +1530,7 @@ class Lens(LensedSystemBase):
         conventions, which includes extended sources and point sources.
 
         :param band: imaging band
-        :type band: string
+        :type band: str or None
         :param time: time is an image observation time in units of days.
             If None, provides magnitude without variability.
         :param microlensing: if using micro-lensing map to produce the
