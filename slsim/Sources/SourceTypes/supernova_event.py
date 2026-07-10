@@ -1,4 +1,5 @@
 import warnings
+import numpy as np
 from slsim.Sources.Events.Supernovae import random_supernovae
 from slsim.Sources.SourceTypes.source_base import SourceBase
 from slsim.ImageSimulation.image_quality_lenstronomy import (
@@ -119,6 +120,11 @@ class SupernovaEvent(SourceBase):
                         band=provided_band,
                         zpsys=self._sn_absolute_zpsys,
                     )
+                    # make sure before and after the event, the flux is zero
+                    magnitudes = np.append(np.inf, magnitudes)
+                    magnitudes = np.append(magnitudes, np.inf)
+                    times = np.append(times[0] - (times[1]-times[0]), times)
+                    times = np.append(times, 2 * times[-1] -times[-2])
                 except Exception as e:
                     # If sncosmo throws an error, it means the band isn't registered
                     # in sncosmo's internal system. We skip it to avoid crashing.
