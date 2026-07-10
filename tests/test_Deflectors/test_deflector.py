@@ -67,6 +67,11 @@ class TestDeflector(object):
             "e1": 0.1,
             "e2": -0.1,
         }
+        kwargs_mass_her = {"mass_type": "HERNQUIST"}
+        kwargs_pj = {"mass_type": "PJAFFE",
+                     "r_s": 0.1, "r_a": 2, "vel_disp": 200, "e1": 0, "e2": 0
+        }
+
         kwargs_light_hernquist = {
             "extended_source_type": "hernquist",
             "e1": -0.1,
@@ -90,6 +95,8 @@ class TestDeflector(object):
         self.deflector_epl = Deflector(
             z=0.5, center_x=0.1, center_y=0, kwargs_light=None, kwargs_mass=kwargs_mass
         )
+        self.deflector_her = Deflector(z=0.5, kwargs_mass=kwargs_mass_her, kwargs_light=kwargs_light_hernquist)
+        self.deflector_jaffe = Deflector(z=0.5, kwargs_mass=kwargs_pj, kwargs_light=kwargs_light)
 
     def test_light_ellipticity(self):
         e1_light, e2_light = self.deflector.light_ellipticity
@@ -158,6 +165,10 @@ class TestDeflector(object):
         npt.assert_almost_equal(
             mag_arcsec2_center / mag_arcsec2_r_eff, 0.8558993, decimal=3
         )
+
+    def test_angular_size(self):
+        ang_size = self.deflector.angular_size_light
+        npt.assert_almost_equal(ang_size, self.kwargs_light["angular_size"])
 
     def test_theta_e_when_source_infinity(self):
         try:

@@ -208,6 +208,10 @@ class TestSource:
         )
         assert result["kwargs_source_morphology"]["observing_wavelength_band"] == "i"
 
+    def test_raise_variable(self):
+        with npt.assert_raises(ValueError):
+            Source(z=1, bad_variable=1)
+
 
 if __name__ == "__main__":
     pytest.main()

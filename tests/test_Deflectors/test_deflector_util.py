@@ -65,3 +65,7 @@ def test_light2mass():
         richness_fn="Abdullah2022",
     )
     assert kwargs_mass["halo_mass"] > 1e14
+
+
+    kwargs_mass_epl = deflector_util.light2mass(kwargs_source, mass_type="EPL", halo_dict={"theta_E": 1, "gamma_pl": 2})
+    npt.assert_almost_equal(kwargs_mass_epl["theta_E"], 1, decimal=5)

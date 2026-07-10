@@ -1,4 +1,5 @@
 import pytest
+import numpy.testing as npt
 
 from slsim.Deflectors.MassTypes.epl import EPL
 from astropy.cosmology import FlatLambdaCDM
@@ -28,7 +29,7 @@ class TestEPL(object):
         # gamma_pl not given, hence using isothermal
         self.sie = EPL(**self.deflector_dict)
 
-        light = Source(
+        self.light = Source(
             z=0.5, extended_source_type="single_sersic", n_sersic=1, angular_size=1
         )
         self.deflector_dict = {
@@ -36,7 +37,7 @@ class TestEPL(object):
             "gamma_pl": 2.1,
             "e1": 0.1,
             "e2": -0.1,
-            "light": light,
+            "light": self.light,
         }
         # gamma_pl not given, hence using isothermal
         self.epl_sersic = EPL(**self.deflector_dict)
@@ -97,6 +98,10 @@ class TestEPL(object):
     def test_halo_porperties(self):
         gamma = self.sie.mass_properties["gamma_pl"]
         assert gamma == 2.0
+
+    def test_init(self):
+        with npt.assert_raises(ValueError):
+            EPL(light=self.light, e1=0, e2=0)
 
 
 @pytest.fixture
