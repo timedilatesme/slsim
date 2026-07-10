@@ -1,6 +1,7 @@
 from slsim.Deflectors.MassTypes.nfw import NFW
 from slsim.Sources.source import Source
 
+
 class TestNFW(object):
 
     def test_ellitpicty(self):
