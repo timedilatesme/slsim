@@ -9,7 +9,6 @@ class TestSourceBase:
         self.source_dict = {
             "z": 0.8,
             "mag_i": 23,
-            "n_sersic": 1,
             "angular_size": 0.2,
             "e1": 0.002,
             "e2": 0.004,
@@ -18,7 +17,6 @@ class TestSourceBase:
         self.source_dict3 = {
             "z": 0.8,
             "mag_i": 23,
-            "n_sersic": 1,
             "angular_size": 0.2,
             "e1": 0.002,
             "e2": 0.004,
@@ -140,6 +138,15 @@ class TestSourceBase:
             image_pos_x=[1],
             image_pos_y=[0],
         )
+
+    def test_update_microlensing_kwargs_source_morphology(self):
+        # Test default pass-through behavior
+        source = SourceBase(z=1)
+        initial_kwargs = {"param1": 10, "param2": "test"}
+        updated_kwargs = source.update_microlensing_kwargs_source_morphology(
+            initial_kwargs
+        )
+        assert updated_kwargs == initial_kwargs
 
 
 if __name__ == "__main__":

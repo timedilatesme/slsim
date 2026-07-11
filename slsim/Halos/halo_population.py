@@ -3,6 +3,8 @@ import scipy.stats as st
 from colossus.halo import concentration
 from colossus.lss import mass_function
 
+# Changed "vir" to 200c in concent_m_w_scatter function, mdef="vir" is not supported in diemer19 model.
+
 
 def gene_e_ang_halo(Mh):
     """Ellipticity.
@@ -43,7 +45,7 @@ def gene_e_halo(Mh):
     arxiv: 2005.11469
 
     :param Mh: halo mass
-    :type  Mh:  ndarray
+    :type Mh: ndarray
     :return: ellipticity of halos
     """
     log10Mh = np.log10(Mh)  # log10([Modot/h])
@@ -62,16 +64,12 @@ def gene_e_halo(Mh):
 def calc_vol(z, cosmo_col):
     """Volume appeared in cosmological 3D integral.
 
-    Parameters
-    -----------------------------------------------------------------------------------------------
     :param z: redshift
-    :type z : float
-    :param cosmo_col: An instance of an colossus cosmology model
+    :type z: float
+    :param cosmo_col: An instance of a colossus cosmology model
     :type cosmo_col: colossus.cosmology instance
-
-    Returns
-    -----------------------------------------------------------------------------------------------
-    volume: float
+    :return: volume
+    :rtype: float
     """
     dis = cosmo_col.angularDiameterDistance(z) / (cosmo_col.H0 / 100.0)
     drdz = (2997.92458 / ((1.0 + z) * cosmo_col.Ez(z))) / (cosmo_col.H0 / 100.0)
@@ -118,7 +116,7 @@ def concent_m_w_scatter(m, z, sig):
     :type  sig: float
     :return: con_halo: ndarray, concentration parameter of halos
     """
-    con_mean = concentration.concentration(m, "vir", z, model="diemer19")
+    con_mean = concentration.concentration(m, "200c", z, model="diemer19")
     sca = np.random.lognormal(0.0, sig, len(m))
     con = con_mean * sca
     con[con < 1.0] = 1.0  # TODO check

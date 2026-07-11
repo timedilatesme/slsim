@@ -4,6 +4,7 @@ from numpy import testing as npt
 from astropy.table import Table
 from astropy.cosmology import FlatLambdaCDM
 from slsim.Lenses.lens import Lens
+from slsim.Deflectors import deflector_util
 from slsim.ImageSimulation.image_simulation import (
     simulate_image,
     sharp_image,
@@ -23,6 +24,7 @@ from slsim.ImageSimulation.image_simulation import (
 )
 from slsim.Sources.source import Source
 from slsim.Deflectors.deflector import Deflector
+from slsim.Sources.SourcePopulation.galaxies import convert_catalog_to_source
 import pytest
 
 
@@ -43,13 +45,33 @@ class TestImageSimulation(object):
 
         self.source_dict = blue_one
         self.deflector_dict = red_one
+
+        kwargs_light = convert_catalog_to_source(
+            self.deflector_dict,
+            extended_source_type="single_sersic",
+            catalog_type=None,
+            size_model=None,
+            cosmo=cosmo,
+            include_all_keywords=False,
+        )
+        kwargs_source = convert_catalog_to_source(
+            self.source_dict,
+            extended_source_type="single_sersic",
+            catalog_type=None,
+            size_model=None,
+            cosmo=cosmo,
+            include_all_keywords=False,
+        )
+
+        z = kwargs_light.pop("z")
+        kwargs_mass = deflector_util.light2mass(
+            kwargs_light, halo_dict=self.deflector_dict, mass_type="EPL"
+        )
+
         while True:
-            self.source = Source(
-                cosmo=cosmo, extended_source_type="single_sersic", **self.source_dict
-            )
+            self.source = Source(cosmo=cosmo, **kwargs_source)
             self.deflector = Deflector(
-                deflector_type="EPL_SERSIC",
-                **self.deflector_dict,
+                z=z, kwargs_mass=kwargs_mass, kwargs_light=kwargs_light
             )
             gg_lens = Lens(
                 source_class=self.source,
@@ -85,6 +107,64 @@ class TestImageSimulation(object):
         )
 
         assert len(image) == 100
+
+    def test_simulate_image_with_kwargs_single_band(self):
+        """Test that passing kwargs_single_band produces identical results to
+        letting simulate_image compute it internally."""
+        from slsim.ImageSimulation.image_quality_lenstronomy import kwargs_single_band
+
+        # Get kwargs_single_band manually
+        kwargs_band = kwargs_single_band(observatory="LSST", band="g")
+
+        # Image without passing kwargs_single_band (standard path)
+        image_without = simulate_image(
+            lens_class=self.gg_lens,
+            band="g",
+            num_pix=50,
+            add_noise=False,  # deterministic comparison
+            observatory="LSST",
+        )
+
+        # Image with pre-computed kwargs_single_band (optimization path)
+        image_with = simulate_image(
+            lens_class=self.gg_lens,
+            band="g",
+            num_pix=50,
+            add_noise=False,
+            observatory="LSST",
+            kwargs_single_band=kwargs_band,
+        )
+
+        # Results should be identical
+        npt.assert_array_almost_equal(image_without, image_with, decimal=10)
+
+    def test_simulate_image_units_counts(self):
+        """Test that image_units_counts parameter correctly scales the image by
+        exposure time."""
+        image_cps = simulate_image(
+            lens_class=self.gg_lens,
+            band="g",
+            num_pix=50,
+            add_noise=False,  # no noise to ensure deterministic comparison
+            observatory="LSST",
+            image_units_counts=False,
+        )
+        image_counts = simulate_image(
+            lens_class=self.gg_lens,
+            band="g",
+            num_pix=50,
+            add_noise=False,
+            observatory="LSST",
+            image_units_counts=True,
+        )
+
+        # The counts image should be the cps image multiplied by exposure time
+        # All non-zero pixels should have the same ratio (the exposure time)
+        ratio = image_counts / image_cps
+        nonzero_mask = image_cps > 0
+        if np.any(nonzero_mask):
+            exposure_time = ratio[nonzero_mask][0]
+            npt.assert_array_almost_equal(ratio[nonzero_mask], exposure_time, decimal=5)
 
     def test_sharp_image(self):
         image = sharp_image(
@@ -207,10 +287,21 @@ def pes_lens_instance():
             **kwargs_quasar,
             **source_dict,
         )
-        deflector = Deflector(
-            deflector_type="EPL_SERSIC",
-            **deflector_dict,
+        kwargs_light = convert_catalog_to_source(
+            deflector_dict,
+            extended_source_type="single_sersic",
+            catalog_type=None,
+            size_model=None,
+            cosmo=cosmo,
+            include_all_keywords=False,
         )
+        z = kwargs_light.pop("z")
+        kwargs_mass = deflector_util.light2mass(
+            kwargs_light, halo_dict=deflector_dict, mass_type="EPL"
+        )
+
+        deflector = Deflector(z=z, kwargs_mass=kwargs_mass, kwargs_light=kwargs_light)
+
         pes_lens = Lens(
             source_class=source,
             deflector_class=deflector,
@@ -267,6 +358,8 @@ def test_point_source_image_properties(pes_lens_instance):
     assert result_key[1] == expected_key[1]
     assert result_key[2] == expected_key[2]
     assert result_key[3] == expected_key[3]
+    print(result["image_pix"])
+    assert np.shape(result["image_pix"]) == (4, 2)
 
 
 def test_point_source_image_with_and_without_variability(pes_lens_instance):
@@ -431,10 +524,10 @@ class TestMultiSourceImageSimulation(object):
             "n_sersic_1": [4.0],
             "w0": [0.907],
             "w1": [0.093],
-            "e0_1": [0.14733325180101145],
-            "e0_2": [0.09874724195027847],
-            "e1_1": [0.03754887782202202],
-            "e1_2": [0.025166403903583694],
+            "e1_0": [0.14733325180101145],
+            "e1_1": [0.09874724195027847],
+            "e2_0": [0.03754887782202202],
+            "e2_1": [0.025166403903583694],
             "angular_size_0": [0.37156280037917327],
             "angular_size_1": [0.29701108506340096],
         }
@@ -466,9 +559,21 @@ class TestMultiSourceImageSimulation(object):
             **kwargs_sn,
             **source_dict2,
         )
+        kwargs_light = convert_catalog_to_source(
+            deflector_dict,
+            extended_source_type="single_sersic",
+            catalog_type=None,
+            size_model=None,
+            cosmo=self.cosmo,
+            include_all_keywords=False,
+        )
+        z = kwargs_light.pop("z")
+        kwargs_mass = deflector_util.light2mass(
+            kwargs_light, halo_dict=deflector_dict, mass_type="EPL"
+        )
+
         self.deflector = Deflector(
-            deflector_type="EPL_SERSIC",
-            **deflector_dict,
+            z=z, kwargs_mass=kwargs_mass, kwargs_light=kwargs_light
         )
         lens_class1 = Lens(
             deflector_class=self.deflector,
@@ -597,11 +702,21 @@ class TestImageSimulationInterpSingleSource:
         self.source_interp = Source(
             cosmo=self.cosmo, extended_source_type="interpolated", **interp_source_dict
         )
+        kwargs_light = convert_catalog_to_source(
+            red_one,
+            extended_source_type="single_sersic",
+            catalog_type=None,
+            size_model=None,
+            cosmo=self.cosmo,
+            include_all_keywords=False,
+        )
+        z = kwargs_light.pop("z")
+        kwargs_mass = deflector_util.light2mass(
+            kwargs_light, halo_dict=red_one, mass_type="EPL"
+        )
 
-        deflector_dict = red_one
         self.deflector_single = Deflector(
-            deflector_type="EPL_SERSIC",
-            **deflector_dict,
+            z=z, kwargs_mass=kwargs_mass, kwargs_light=kwargs_light
         )
 
         self.lens_interp_single = Lens(
@@ -618,6 +733,7 @@ class TestImageSimulationInterpSingleSource:
             band="g",
             num_pix=100,
             add_noise=True,
+            add_background_counts=True,
             observatory="LSST",
         )
         assert image.shape == (100, 100)

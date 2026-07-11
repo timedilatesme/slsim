@@ -7,7 +7,7 @@ from astropy import cosmology
 
 class TestSource:
     def setup_method(self):
-        cosmo = cosmology.FlatLambdaCDM(H0=70, Om0=0.3)
+        self.cosmo = cosmology.FlatLambdaCDM(H0=70, Om0=0.3)
         self.source_dict_extended = {
             "z": 1.0,
             "mag_i": 21,
@@ -19,7 +19,7 @@ class TestSource:
             "center_y": -0.06,
         }
         self.source = Source(
-            cosmo=cosmo,
+            cosmo=self.cosmo,
             extended_source_type="single_sersic",
             **self.source_dict_extended,
         )
@@ -50,7 +50,7 @@ class TestSource:
         self.source_point_extended = Source(
             extended_source_type="single_sersic",
             point_source_type="supernova",
-            cosmo=cosmo,
+            cosmo=self.cosmo,
             **self.source_dict_point_extended,
             **kwargs_point_extended,
         )
@@ -91,7 +91,7 @@ class TestSource:
             "mag_i": 20,
         }
         self.source_interpolated = Source(
-            cosmo=cosmo,
+            cosmo=self.cosmo,
             extended_source_type="interpolated",
             **self.source_dict_interpolated,
         )
@@ -113,7 +113,7 @@ class TestSource:
         }
         self.source_point = Source(
             point_source_type="supernova",
-            cosmo=cosmo,
+            cosmo=self.cosmo,
             **self.source_dict_point,
             **kwargs_point,
         )
@@ -121,6 +121,10 @@ class TestSource:
         self.source_general_lc = Source(
             point_source_type="general_lightcurve", z=1, MJD=[0, 1, 2]
         )
+
+    def test_empty_source(self):
+        source = Source(z=1)
+        assert source.name == "NONE"
 
     def test_redshift(self):
         assert self.source.redshift == 1.0
@@ -173,25 +177,40 @@ class TestSource:
         assert x_pos_1 == x_pos_2
         assert y_pos_1 == y_pos_2
 
-    def test_error(self):
-        cosmo = cosmology.FlatLambdaCDM(H0=70, Om0=0.3)
-        self.source_dict_extended = {
-            "z": 1.0,
-            "mag_i": 21,
-            "n_sersic": 1,
-            "angular_size": 0.2,
-            "e1": 0.005,
-            "e2": 0.003,
-            "center_x": 0.034,
-            "center_y": -0.06,
-        }
-        with pytest.raises(ValueError):
-            Source(
-                source_dict=self.source_dict_extended,
-                source_type="other",
-                cosmo=cosmo,
-                extendedsource_type="single_sersic",
-            )
+    def test_point_source_property(self):
+        assert self.source.point_source is None
+        assert self.source_point.point_source == self.source_point._source
+        assert (
+            self.source_point_extended.point_source
+            == self.source_point_extended._source._point_source
+        )
+
+    def test_extended_source_property(self):
+        assert self.source_point.extended_source is None
+        assert self.source.extended_source == self.source._source
+        assert (
+            self.source_point_extended.extended_source
+            == self.source_point_extended._source._extended_source
+        )
+
+    def test_prepare_microlensing_kwargs_sn(self):
+        """'supernovae' morphology auto-assigned for SN sources."""
+
+        # self.source_point is a supernova Source; its name is "SNIa" → startswith("SN")
+        result = self.source_point.prepare_microlensing_kwargs(
+            band="i", cosmo=self.cosmo
+        )
+
+        assert result["point_source_morphology"] == "supernovae"
+        assert (
+            result["kwargs_source_morphology"]["source_redshift"]
+            == self.source_point.redshift
+        )
+        assert result["kwargs_source_morphology"]["observing_wavelength_band"] == "i"
+
+    def test_raise_variable(self):
+        with npt.assert_raises(ValueError):
+            Source(z=1, bad_variable=1)
 
 
 if __name__ == "__main__":

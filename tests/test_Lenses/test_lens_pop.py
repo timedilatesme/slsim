@@ -4,9 +4,25 @@ import slsim
 import pickle
 
 import numpy as np
-import slsim.Sources as sources
+from numpy.testing import assert_raises
 import slsim.Pipelines as pipelines
-import slsim.Deflectors as deflectors
+
+# import slsim.Deflectors as deflectors
+from slsim.Deflectors.DeflectorPopulation.galaxy_deflectors import GalaxyDeflectors
+from slsim.Deflectors.DeflectorPopulation.compound_lens_halos_galaxies import (
+    CompoundLensHalosGalaxies,
+)
+from slsim.Deflectors.DeflectorPopulation.cluster_deflectors import ClusterDeflectors
+from slsim.Sources.SourcePopulation.galaxies import Galaxies
+from slsim.Sources.SourceCatalogues.SupernovaeCatalog.supernovae_sample import (
+    SupernovaeCatalog,
+)
+from slsim.Sources.SourcePopulation.point_plus_extended_sources import (
+    PointPlusExtendedSources,
+)
+from slsim.Sources.SourceCatalogues.QuasarCatalog.simple_quasar import (
+    quasar_catalog_simple,
+)
 
 from astropy.units import Quantity
 from astropy.table import Table
@@ -22,6 +38,14 @@ galaxy_simulation_pipeline = pipelines.SkyPyPipeline(
     filters=None,
 )
 
+try:
+    import jax
+
+    print(jax.__path__)
+    use_jax = True
+except ImportError:
+    use_jax = False
+
 
 def create_lens_pop_instance(return_kext=False):
 
@@ -31,8 +55,8 @@ def create_lens_pop_instance(return_kext=False):
     kwargs_deflector_cut = {"band": "g", "band_max": 28, "z_min": 0.01, "z_max": 2.5}
     kwargs_source_cut = {"band": "g", "band_max": 28, "z_min": 0.1, "z_max": 5.0}
 
-    lens_galaxies = deflectors.EllipticalLensGalaxies(
-        galaxy_list=galaxy_simulation_pipeline.red_galaxies,
+    lens_galaxies = GalaxyDeflectors(
+        red_galaxy_list=galaxy_simulation_pipeline.red_galaxies,
         kwargs_cut=kwargs_deflector_cut,
         kwargs_mass2light={},
         cosmo=cosmo,
@@ -40,7 +64,7 @@ def create_lens_pop_instance(return_kext=False):
     )
 
     kwargs = {"extended_source_type": "single_sersic"}
-    source_galaxies = sources.Galaxies(
+    source_galaxies = Galaxies(
         galaxy_list=galaxy_simulation_pipeline.blue_galaxies,
         kwargs_cut=kwargs_source_cut,
         cosmo=cosmo,
@@ -54,6 +78,7 @@ def create_lens_pop_instance(return_kext=False):
         source_population=source_galaxies,
         cosmo=cosmo,
         sky_area=sky_area,
+        use_jax=use_jax,
     )
 
     return lenspop
@@ -82,7 +107,7 @@ def test_pes_lens_pop_instance():
     kwargs_deflector_cut = {"z_min": 0.01, "z_max": 2.5}
     kwargs_source_cut = {"band": "g", "band_max": 26, "z_min": 0.1, "z_max": 5.0}
 
-    lens_galaxies = deflectors.AllLensGalaxies(
+    lens_galaxies = GalaxyDeflectors(
         red_galaxy_list=galaxy_simulation_pipeline.red_galaxies,
         blue_galaxy_list=galaxy_simulation_pipeline.blue_galaxies,
         kwargs_cut=kwargs_deflector_cut,
@@ -91,19 +116,19 @@ def test_pes_lens_pop_instance():
         sky_area=sky_area,
     )
 
-    quasar_galaxies = sources.QuasarCatalog.quasar_galaxies_simple(**{})
+    quasar_galaxies = quasar_catalog_simple(**{})
     kwargs = {
         "kwargs_variability": None,
         "variability_model": "light_curve",
     }
-    source_galaxies = sources.PointPlusExtendedSources(
+    source_galaxies = PointPlusExtendedSources(
         point_plus_extended_sources_list=quasar_galaxies,
         cosmo=cosmo,
         sky_area=sky_area,
         kwargs_cut=kwargs_source_cut,
-        pointsource_type="quasar",
-        extended_source_type="single_sersic",
-        pointsource_kwargs=kwargs,
+        point_source_type="quasar",
+        extended_source_type=None,
+        point_source_kwargs=kwargs,
     )
 
     pes_lens_pop = LensPop(
@@ -111,10 +136,11 @@ def test_pes_lens_pop_instance():
         source_population=source_galaxies,
         cosmo=cosmo,
         sky_area=sky_area,
+        use_jax=use_jax,
     )
 
     kwargs_lens_cut = {}
-    pes_lens_class = pes_lens_pop.select_lens_at_random(**kwargs_lens_cut)
+    pes_lens_class = pes_lens_pop.select_lens_at_random(verbose=True, **kwargs_lens_cut)
     assert isinstance(pes_lens_class, Lens)
 
 
@@ -129,8 +155,8 @@ def test_galaxies_lens_pop_halo_model_instance():
         slhammocks_config=None, sky_area=sky_area, cosmo=cosmo, z_min=0.01, z_max=5.0
     )
 
-    lens_galaxies = deflectors.CompoundLensHalosGalaxies(
-        halo_galaxy_list=halo_galaxy_simulation_pipeline._pipeline,
+    lens_galaxies = CompoundLensHalosGalaxies(
+        deflector_table=halo_galaxy_simulation_pipeline._pipeline,
         kwargs_cut=kwargs_deflector_cut,
         kwargs_mass2light={},
         cosmo=cosmo,
@@ -138,7 +164,7 @@ def test_galaxies_lens_pop_halo_model_instance():
     )
 
     kwargs = {"extended_source_type": "single_source"}
-    source_galaxies = sources.Galaxies(
+    source_galaxies = Galaxies(
         galaxy_list=galaxy_simulation_pipeline.blue_galaxies,
         kwargs_cut=kwargs_source_cut,
         cosmo=cosmo,
@@ -152,8 +178,14 @@ def test_galaxies_lens_pop_halo_model_instance():
         source_population=source_galaxies,
         cosmo=cosmo,
         sky_area=sky_area,
+        use_jax=use_jax,
     )
-    assert g_lens_halo_model_pop._lens_galaxies.draw_deflector().halo_properties[0] != 0
+    assert (
+        g_lens_halo_model_pop._lens_galaxies.draw_deflector().mass_properties[
+            "halo_mass"
+        ]
+        != 0
+    )
 
 
 def test_cluster_lens_pop_instance():
@@ -175,10 +207,16 @@ def test_cluster_lens_pop_instance():
     cluster_catalog = Table.read(cluster_catalog_path)
     members_catalog = Table.read(members_catalog_path)
 
-    lens_clusters = deflectors.ClusterDeflectors(
+    galaxies = Galaxies(
+        galaxy_list=galaxy_simulation_pipeline.red_galaxies,
+        cosmo=cosmo,
+        sky_area=sky_area,
+    )
+
+    lens_clusters = ClusterDeflectors(
         cluster_list=cluster_catalog,
         members_list=members_catalog,
-        galaxy_list=galaxy_simulation_pipeline.red_galaxies,
+        galaxies=galaxies,
         kwargs_cut=kwargs_deflector_cut,
         kwargs_mass2light={},
         cosmo=cosmo,
@@ -186,7 +224,7 @@ def test_cluster_lens_pop_instance():
     )
 
     kwargs = {"extended_source_type": "single_sersic"}
-    source_galaxies = sources.Galaxies(
+    source_galaxies = Galaxies(
         galaxy_list=galaxy_simulation_pipeline.blue_galaxies,
         kwargs_cut=kwargs_source_cut,
         cosmo=cosmo,
@@ -200,13 +238,14 @@ def test_cluster_lens_pop_instance():
         source_population=source_galaxies,
         cosmo=cosmo,
         sky_area=sky_area,
+        use_jax=use_jax,
     )
 
     kwargs_lens_cut = {}
     pes_lens_class = cluster_lens_pop.select_lens_at_random(
         test_area=4 * np.pi, **kwargs_lens_cut
     )
-    assert pes_lens_class.deflector.deflector_type == "NFW_CLUSTER"
+    assert pes_lens_class.deflector.deflector_type == "group"
     kwargs_model, kwargs_params = pes_lens_class.lenstronomy_kwargs(band="g")
     assert len(kwargs_model["lens_model_list"]) >= 3  # halo, 1>= subhalo, LoS
     assert len(kwargs_model["lens_light_model_list"]) >= 1  # 1>= member galaxy
@@ -220,7 +259,7 @@ def test_galaxies_lens_pop_instance():
     kwargs_deflector_cut = {"band": "g", "band_max": 23, "z_min": 0.01, "z_max": 2.5}
     kwargs_source_cut = {"z_min": 0.1, "z_max": 5.0}
 
-    lens_galaxies = deflectors.AllLensGalaxies(
+    lens_galaxies = GalaxyDeflectors(
         red_galaxy_list=galaxy_simulation_pipeline.red_galaxies,
         blue_galaxy_list=galaxy_simulation_pipeline.blue_galaxies,
         kwargs_cut=kwargs_deflector_cut,
@@ -236,12 +275,11 @@ def test_galaxies_lens_pop_instance():
     with open(path, "rb") as f:
         supernovae_data = pickle.load(f)
     kwargs = {"extended_source_type": "single_sersic"}
-    source_galaxies = sources.Galaxies(
+    source_galaxies = Galaxies(
         galaxy_list=supernovae_data,
         cosmo=cosmo,
         sky_area=sky_area,
         kwargs_cut=kwargs_source_cut,
-        list_type="list",
         **kwargs,
     )
 
@@ -250,10 +288,16 @@ def test_galaxies_lens_pop_instance():
         source_population=source_galaxies,
         cosmo=cosmo,
         sky_area=sky_area,
+        use_jax=use_jax,
     )
-    kwargs_lens_cut = {}
+    kwargs_lens_cut = {"mag_arc_limit": {"i": 30}}
     pes_lens_class = gg_lens_pop.select_lens_at_random(**kwargs_lens_cut)
     assert isinstance(pes_lens_class, Lens)
+
+    # test that we can't find a lens with a lensed arc of magnitude 6
+    with assert_raises(ValueError):
+        kwargs_lens_cut = {"mag_arc_limit": {"i": 6}}
+        gg_lens_pop.select_lens_at_random(**kwargs_lens_cut)
 
 
 def test_supernovae_plus_galaxies_lens_pop_instance_2():
@@ -267,7 +311,7 @@ def test_supernovae_plus_galaxies_lens_pop_instance_2():
 
     time_range = np.linspace(-20, 50, 500)
 
-    lens_galaxies = deflectors.AllLensGalaxies(
+    lens_galaxies = GalaxyDeflectors(
         red_galaxy_list=galaxy_simulation_pipeline.red_galaxies,
         blue_galaxy_list=galaxy_simulation_pipeline.blue_galaxies,
         kwargs_cut=kwargs_deflector_cut,
@@ -276,7 +320,7 @@ def test_supernovae_plus_galaxies_lens_pop_instance_2():
         sky_area=deflector_sky_area,
     )
 
-    supernovae_catalog = sources.SupernovaeCatalog.SupernovaeCatalog(
+    supernovae_catalog = SupernovaeCatalog(
         sn_type="Ia",
         band_list=["i"],
         lightcurve_time=time_range,
@@ -291,7 +335,7 @@ def test_supernovae_plus_galaxies_lens_pop_instance_2():
         host_galaxy=True, lightcurve=False
     )
 
-    pointsource_kwargs = {
+    point_source_kwargs = {
         "variability_model": "light_curve",
         "kwargs_variability": ["supernovae_lightcurve", "i"],
         "sn_type": "Ia",
@@ -300,14 +344,14 @@ def test_supernovae_plus_galaxies_lens_pop_instance_2():
         "lightcurve_time": time_range,
         "sn_modeldir": None,
     }
-    source_galaxies = sources.PointPlusExtendedSources(
+    source_galaxies = PointPlusExtendedSources(
         point_plus_extended_sources_list=supernovae_data,
         cosmo=cosmo,
         sky_area=source_sky_area,
         kwargs_cut=kwargs_source_cut,
-        pointsource_type="supernova",
+        point_source_type="supernova",
         extended_source_type="single_sersic",
-        pointsource_kwargs=pointsource_kwargs,
+        point_source_kwargs=point_source_kwargs,
     )
 
     pes_lens_pop = LensPop(
@@ -315,6 +359,7 @@ def test_supernovae_plus_galaxies_lens_pop_instance_2():
         source_population=source_galaxies,
         cosmo=cosmo,
         sky_area=sky_area,
+        use_jax=use_jax,
     )
     kwargs_lens_cut = {}
     pes_lens_class = pes_lens_pop.select_lens_at_random(**kwargs_lens_cut)
@@ -332,15 +377,15 @@ def test_supernovae_lens_pop_instance():
 
     time_range = np.linspace(-20, 50, 500)
 
-    lens_galaxies_1 = deflectors.EllipticalLensGalaxies(
-        galaxy_list=galaxy_simulation_pipeline.red_galaxies,
+    lens_galaxies_1 = GalaxyDeflectors(
+        red_galaxy_list=galaxy_simulation_pipeline.red_galaxies,
         kwargs_cut=kwargs_deflector_cut,
         kwargs_mass2light={},
         cosmo=cosmo,
         sky_area=sky_area_1,
     )
 
-    supernovae_catalog_1 = sources.SupernovaeCatalog.SupernovaeCatalog(
+    supernovae_catalog_1 = SupernovaeCatalog(
         sn_type="Ia",
         band_list=["r"],
         lightcurve_time=time_range,
@@ -355,7 +400,7 @@ def test_supernovae_lens_pop_instance():
         host_galaxy=False, lightcurve=False
     )
 
-    pointsource_kwargs = {
+    point_source_kwargs = {
         "variability_model": "light_curve",
         "kwargs_variability": ["supernovae_lightcurve", "i"],
         "sn_type": "Ia",
@@ -364,13 +409,14 @@ def test_supernovae_lens_pop_instance():
         "lightcurve_time": time_range,
         "sn_modeldir": None,
     }
-    source_galaxies_1 = sources.PointSources(
-        point_source_list=supernovae_data_1,
+    source_galaxies_1 = PointPlusExtendedSources(
+        point_plus_extended_sources_list=supernovae_data_1,
         cosmo=cosmo,
         sky_area=sky_area_1,
         kwargs_cut=kwargs_source_cut,
-        pointsource_type="supernova",
-        pointsource_kwargs=pointsource_kwargs,
+        point_source_type="supernova",
+        extended_source_type=None,
+        point_source_kwargs=point_source_kwargs,
     )
 
     ps_lens_pop_1 = LensPop(
@@ -378,6 +424,7 @@ def test_supernovae_lens_pop_instance():
         source_population=source_galaxies_1,
         cosmo=cosmo,
         sky_area=sky_area_pop,
+        use_jax=use_jax,
     )
     # drawing population
     kwargs_lens_cuts = {}
@@ -397,6 +444,7 @@ def test_supernovae_lens_pop_instance():
             deflector_population=lens_galaxies_1,
             source_population=source_galaxies_1,
             cosmo=cosmo,
+            use_jax=use_jax,
         )
 
 

@@ -1,5 +1,11 @@
-from slsim.Sources.Supernovae import random_supernovae
+import warnings
+import numpy as np
+from slsim.Sources.Events.Supernovae import random_supernovae
 from slsim.Sources.SourceTypes.source_base import SourceBase
+from slsim.ImageSimulation.image_quality_lenstronomy import (
+    get_all_supported_bands,
+    get_sncosmo_filtername,
+)
 
 
 class SupernovaEvent(SourceBase):
@@ -11,11 +17,12 @@ class SupernovaEvent(SourceBase):
         sn_absolute_mag_band,
         sn_absolute_zpsys,
         lightcurve_time,
-        sn_modeldir,
         variability_model,
+        sn_modeldir=None,
         kwargs_variability=None,
         cosmo=None,
-        **kwargs
+        name=None,
+        **kwargs,
     ):
         """# TODO: is there a specific variability model needed for this class,
         if so, we should set it directly.
@@ -53,15 +60,17 @@ class SupernovaEvent(SourceBase):
          the host if host galaxy is available.
          eg: {"z": 0.8, "ra_off": 0.001, "dec_off": 0.005}
         """
-
+        if name is None:
+            name = "SN" + sn_type
         super().__init__(
             extended_source=False,
             point_source=True,
             cosmo=cosmo,
             variability_model=variability_model,
-            **kwargs
+            name=name,
+            **kwargs,
         )
-        self.name = "SN" + sn_type
+
         self._variability_computed = False  # to be set to True once the light_curve() definition has been processed
         # These are the keywords that kwargs dict should contain
         self._kwargs_variability = kwargs_variability
@@ -82,53 +91,61 @@ class SupernovaEvent(SourceBase):
                     "Cosmology cannot be None for Supernova class. Please"
                     "provide a suitable astropy cosmology."
                 )
-            else:
-                lightcurve_class = random_supernovae.RandomizedSupernova(
-                    sn_type=self._sn_type,
-                    redshift=self._z,
-                    absolute_mag=None,
-                    absolute_mag_band=self._sn_absolute_mag_band,
-                    mag_zpsys=self._sn_absolute_zpsys,
-                    cosmo=self._cosmo,
-                    modeldir=self._sn_modeldir,
-                )
+            lightcurve_class = random_supernovae.RandomizedSupernova(
+                sn_type=self._sn_type,
+                redshift=self._z,
+                absolute_mag=None,
+                absolute_mag_band=self._sn_absolute_mag_band,
+                mag_zpsys=self._sn_absolute_zpsys,
+                cosmo=self._cosmo,
+                modeldir=self._sn_modeldir,
+            )
+            self._lightcurve_class = lightcurve_class
 
-            for element in list(self._kwargs_variability):
-                # if lsst filter is being used
-                if element in [
-                    "r",
-                    "i",
-                    "g",
-                    "z",
-                    "y",
-                    "F062",
-                    "F087",
-                    "F106",
-                    "F129",
-                    "F158",
-                    "F184",
-                    "F146",
-                    "F213",
-                ]:
-                    if element in ["r", "i", "g", "z", "y"]:
-                        provided_band = "lsst" + element
-                    else:
-                        provided_band = element
-                    name = "ps_mag_" + element
-                    times = self._lightcurve_time
+            # Filter the input list against the global registry to ignore non-band parameters and unrecognized bands
+            supported_bands = get_all_supported_bands()
+            provided_bands = set(supported_bands) & set(self._kwargs_variability)
+
+            for element in provided_bands:
+                # sncosmo registers LSST bands as 'lsstg', 'lsstr', etc.
+                provided_band = get_sncosmo_filtername(element)
+
+                name = "ps_mag_" + element
+                times = self._lightcurve_time
+
+                # Safely attempt to generate the lightcurve
+                try:
                     magnitudes = lightcurve_class.get_apparent_magnitude(
                         time=times,
                         band=provided_band,
                         zpsys=self._sn_absolute_zpsys,
                     )
-                    if name not in self.source_dict:
-                        self.source_dict[name] = float(min(magnitudes))
-                    kwargs_variab_extracted[element] = {
-                        "MJD": times,
-                        name: magnitudes,
-                    }
+                    # make sure before and after the event, the flux is zero
+                    magnitudes = np.append(np.inf, magnitudes)
+                    magnitudes = np.append(magnitudes, np.inf)
+                    times = np.append(times[0] - (times[1] - times[0]), times)
+                    times = np.append(times, 2 * times[-1] - times[-2])
+                except Exception as e:
+                    # If sncosmo throws an error, it means the band isn't registered
+                    # in sncosmo's internal system. We skip it to avoid crashing.
+                    warnings.warn(
+                        f"Skipping band '{provided_band}': Failed to generate lightcurve. "
+                        f"It may not be registered in sncosmo. (Error: {e})",
+                        UserWarning,
+                    )
+                    continue
+
+                # If successful, store the magnitudes
+                if name not in self.source_dict:
+                    self.source_dict[name] = float(min(magnitudes))
+
+                kwargs_variab_extracted[element] = {
+                    "MJD": times,
+                    name: magnitudes,
+                }
         else:
             kwargs_variab_extracted = {}
+
         self._variability_computed = True
         return kwargs_variab_extracted
 
@@ -138,7 +155,8 @@ class SupernovaEvent(SourceBase):
         :param band: Imaging band
         :type band: str
         :param image_observation_times: Images observation time for an
-            image.
+            image. If None, takes the peak magnitude
+        :type image_observation_times: array or None
         :return: Magnitude of the point source in the specified band
         :rtype: float
         """
@@ -149,3 +167,16 @@ class SupernovaEvent(SourceBase):
         return super().point_source_magnitude(
             band=band, image_observation_times=image_observation_times
         )
+
+    def update_microlensing_kwargs_source_morphology(self, kwargs_source_morphology):
+        """Injects the sncosmo model instance into morphology kwargs so the
+        morphology uses the exact same SN realisation — template, x1, c — as
+        the lightcurve."""
+        if not self._variability_computed:
+            _ = self.light_curve  # ensures _lightcurve_class is populated
+
+        if hasattr(self, "_lightcurve_class"):
+            kwargs_source_morphology.setdefault(
+                "sn_model_instance", self._lightcurve_class
+            )
+        return kwargs_source_morphology

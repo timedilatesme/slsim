@@ -1,10 +1,13 @@
+from astropy.table import Table
+
+
 def object_cut(
     galaxy_list,
     z_min=0,
     z_max=5,
     band=None,
     band_max=40,
-    list_type="astropy_table",
+    band_min=0,
     object_type="extended",
 ):
     """Selects a subset of a given galaxy list satisfying given criteria.
@@ -14,8 +17,7 @@ def object_cut(
     :param z_max: maximum redshift of selected sample
     :param band: imaging band
     :param band_max: maximum magnitude of galaxies in band
-    :param list_type: format of the source catalog file. Currently, it
-        supports a single astropy table or a list of astropy tables.
+    :param band_min: minimum magnitude of galaxies in band
     :param object_type: string to specify whether catalog contains an
         extended object or point object. This is necessary because point
         and extended object have different name for the magnitude.
@@ -27,19 +29,20 @@ def object_cut(
         mag_string = "ps_mag_"
     else:
         raise ValueError("given object type %s is not supported." % object_type)
-    if list_type == "astropy_table":
+    if isinstance(galaxy_list, Table):
         if band is None:
             bool_cut = (galaxy_list["z"] > z_min) & (galaxy_list["z"] < z_max)
         else:
+            # TODO: What if you wanted to work with multiple bands?
             bool_cut = (
                 (galaxy_list["z"] > z_min)
                 & (galaxy_list["z"] < z_max)
                 & (galaxy_list[mag_string + band] < band_max)
+                & (galaxy_list[mag_string + band] > band_min)
             )
         galaxy_list_cut = galaxy_list[bool_cut]
     else:
         galaxy_list_cut = []
-
         for table in galaxy_list:
             if band is None:
                 bool_cut = (table["z"] > z_min) & (table["z"] < z_max)
@@ -48,6 +51,7 @@ def object_cut(
                     (table["z"] > z_min)
                     & (table["z"] < z_max)
                     & (table[mag_string + band] < band_max)
+                    & (table[mag_string + band] > band_min)
                 )
 
             # Check if any rows satisfy the cut

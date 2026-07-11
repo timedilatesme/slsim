@@ -27,12 +27,19 @@ class GeneralLightCurve(SourceBase):
 
         """
 
-        super().__init__(variability_model=variability_model, **kwargs)
-        self.name = "LC"
+        super().__init__(
+            variability_model=variability_model,
+            point_source=True,
+            extended_source=False,
+            **kwargs
+        )
+        self.name = kwargs.get("name", "LC")
         # These are the keywords that kwargs dict should contain
         self._MJD = MJD
 
-    def point_source_magnitude(self, band, image_observation_times=None):
+    def point_source_magnitude(
+        self, band, image_observation_times=None, at_maximum=False
+    ):
         """Get the magnitude of the point source in a specific band.
 
         :param band: Imaging band

@@ -1,15 +1,20 @@
+# test_roman_image_simulation.py
 import astropy.cosmology
 import numpy as np
+import numpy.testing as npt
 from slsim.Lenses.lens import Lens
 from slsim.ImageSimulation.roman_image_simulation import (
     simulate_roman_image,
-    lens_image_roman,
+    precompute_roman_background,
 )
+from slsim.ImageSimulation import image_quality_lenstronomy
 from slsim.ImageSimulation.image_simulation import simulate_image
 from slsim.Sources.source import Source
 from slsim.Deflectors.deflector import Deflector
 from slsim.LOS.los_individual import LOSIndividual
+
 import os
+import pathlib
 import pickle
 import pytest
 
@@ -18,18 +23,23 @@ COSMO = astropy.cosmology.default_cosmology.get()
 DEFLECTOR_DICT = {
     "center_x": -0.007876281728887604,
     "center_y": 0.010633393703246008,
-    "e1_mass": -0.004858808997848661,
-    "e2_mass": 0.0075210751726143355,
     "stellar_mass": 286796906929.3925,
-    "e1_light": -0.023377277902774978,
-    "e2_light": 0.05349948216860632,
-    "vel_disp": 295.2347999078027,
+    "e1": -0.023377277902774978,
+    "e2": 0.05349948216860632,
     "angular_size": 0.5300707454127908,
     "n_sersic": 4.0,
     "z": 0.2902115249535011,
     "mag_F106": 17.5664222662219,
     "mag_F129": 17.269983557132853,
     "mag_F184": 17.00761457389914,
+    "extended_source_type": "single_sersic",
+}
+
+DEFLECTOR_MASS_DICT = {
+    "e1": -0.004858808997848661,
+    "e2": 0.0075210751726143355,
+    "vel_disp": 295.2347999078027,
+    "mass_type": "EPL",
 }
 
 LOS_DICT = {
@@ -48,13 +58,11 @@ SOURCE_DICT = {
     "mag_F184": 20.542431041034558,
     "n_sersic": 1.0,
     "z": 0.5876899931818929,
-    "x_off": -0.053568932950377096,
-    "y_off": 0.04383056304876015,
+    "extended_source_type": "single_sersic",
 }
 
 BAND = "F106"
-kwargs_extended = {"extended_source_type": "single_sersic"}
-source = Source(cosmo=COSMO, **kwargs_extended, **SOURCE_DICT)
+source = Source(cosmo=COSMO, **SOURCE_DICT)
 pointsource_kwargs = {
     "variability_model": "light_curve",
     "kwargs_variability": ["supernovae_lightcurve", "F184", "F129", "F106"],
@@ -66,15 +74,17 @@ pointsource_kwargs = {
 }
 supernova_source = Source(
     cosmo=COSMO,
-    pointsource_type="supernova",
-    extended_source_type="single_sersic",
+    point_source_type="supernova",
     **pointsource_kwargs,
     **SOURCE_DICT,
 )
 
 deflector = Deflector(
-    deflector_type="EPL_SERSIC",
-    **DEFLECTOR_DICT,
+    z=DEFLECTOR_DICT.pop("z"),
+    center_x=DEFLECTOR_DICT.pop("center_x"),
+    center_y=DEFLECTOR_DICT.pop("center_y"),
+    kwargs_mass=DEFLECTOR_MASS_DICT,
+    kwargs_light=DEFLECTOR_DICT,
 )
 LENS = Lens(
     source_class=source,
@@ -89,20 +99,158 @@ SNIa_Lens = Lens(
     cosmo=COSMO,
 )
 
-PSF_DIRECTORY = os.path.join(os.path.dirname(__file__), "../..", "data", "stpsf")
+PSF_DIRECTORY = os.path.join(str(pathlib.Path(__file__).parent.parent), "TestData")
+
+DETECTOR_KWARGS = {
+    "detector": 1,
+    "detector_pos": (2000, 2000),
+    "ra": 29,
+    "dec": -38,
+}
 
 
 # NOTE: Galsim is required which is not supported on Windows
 def test_simulate_roman_image_with_psf_and_noise():
-    final_image = simulate_roman_image(
+    final_image_galsim = simulate_roman_image(
+        lens_class=LENS,
+        band=BAND,
+        num_pix=80,
+        oversample=3,
+        add_noise=True,
+        subtract_mean_background=True,
+        psf_directory=PSF_DIRECTORY,
+        **DETECTOR_KWARGS,
+    )
+
+    final_image_lenstronomy = simulate_image(
+        lens_class=LENS,
+        band=BAND,
+        num_pix=80,
+        observatory="Roman",
+        add_noise=True,
+        add_background_counts=False,
+    )
+
+    assert final_image_galsim.shape == (80, 80)
+    assert final_image_lenstronomy.shape == (80, 80)
+
+    diff = (
+        (final_image_galsim - final_image_lenstronomy)
+        / (final_image_galsim + final_image_lenstronomy + 1)
+        / 2
+    )
+    npt.assert_array_less(diff, 0.4)
+
+    final_image_galsim = simulate_roman_image(
+        lens_class=LENS,
+        band=BAND,
+        num_pix=80,
+        oversample=3,
+        add_noise=True,
+        subtract_mean_background=False,
+        psf_directory=PSF_DIRECTORY,
+        **DETECTOR_KWARGS,
+    )
+
+    final_image_lenstronomy = simulate_image(
+        lens_class=LENS,
+        band=BAND,
+        num_pix=80,
+        observatory="Roman",
+        add_noise=True,
+        add_background_counts=True,
+    )
+
+    assert final_image_galsim.shape == (80, 80)
+    assert final_image_lenstronomy.shape == (80, 80)
+    diff = (
+        (final_image_galsim - final_image_lenstronomy)
+        / (final_image_galsim + final_image_lenstronomy)
+        / 2
+    )
+    npt.assert_array_less(diff, 0.2)
+
+    # with randomized detector, detector position
+    final_image_galsim2 = simulate_roman_image(
+        lens_class=LENS,
+        band=BAND,
+        num_pix=80,
+        oversample=3,
+        add_noise=True,
+        subtract_mean_background=False,
+    )
+    assert not np.allclose(final_image_galsim, final_image_galsim2)
+
+
+def test_simulate_roman_image_with_custom_exposures():
+
+    kwargs_single_band = image_quality_lenstronomy.kwargs_single_band(
+        observatory="Roman", band=BAND
+    )
+    galsim_image1 = simulate_roman_image(
         lens_class=LENS,
         band=BAND,
         num_pix=45,
         oversample=3,
+        seed=42,
+        add_noise=False,
+        psf_directory=PSF_DIRECTORY,
+        detector=1,
+        detector_pos=(2000, 2000),
+        exposure_time=kwargs_single_band["exposure_time"],
+        num_exposures=kwargs_single_band["num_exposures"],
+    )
+
+    galsim_image2 = simulate_roman_image(
+        lens_class=LENS,
+        band=BAND,
+        num_pix=45,
+        oversample=3,
+        seed=42,
+        add_noise=False,
+        psf_directory=PSF_DIRECTORY,
+        detector=1,
+        detector_pos=(2000, 2000),
+        exposure_time=kwargs_single_band["exposure_time"] * 2,
+        num_exposures=kwargs_single_band["num_exposures"] * 2,
+    )
+
+    # Since add_noise is False, these two should be the same
+    npt.assert_allclose(galsim_image1, galsim_image2, atol=1e-16, rtol=1e-16)
+
+    # The image with multiple exposures should have more noise due to readout noise and persistence
+    # Keeping the overall exposure time the same
+    galsim_image1 = simulate_roman_image(
+        lens_class=LENS,
+        band=BAND,
+        num_pix=45,
+        oversample=3,
+        seed=42,
         add_noise=True,
         psf_directory=PSF_DIRECTORY,
+        detector=1,
+        detector_pos=(2000, 2000),
+        exposure_time=100000,
+        num_exposures=1,
+        subtract_mean_background=False,
     )
-    assert final_image.shape == (45, 45)
+
+    galsim_image2 = simulate_roman_image(
+        lens_class=LENS,
+        band=BAND,
+        num_pix=45,
+        oversample=3,
+        seed=42,
+        add_noise=True,
+        psf_directory=PSF_DIRECTORY,
+        detector=1,
+        detector_pos=(2000, 2000),
+        exposure_time=500,
+        num_exposures=200,
+        subtract_mean_background=False,
+    )
+
+    assert np.mean(galsim_image2 - galsim_image1) > 0
 
 
 def test_simulate_roman_image_with_psf_without_noise():
@@ -134,7 +282,6 @@ def test_simulate_roman_image_with_psf_without_noise():
     )
     image_ref = array[3:-3, 3:-3]
 
-    # Convolves psf through galsim, also no roman detector effects or background
     galsim_image = simulate_roman_image(
         lens_class=LENS,
         band=BAND,
@@ -143,6 +290,8 @@ def test_simulate_roman_image_with_psf_without_noise():
         seed=42,
         add_noise=False,
         psf_directory=PSF_DIRECTORY,
+        detector=1,
+        detector_pos=(2000, 2000),
     )
 
     # Makes sure that each pixel matches in flux by 2%, and the total flux matches by up to 0.1
@@ -152,40 +301,151 @@ def test_simulate_roman_image_with_psf_without_noise():
         np.sum(galsim_image), np.sum(image_ref), rtol=0, atol=0.1
     )
 
-
-def test_lens_image_roman():
-    lens_image = lens_image_roman(
-        lens_class=SNIa_Lens,
+    # precomputed_background is only used inside the add_noise branch, so a dummy
+    # array must not affect the noiseless result
+    dummy_background = np.ones((45 + 6, 45 + 6), dtype=np.float32)
+    galsim_image_with_dummy_bg = simulate_roman_image(
+        lens_class=LENS,
         band=BAND,
-        mag_zero_point=28,
-        num_pix=71,
-        transform_pix2angle=np.array([[0.11, 0], [0, 0.11]]),
-        detector=1,
-        detector_pos=(2000, 2000),
+        num_pix=45,
         oversample=3,
-        psf_directory=PSF_DIRECTORY,
-        t_obs=0,
-        with_source=True,
-        with_deflector=True,
-    )
-    lens_image_no_noise = lens_image_roman(
-        lens_class=SNIa_Lens,
-        band=BAND,
-        mag_zero_point=28,
-        num_pix=71,
-        transform_pix2angle=np.array([[0.11, 0], [0, 0.11]]),
-        detector=1,
-        detector_pos=(2000, 2000),
-        oversample=3,
-        psf_directory=PSF_DIRECTORY,
-        t_obs=0,
-        with_source=True,
-        with_deflector=True,
+        seed=42,
         add_noise=False,
+        psf_directory=PSF_DIRECTORY,
+        detector=1,
+        detector_pos=(2000, 2000),
+        precomputed_background=dummy_background,
     )
-    noise = lens_image - lens_image_no_noise
-    assert np.shape(lens_image)[0] == 71
-    assert 1 < np.mean(noise) < 1.8
+    npt.assert_array_equal(galsim_image_with_dummy_bg, galsim_image)
+
+
+def test_simulate_roman_image_with_time_variable_source():
+    detector_kwargs = {
+        "detector": 1,
+        "detector_pos": (2000, 2000),
+        "ra": 24,
+        "dec": -24,
+    }
+
+    # without noise; checking for time variability
+    lens_image = simulate_roman_image(
+        lens_class=SNIa_Lens,
+        band=BAND,
+        num_pix=71,
+        oversample=3,
+        add_noise=False,
+        t_obs=0,
+        with_source=True,
+        with_deflector=True,
+        psf_directory=PSF_DIRECTORY,
+        **detector_kwargs,
+    )
+
+    # this is literally the same thing, checks that all randomness is gone
+    lens_image2 = simulate_roman_image(
+        lens_class=SNIa_Lens,
+        band=BAND,
+        num_pix=71,
+        oversample=3,
+        add_noise=False,
+        t_obs=0,
+        with_source=True,
+        with_deflector=True,
+        psf_directory=PSF_DIRECTORY,
+        **detector_kwargs,
+    )
+
+    npt.assert_allclose(lens_image, lens_image2, atol=1e-16, rtol=1e-16)
+
+    # now change the observation time, check we get a different result
+    lens_image3 = simulate_roman_image(
+        lens_class=SNIa_Lens,
+        band=BAND,
+        num_pix=71,
+        oversample=3,
+        add_noise=False,
+        t_obs=99,
+        with_source=True,
+        with_deflector=True,
+        psf_directory=PSF_DIRECTORY,
+        **detector_kwargs,
+    )
+
+    assert not np.allclose(lens_image, lens_image3, atol=1e-16, rtol=1e-16)
+
+
+def test_precompute_roman_background():
+    kwargs_single_band = image_quality_lenstronomy.kwargs_single_band(
+        observatory="Roman", band=BAND
+    )
+
+    background = precompute_roman_background(
+        band=BAND,
+        num_pix=45,
+        exposure_time=kwargs_single_band["exposure_time"],
+        **DETECTOR_KWARGS,
+    )
+
+    assert isinstance(background, np.ndarray)
+    assert background.shape == (45 + 6, 45 + 6)
+    assert np.all(np.isfinite(background))
+    assert np.all(background >= 0)
+
+    # testing the randomised-defaults (detector, detector_pos, ra, dec all None)
+    background_random = precompute_roman_background(
+        band=BAND,
+        num_pix=45,
+        exposure_time=kwargs_single_band["exposure_time"],
+    )
+    assert background_random.shape == (45 + 6, 45 + 6)
+
+
+def test_simulate_roman_image_with_precomputed_background():
+    kwargs_single_band = image_quality_lenstronomy.kwargs_single_band(
+        observatory="Roman", band=BAND
+    )
+    exposure_time = kwargs_single_band["exposure_time"]
+
+    background = precompute_roman_background(
+        band=BAND,
+        num_pix=45,
+        exposure_time=exposure_time,
+        **DETECTOR_KWARGS,
+    )
+
+    image_precomputed = simulate_roman_image(
+        lens_class=LENS,
+        band=BAND,
+        num_pix=45,
+        oversample=3,
+        add_noise=True,
+        subtract_mean_background=True,
+        seed=42,
+        exposure_time=exposure_time,
+        psf_directory=PSF_DIRECTORY,
+        precomputed_background=background,
+        **DETECTOR_KWARGS,
+    )
+
+    image_direct = simulate_roman_image(
+        lens_class=LENS,
+        band=BAND,
+        num_pix=45,
+        oversample=3,
+        add_noise=True,
+        subtract_mean_background=True,
+        seed=42,
+        exposure_time=exposure_time,
+        psf_directory=PSF_DIRECTORY,
+        **DETECTOR_KWARGS,
+    )
+
+    assert image_precomputed.shape == (45, 45)
+    assert image_direct.shape == (45, 45)
+    diff = np.abs(image_precomputed - image_direct) / (
+        np.abs(image_precomputed) + np.abs(image_direct) + 1e-10
+    )
+    npt.assert_array_less(np.mean(diff), 0.1)
 
 
 if __name__ == "__main__":

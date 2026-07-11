@@ -1,5 +1,6 @@
 import numpy as np
 import scipy
+import copy
 from scipy.signal import convolve2d
 from scipy.signal import fftconvolve
 from lenstronomy.Util.param_util import transform_e1e2_product_average
@@ -12,6 +13,39 @@ from astropy.stats import sigma_clipped_stats
 from astropy.convolution import Gaussian2DKernel
 import warnings
 from astropy.cosmology import default_cosmology
+
+
+def update_center(area=None, reference_position=None, center_x=None, center_y=None):
+    """Overwrites the source center position.
+
+    :param reference_position: [RA, DEC] in arc-seconds of the reference
+        from where within a circle the source position is being drawn
+        from
+    :type reference_position: 2d numpy array
+    :param area: area (in solid angle arc-seconds^2) to dither the
+        center of the source
+    :param center_x: RA position [arc-seconds] (optional, otherwise
+        renders within area)
+    :param center_y: DEC position [arc-seconds] (optional, otherwise
+        renders within area)
+    :return: Source() instance updated with new center position
+    """
+    if center_x is not None and center_y is not None:
+        center_source = np.array([float(center_x), float(center_y)])
+    else:
+        if reference_position is None:
+            reference_position = np.array([0, 0])
+        if area is None:
+            x_, y_ = 0, 0
+        else:
+            x_, y_ = draw_coord_in_circle(area=area, size=1)
+        center_source = np.array(
+            [
+                reference_position[0] + x_,
+                reference_position[1] + y_,
+            ]
+        )
+    return center_source
 
 
 def draw_coord_in_circle(area, size=1):
@@ -362,7 +396,7 @@ def catalog_with_angular_size_in_arcsec(galaxy_catalog, input_catalog_type="skyp
     :type input_catalog_type: str. "skypy" or None
     :return: galaxy catalog with anularsize in arcsec.
     """
-    copied_galaxy_catalog = galaxy_catalog.copy()
+    copied_galaxy_catalog = copy.deepcopy(galaxy_catalog)
     if input_catalog_type == "skypy":
         copied_galaxy_catalog["angular_size"] = copied_galaxy_catalog[
             "angular_size"
@@ -395,13 +429,15 @@ def convert_mjd_to_days(reference_mjd, start_point_mjd):
     return reference_mjd - start_point_mjd
 
 
-def transient_event_time_mjd(min_mjd, max_mjd):
+def transient_event_time_mjd(min_mjd, max_mjd, random_seed=42):
     """Produces a random MJD time with in the given range.
 
     :param min_mjd: Minimum bound for the MJD time
     :param max_mjd: Maximum bound for the MJD time
+    :param random_seed: int. Default is 42.
     :return: A random MJD time between given min and max bounds.
     """
+    np.random.seed(random_seed)
     start_mjd = np.random.randint(min_mjd, max_mjd)
     return start_mjd
 
@@ -486,18 +522,54 @@ def galaxy_size_redshift_evolution(z):
     return Bz * (1 + z) ** betaz
 
 
+def flux_error_to_magnitude_error(
+    flux_mean, flux_error, mag_zero_point, noise=True, symmetric=False
+):
+    """Computes mean magnitude and corresponding errors from the provided mean
+    flux and associate error.
+
+    :param flux_mean: mean flux of a transient.
+    :param flux_error: error in a mean flux.
+    :param mag_zero_point: magnitude zero point of the observation.
+    :param noise: Boolean. If True, a gaussian noise is added to the
+        lightcurve flux.
+    :param symmetric: Boolean. If True, a symmetric error on magnitude
+        is provided.
+    :return: mean magnitude and associted errors.
+    """
+    mag_mean = amplitude_to_magnitude(flux_mean, mag_zero_point)
+    if symmetric is False:
+        upper_flux_limit = flux_mean + flux_error
+        lower_flux_limit = flux_mean - flux_error
+        if lower_flux_limit <= 0:
+            lower_flux_limit = 0
+        lower_mag_limit = amplitude_to_magnitude(upper_flux_limit, mag_zero_point)
+        upper_mag_limit = amplitude_to_magnitude(lower_flux_limit, mag_zero_point)
+        mag_error_upper = upper_mag_limit - mag_mean
+        mag_error_lower = mag_mean - lower_mag_limit
+    else:
+        mag_error = (2.5 / np.log(10)) * flux_error / flux_mean
+        mag_error_upper = mag_error
+        mag_error_lower = mag_error
+    if noise is True:
+        flux_mean_noise = flux_mean + np.random.normal(0.0, flux_error)
+        mag_mean_noise = amplitude_to_magnitude(flux_mean_noise, mag_zero_point)
+        return mag_mean_noise, mag_error_lower, mag_error_upper
+    return mag_mean, mag_error_lower, mag_error_upper
+
+
 def additional_poisson_noise_with_rescaled_coadd(
     image, original_exp_time, degraded_exp_time, use_noise_diff=True
 ):
     """Computes additional Poisson noise to an image based on the change in
     exposure time.
 
-    :param image : numpy.ndarray The input image array.
-    :param original_exp_time : numpy.ndarray The original exposure time
+    :param image: numpy.ndarray The input image array.
+    :param original_exp_time: numpy.ndarray The original exposure time
         per pixel.
-    :param degraded_exp_time : numpy.ndarray The degraded exposure time
+    :param degraded_exp_time: numpy.ndarray The degraded exposure time
         per pixel.
-    :param use_noise_diff : bool, optional If True, approximates noise
+    :param use_noise_diff: bool, optional If True, approximates noise
         difference using Gaussian noise, otherwise, applies Poisson
         sampling. Default is True.
     :return: numpy.ndarray The additional noise to be added to the
@@ -529,11 +601,11 @@ def additional_bkg_rms_with_rescaled_coadd(
     """Computes additinal background noise based on RMS values before and after
     degradation.
 
-    :param image : numpy.ndarray The input image array.
-    :param original_rms : float The original root mean square (RMS)
+    :param image: numpy.ndarray The input image array.
+    :param original_rms: float The original root mean square (RMS)
         noise.
-    :param degraded_rms : float The degraded RMS noise.
-    :param use_noise_diff : bool, optional If True, approximates noise
+    :param degraded_rms: float The degraded RMS noise.
+    :param use_noise_diff: bool, optional If True, approximates noise
         difference using Gaussian noise, otherwise, applies new Gaussian
         noise directly. Default is True.
     :return: numpy.ndarray The additional noise to be added to the
@@ -557,18 +629,18 @@ def degrade_coadd_data(
     """Degrade a coadded astronomical image by reducing its effective exposure
     time.
 
-    :param image : numpy.ndarray The input image array.
-    :param variance_map : numpy.ndarray The original variance map.
-    :param exposure_map : numpy.ndarray The original exposure time per
+    :param image: numpy.ndarray The input image array.
+    :param variance_map: numpy.ndarray The original variance map.
+    :param exposure_map: numpy.ndarray The original exposure time per
         pixel.
-    :param original_num_years : int, optional The original coadded
-        number of years. Default is 5.
-    :param degraded_num_years : int, optional The new degraded number of
+    :param original_num_years: int, optional The original coadded number
+        of years. Default is 5.
+    :param degraded_num_years: int, optional The new degraded number of
         years. Default is 1.
-    :param use_noise_diff : bool, optional If True, approximates noise
+    :param use_noise_diff: bool, optional If True, approximates noise
         difference using Gaussian noise, otherwise, applies full noise
         resampling. Default is True.
-    :return: The degraded image, the new variance map, and he new
+    :return: The degraded image, the new variance map, and the new
         exposure map.
     """
     degraded_var_map = variance_map * original_num_years / degraded_num_years
@@ -730,7 +802,7 @@ def update_cosmology_in_yaml_file(cosmo, yml_file):
     """Replaces the default cosmology string in a yaml file with the parameters
     of a custom astropy cosmology object.
 
-    :param cosmo : astropy.cosmology.Cosmology or None The cosmology
+    :param cosmo: astropy.cosmology.Cosmology or None The cosmology
         object to insert into the content.
     :param yml_file: A yml file containg cosmology information.
     :return: Updated yml_file with the new cosmology parameters.

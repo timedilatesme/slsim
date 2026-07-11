@@ -1,9 +1,11 @@
 skypy
-lenstronomy>=1.12.6
-astropy>=5.2
-numpy
+jaxtronomy
+lenstronomy>=1.14.2
+astropy>=8
+numpy<2.4.0
 #scipy<=1.13.1
-scipy<=1.11.4
+#scipy<=1.11.4
+scipy
 colossus
 speclite
 pyyaml
@@ -14,3 +16,4 @@ uncertainties
 kcorrect
 stpsf
 tqdm
+pandas

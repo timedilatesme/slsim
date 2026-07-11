@@ -1,6 +1,6 @@
-==========================================
-SLSim (Strong Lensing Simulation) pipeline
-==========================================
+.. image:: docs/figures/slsim_logo.png
+    :width: 600
+    :alt: SLSim Logo
 
 |Read the Docs| |GitHub| |Codecov| |Black| |docformatter| |docstyle|
 
@@ -26,6 +26,7 @@ How to contribute to the repository?
 Check out our step-by-step instructions how you can contribute code to this project Contributing_ Guidelines.
 Are you new to coding and contributing to a software development project? No worries! We help you out! Write us on the LSST Slack channel #sl-pipeline.
 
+Note: `SLSim` is written in object-oriented python. What fun!
 
 How can I participate in LSST strong lensing projects?
 ------------------------------------------------------
@@ -64,3 +65,15 @@ See our Citation_ guidelines.
 
 .. |docformatter| image:: https://img.shields.io/badge/%20formatter-docformatter-fedcba.svg
     :target: https://github.com/PyCQA/docformatter
+
+SLSim Logo
+----------
+
+The SLSim logo can be generated using the built-in utility:
+
+.. code-block:: python
+
+    from slsim.Util.slsim_logo import SLSimLogo
+
+    slsim_logo = SLSimLogo()
+    slsim_logo.create()
