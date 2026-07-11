@@ -121,7 +121,7 @@ def light2mass(
             )
         else:
             # scale light to mass ellipticity
-            e1_light, e2_light = kwargs_source["e1"], kwargs_source["e1"]
+            e1_light, e2_light = kwargs_source["e1"], kwargs_source["e2"]
             e1_mass, e2_mass = (
                 light2mass_e_scaling * e1_light,
                 light2mass_e_scaling * e2_light,

@@ -277,10 +277,12 @@ def _convert_scotch_catalog(galaxy_catalog):
 def _galaxy_size(galaxy, size_model, catalog_type, cosmo):
     """Converts or adjusts galaxy size.
 
-    :param galaxy:
-    :param size_model:
-    :param catalog_type:
-    :param cosmo:
+    :param galaxy: galaxy parameter keyword arguments
+    :type galaxy: dict or Table entry
+    :param size_model: galaxy size model
+    :type size_model: str
+    :param catalog_type: type of catalog, only relevant when conventions of catalog are not in default SLSim conventions
+    :param cosmo: astrop cosmology
     :return: angular_size [arcsec], physical_size [kpc]
     """
 
@@ -352,11 +354,18 @@ def convert_catalog_to_source(
     """Converts input table entries into the quantities used in slsim Source()
     class.
 
-    :param galaxy: dictionary or table entry
+    :param galaxy: entry in galaxy_list
+    :type galaxy: dictionary or table entry
+    :param extended_source_type: type of extended source compatible with Source() class
+    :type extended_source_type: None or str
+    :param size_model: galaxy size model
+    :type size_model: str
+    :param catalog_type: type of catalog, only relevant when conventions of catalog are not in default SLSim conventions
+    :param cosmo: astrop cosmology
     :param include_all_keywords: if True, includes all keywords and not
         just the ones required
     :type include_all_keywords: bool
-    :param galaxy: entry in galaxy_list
+
     :return: dictionary compatible with Source() class
     """
     if isinstance(galaxy, dict):
@@ -508,7 +517,7 @@ def down_sample_to_dc2(galaxy_pop, sky_area):
 
     :param galaxy_pop: Astropy table of galaxy population.
     :param sky_area: Sky area over which galaxies are sampled. Must be in units of
-     solid angle and it should be astropy unit object.
+     solid angle, and it should be astropy unit object.
     :return: Astropy tables of downsampled galaxy population in different bins.
      Redshift bins for returned populations are: (2-2.5), (2.5-3), (3-3.5),
      (3.5-4), (4-4.5), (4.5-5)

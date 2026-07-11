@@ -44,16 +44,6 @@ class MassBase(ABC):
         """
         pass
 
-    @property
-    def mass_ellipticity(self):
-        """Mass ellipticity.
-
-        :return: e1_mass, e2_mass
-        """
-        e1_mass, e2_mass = float(self._deflector_dict["e1_mass"]), float(
-            self._deflector_dict["e2_mass"]
-        )
-        return e1_mass, e2_mass
 
     @property
     def mass_properties(self):

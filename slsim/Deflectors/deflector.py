@@ -30,7 +30,7 @@ class Deflector(object):
         :param center_x: center of deflector y-coordinate
         :param center_y: center of deflector x-coordinate
         :param kwargs_mass: dictionary as input to Mass() class
-        :param kwargs_light: dictionary as input to Source() class
+        :param kwargs_light: dictionary as input to Deflector() class
         """
         if center_x is None or center_y is None:
 

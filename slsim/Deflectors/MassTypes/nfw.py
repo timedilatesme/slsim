@@ -4,7 +4,7 @@ from slsim.Deflectors.MassLightConnection.velocity_dispersion import vel_disp_nf
 
 
 class NFW(MassBase):
-    """Class of a NFW+Hernquist lens model with a Hernquist light mode."""
+    """Class of a NFW lens model."""
 
     def __init__(self, light, halo_mass, concentration, e1=0, e2=0, vel_disp=None):
         """
