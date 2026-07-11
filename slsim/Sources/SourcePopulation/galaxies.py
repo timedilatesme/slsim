@@ -281,7 +281,8 @@ def _galaxy_size(galaxy, size_model, catalog_type, cosmo):
     :type galaxy: dict or Table entry
     :param size_model: galaxy size model
     :type size_model: str
-    :param catalog_type: type of catalog, only relevant when conventions of catalog are not in default SLSim conventions
+    :param catalog_type: type of catalog, only relevant when conventions
+        of catalog are not in default SLSim conventions
     :param cosmo: astrop cosmology
     :return: angular_size [arcsec], physical_size [kpc]
     """
@@ -356,16 +357,17 @@ def convert_catalog_to_source(
 
     :param galaxy: entry in galaxy_list
     :type galaxy: dictionary or table entry
-    :param extended_source_type: type of extended source compatible with Source() class
+    :param extended_source_type: type of extended source compatible with
+        Source() class
     :type extended_source_type: None or str
     :param size_model: galaxy size model
     :type size_model: str
-    :param catalog_type: type of catalog, only relevant when conventions of catalog are not in default SLSim conventions
+    :param catalog_type: type of catalog, only relevant when conventions
+        of catalog are not in default SLSim conventions
     :param cosmo: astrop cosmology
     :param include_all_keywords: if True, includes all keywords and not
         just the ones required
     :type include_all_keywords: bool
-
     :return: dictionary compatible with Source() class
     """
     if isinstance(galaxy, dict):

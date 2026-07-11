@@ -44,7 +44,6 @@ class MassBase(ABC):
         """
         pass
 
-
     @property
     def mass_properties(self):
         """Mass density logarithmic slope.
