@@ -45,8 +45,12 @@ class PointSources(SourcePopBase):
             # make sure the magnitude selection is on the point source and not the extended one
             kwargs_cut["object_type"] = "point"
 
-        super().__init__(object_list=point_source_list, cosmo=cosmo, sky_area=sky_area,
-                         point_source_type=point_source_type)
+        super().__init__(
+            object_list=point_source_list,
+            cosmo=cosmo,
+            sky_area=sky_area,
+            point_source_type=point_source_type,
+        )
 
     def draw_source(self, z_max=None, z_min=None, object_index=None):
         """Choose source at random within the selected redshift range.
@@ -57,11 +61,12 @@ class PointSources(SourcePopBase):
         :param z_min: minimum redshift limit for the point source to be
             drawn. If no point source is found for this limit, None will
             be returned.
-        :param object_index: index of point source to pick (if
-            provided)
+        :param object_index: index of point source to pick (if provided)
         :return: instance of Source class
         """
-        point_source = self.draw_object(z_max=z_max, z_min=z_min, galaxy_index=object_index)
+        point_source = self.draw_object(
+            z_max=z_max, z_min=z_min, galaxy_index=object_index
+        )
 
         source_class = Source(
             cosmo=self._cosmo,

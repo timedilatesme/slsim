@@ -93,9 +93,14 @@ class Galaxies(SourcePopBase):
             galaxy_list = vstack([samp_low, samp1, samp2, samp3, samp4, samp5, samp6])
         self._num_galaxies_full = len(galaxy_list)
 
-        super().__init__(cosmo=cosmo, object_list=galaxy_list, kwargs_cut=kwargs_cut,
-                         sky_area=sky_area, extended_source_type=extended_source_type,
-                         point_source_type=None)
+        super().__init__(
+            cosmo=cosmo,
+            object_list=galaxy_list,
+            kwargs_cut=kwargs_cut,
+            sky_area=sky_area,
+            extended_source_type=extended_source_type,
+            point_source_type=None,
+        )
 
     def draw_source_dict(
         self, z_max=None, z_min=None, galaxy_index=None, include_all_keywords=False
