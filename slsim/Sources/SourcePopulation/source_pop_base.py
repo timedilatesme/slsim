@@ -14,7 +14,6 @@ class SourcePopBase(object):
         kwargs_cut=None,
         point_source_type=None,
         extended_source_type=None,
-
     ):
         """
 
@@ -78,8 +77,9 @@ class SourcePopBase(object):
             if z_min is None:
                 z_min = 0
             filtered_galaxies = self._objects_select[
-                (self._objects_select["z"] < z_max) & (z_min < self._objects_select["z"])
-                ]
+                (self._objects_select["z"] < z_max)
+                & (z_min < self._objects_select["z"])
+            ]
             if len(filtered_galaxies) == 0:
                 return None
             else:

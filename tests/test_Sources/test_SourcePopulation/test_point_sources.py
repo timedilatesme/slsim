@@ -48,4 +48,3 @@ def test_draw_source(Quasar_class):
     quasar = Quasar_class.draw_source()
     assert isinstance(quasar, object)
     assert quasar.redshift > 0
-
