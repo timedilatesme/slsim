@@ -1,6 +1,5 @@
 import numpy as np
 import numpy.random as random
-from slsim.Lenses.selection import object_cut
 from slsim.Util import param_util
 from slsim.Sources.SourcePopulation.source_pop_base import SourcePopBase
 from astropy.table import vstack

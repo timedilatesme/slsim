@@ -1,6 +1,5 @@
 from slsim.Sources.source import Source
 from slsim.Sources.SourcePopulation.galaxies import Galaxies
-from slsim.Lenses.selection import object_cut
 
 
 class PointPlusExtendedSources(Galaxies):
