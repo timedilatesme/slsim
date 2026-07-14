@@ -16,7 +16,7 @@ class PointPlusExtendedSources(Galaxies):
         size_model=None,
         point_source_type=None,
         extended_source_type=None,
-        point_source_kwargs={},
+        joint_point_source_kwargs={},
     ):
         """
 
@@ -39,7 +39,8 @@ class PointPlusExtendedSources(Galaxies):
          Supported point source types are "supernova", "quasar", "general_lightcurve".
         :param extended_source_type: keyword for number of sersic profile to use in source
          light model. accepted kewords: "single_sersic", "double_sersic".
-        :param point_source_kwargs: dictionary of keyword arguments for PointSource.
+        :param joint_point_source_kwargs: dictionary of keyword arguments for PointSource that are joint among all
+         point sources.
          For supernova kwargs dict, please see documentation of SupernovaEvent class.
          For quasar kwargs dict, please see documentation of Quasar class.
          Eg of supernova kwargs: point_source_kwargs={
@@ -50,23 +51,24 @@ class PointPlusExtendedSources(Galaxies):
         :param extended_source_kwargs: dictionary of keyword arguments for ExtendedSource.
          Please see documentation of ExtendedSource() class as well as specific extended source classes.
         """
-        object_list = object_cut(
-            point_plus_extended_sources_list, object_type="point", **kwargs_cut
-        )
+        if kwargs_cut is None:
+            kwargs_cut = {}
+        if "object_type" not in kwargs_cut:
+            # make sure the magnitude selection is on the point source and not the extended one
+            kwargs_cut["object_type"] = "point"
+
         Galaxies.__init__(
             self,
-            galaxy_list=object_list,
+            galaxy_list=point_plus_extended_sources_list,
             cosmo=cosmo,
             sky_area=sky_area,
-            kwargs_cut={},
+            kwargs_cut=kwargs_cut,
             catalog_type=catalog_type,
             size_model=size_model,
             extended_source_type=extended_source_type,
-            # extended_source_kwargs=extended_source_kwargs,
         )
-
-        self._point_source_kwargs = point_source_kwargs
         self._point_source_type = point_source_type
+        self._joint_point_source_kwargs = joint_point_source_kwargs
 
     def draw_source(self, z_max=None, z_min=None, galaxy_index=None):
         """Choose source at random.
@@ -86,7 +88,7 @@ class PointPlusExtendedSources(Galaxies):
         source_class = Source(
             cosmo=self._cosmo,
             point_source_type=self._point_source_type,
-            **self._point_source_kwargs,
+            **self._joint_point_source_kwargs,
             **kwargs_source
         )
         return source_class

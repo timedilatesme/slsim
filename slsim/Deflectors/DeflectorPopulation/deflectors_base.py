@@ -86,7 +86,7 @@ class DeflectorsBase(Galaxies):
         :return: dictionary of complete parameterization of a deflector
         """
 
-        halo_gal = self.draw_galaxy(
+        halo_gal = self.draw_object(
             z_max=z_max, z_min=z_min, galaxy_index=deflector_index
         )
 

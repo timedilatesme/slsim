@@ -128,7 +128,7 @@ def test_pes_lens_pop_instance():
         kwargs_cut=kwargs_source_cut,
         point_source_type="quasar",
         extended_source_type=None,
-        point_source_kwargs=kwargs,
+        joint_point_source_kwargs=kwargs,
     )
 
     pes_lens_pop = LensPop(
@@ -351,7 +351,7 @@ def test_supernovae_plus_galaxies_lens_pop_instance_2():
         kwargs_cut=kwargs_source_cut,
         point_source_type="supernova",
         extended_source_type="single_sersic",
-        point_source_kwargs=point_source_kwargs,
+        joint_point_source_kwargs=point_source_kwargs,
     )
 
     pes_lens_pop = LensPop(
@@ -416,7 +416,7 @@ def test_supernovae_lens_pop_instance():
         kwargs_cut=kwargs_source_cut,
         point_source_type="supernova",
         extended_source_type=None,
-        point_source_kwargs=point_source_kwargs,
+        joint_point_source_kwargs=point_source_kwargs,
     )
 
     ps_lens_pop_1 = LensPop(

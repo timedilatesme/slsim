@@ -101,7 +101,7 @@ class ClusterDeflectors(object):
         self._use_radec = use_radec
         members_list = self.assign_similar_galaxy(
             members_list=members_list,
-            galaxy_list=galaxies._galaxy_select,
+            galaxy_list=galaxies._objects_select,
             cosmo=self._cosmo,
             assign_galaxy_redshift=assign_galaxy_redshift,
         )

@@ -58,7 +58,7 @@ class Galaxies(SourcePopBase):
         :param extended_source_kwargs: dictionary of keyword arguments for ExtendedSource.
          Please see documentation of ExtendedSource() class as well as specific extended source classes.
         """
-        super().__init__(cosmo=cosmo, sky_area=sky_area)
+
         self._size_model = size_model
         self._catalog_type = catalog_type
         if isinstance(galaxy_list, Table):
@@ -80,8 +80,6 @@ class Galaxies(SourcePopBase):
                 for old, new in tuples:
                     if old in column_names:
                         galaxy_list.rename_column(old, new)
-        # self.extendedsource_kwargs = extended_source_kwargs
-        self._extended_source_type = extended_source_type
         if extended_source_kwargs is None:
             extended_source_kwargs = {}
         self._extended_source_kwargs = extended_source_kwargs
@@ -95,60 +93,9 @@ class Galaxies(SourcePopBase):
             galaxy_list = vstack([samp_low, samp1, samp2, samp3, samp4, samp5, samp6])
         self._num_galaxies_full = len(galaxy_list)
 
-        # make cuts
-        if kwargs_cut is None:
-            kwargs_cut = {}
-        self._galaxy_select = object_cut(galaxy_list, **kwargs_cut)
-        self._num_select = len(self._galaxy_select)
-        self._full_galaxy_list = galaxy_list
-
-    @property
-    def source_number(self):
-        """Number of sources registered (within given area on the sky)
-
-        :return: number of sources prior to potential selection cuts
-        """
-        return self._num_galaxies_full
-
-    @property
-    def source_number_selected(self):
-        """Number of sources selected (within given area on the sky)
-
-        :return: number of sources passing the selection criteria
-        """
-        return self._num_select
-
-    def draw_galaxy(self, z_max=None, z_min=None, galaxy_index=None):
-        """Chose galaxy at random.
-
-        :param z_max: maximum redshift limit for the galaxy to be drawn.
-            If no galaxy is found for this limit, None will be returned.
-        :param z_min: minimum redshift limit for the galaxy to be drawn.
-            If no galaxy is found for this limit, None will be returned.
-        :param galaxy_index: index of galaxy to pic (if provided)
-        :return: dictionary of source in the form of the original
-            catalog
-        """
-        if galaxy_index is not None:
-            galaxy = self._full_galaxy_list[galaxy_index]
-
-        elif z_max is not None or z_min is not None:
-            if z_max is None:
-                z_max = 1100
-            if z_min is None:
-                z_min = 0
-            filtered_galaxies = self._galaxy_select[
-                (self._galaxy_select["z"] < z_max) & (z_min < self._galaxy_select["z"])
-            ]
-            if len(filtered_galaxies) == 0:
-                return None
-            else:
-                index = random.randint(0, len(filtered_galaxies))
-                galaxy = filtered_galaxies[index]
-        else:
-            index = random.randint(0, self._num_select)
-            galaxy = self._galaxy_select[index]
-        return galaxy
+        super().__init__(cosmo=cosmo, object_list=galaxy_list, kwargs_cut=kwargs_cut,
+                         sky_area=sky_area, extended_source_type=extended_source_type,
+                         point_source_type=None)
 
     def draw_source_dict(
         self, z_max=None, z_min=None, galaxy_index=None, include_all_keywords=False
@@ -168,7 +115,7 @@ class Galaxies(SourcePopBase):
         :return: dictionary of source in the form of compatible with
             Source() class
         """
-        galaxy = self.draw_galaxy(z_max=z_max, z_min=z_min, galaxy_index=galaxy_index)
+        galaxy = self.draw_object(z_max=z_max, z_min=z_min, galaxy_index=galaxy_index)
         if galaxy is None:
             return None
 

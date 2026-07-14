@@ -5,3 +5,5 @@ galsim
 microlensing
 pyhalo<=1.4.6
 mcfit
+sncosmo
+stpsf

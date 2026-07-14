@@ -32,7 +32,7 @@ class TestPointPlusExtendedSources(object):
             sky_area=sky_area,
             point_source_type="quasar",
             extended_source_type="single_sersic",
-            point_source_kwargs=kwargs,
+            joint_point_source_kwargs=kwargs,
         )
 
     def test_source_number(self):
