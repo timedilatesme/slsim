@@ -10,7 +10,11 @@ class GeneralLightCurve(SourceBase):
         """
 
 
-        :param MJD: list of times of the recorded magnitudes
+        :param MJD: list of times of the recorded magnitudes, defined in the rest
+         (source) frame relative to time_zero_point, consistent with the convention
+         used by Quasar() and SupernovaEvent() and assumed by
+         Source._image_to_source_time_translation(). If supplying real observer-frame
+         data, divide by (1+z) first.
         :type MJD: array of same length as ps_mag_<band>
         :param variability_model: keyword for variability model to be used. This is an
             input for the Variability class.

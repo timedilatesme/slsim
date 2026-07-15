@@ -39,7 +39,13 @@ class SupernovaEvent(SourceBase):
         :type sn_absolute_mag_band: str or `~sncosmo.Bandpass`
         :param sn_absolute_zpsys: Optional, AB or Vega (AB default)
         :type sn_absolute_zpsys: str
-        :param lightcurve_time: observation time array for lightcurve in unit of days.
+        :param lightcurve_time: time array for lightcurve in unit of days,
+         defined in the rest (source) frame relative to time_zero_point. This matches the
+         convention used by Quasar() and is what Source._image_to_source_time_translation()
+         assumes when converting observer-frame query times before a light curve lookup.
+         Internally this gets converted to observer-frame time (multiplied by (1+z)) only
+         for the call into sncosmo, which expects observer-frame time and applies its own
+         (1+z) dilation.
         :type lightcurve_time: array
         :param sn_modeldir: sn_modeldir is the path to the directory containing files
             needed to initialize the sncosmo.model class. For example,
@@ -112,11 +118,13 @@ class SupernovaEvent(SourceBase):
 
                 name = "ps_mag_" + element
                 times = self._lightcurve_time
+                # sncosmo expects observer-frame times, so we convert to observer-frame times using the redshift
+                observer_frame_times = times * (1 + self._z)
 
                 # Safely attempt to generate the lightcurve
                 try:
                     magnitudes = lightcurve_class.get_apparent_magnitude(
-                        time=times,
+                        time=observer_frame_times,
                         band=provided_band,
                         zpsys=self._sn_absolute_zpsys,
                     )
