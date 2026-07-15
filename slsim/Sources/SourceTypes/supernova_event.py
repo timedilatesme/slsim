@@ -132,8 +132,8 @@ class SupernovaEvent(SourceBase):
                     # make sure before and after the event, the flux is zero
                     magnitudes = np.append(np.inf, magnitudes)
                     magnitudes = np.append(magnitudes, np.inf)
-                    times = np.append(times[0] - (times[1] - times[0]), times)
-                    times = np.append(times, 2 * times[-1] - times[-2])
+                    padded_times = np.append(times[0] - (times[1] - times[0]), times)
+                    padded_times = np.append(padded_times, 2 * times[-1] - times[-2])
                 except Exception as e:
                     # If sncosmo throws an error, it means the band isn't registered
                     # in sncosmo's internal system. We skip it to avoid crashing.
@@ -149,7 +149,7 @@ class SupernovaEvent(SourceBase):
                     self.source_dict[name] = float(min(magnitudes))
 
                 kwargs_variab_extracted[element] = {
-                    "MJD": times,
+                    "MJD": padded_times,
                     name: magnitudes,
                 }
         else:
