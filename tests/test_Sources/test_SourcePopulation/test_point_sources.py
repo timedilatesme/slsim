@@ -28,7 +28,7 @@ class TestPointSources(object):
             "agn_driving_kwargs_variability": None,
             "lightcurve_time": None,
         }
-        self.point_source =  PointSources(
+        self.point_source = PointSources(
             point_source_list=self.quasar_list,
             cosmo=cosmo,
             sky_area=sky_area,
@@ -37,11 +37,9 @@ class TestPointSources(object):
             joint_point_source_kwargs=kwargs,
         )
 
-
     def test_source_number(self):
         number = self.point_source.source_number
         assert number > 0
-
 
     def test_draw_source(self):
         quasar = self.point_source.draw_source()
@@ -61,4 +59,3 @@ class TestPointSources(object):
         )
         point_source = point_sources.draw_source()
         assert isinstance(point_source, Source)
-
