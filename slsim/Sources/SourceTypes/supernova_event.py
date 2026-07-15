@@ -112,14 +112,14 @@ class SupernovaEvent(SourceBase):
             supported_bands = get_all_supported_bands()
             provided_bands = set(supported_bands) & set(self._kwargs_variability)
 
+            # sncosmo expects observer-frame times, so we convert to observer-frame times using the redshift
+            observer_frame_times = self._lightcurve_time * (1 + self._z)
+
             for element in provided_bands:
                 # sncosmo registers LSST bands as 'lsstg', 'lsstr', etc.
                 provided_band = get_sncosmo_filtername(element)
 
                 name = "ps_mag_" + element
-                times = self._lightcurve_time
-                # sncosmo expects observer-frame times, so we convert to observer-frame times using the redshift
-                observer_frame_times = times * (1 + self._z)
 
                 # Safely attempt to generate the lightcurve
                 try:
