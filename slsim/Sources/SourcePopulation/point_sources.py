@@ -28,7 +28,7 @@ class PointSources(SourcePopBase):
          definition for performing given cuts in given catalog. For the supernovae
          sample, we can only apply redshift cuts because supernovae sample contains only
          redshift in this stage.
-        :type kwargs_cut: dict
+        :type kwargs_cut: dict or None
         :param point_source_type: Keyword to specify type of the point source.
          Supported point source types are "supernova", "quasar", "general_lightcurve".
         :param joint_point_source_kwargs: dictionary of keyword arguments for point sources that are joint. It should

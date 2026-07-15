@@ -27,7 +27,7 @@ class TestPointPlusExtendedSources(object):
         }
         self.pe_source = PointPlusExtendedSources(
             point_plus_extended_sources_list=self.source_list,
-            kwargs_cut={},
+            kwargs_cut=None,
             cosmo=self.cosmo,
             sky_area=sky_area,
             point_source_type="quasar",

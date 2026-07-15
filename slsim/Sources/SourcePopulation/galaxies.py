@@ -1,5 +1,4 @@
 import numpy as np
-import numpy.random as random
 from slsim.Util import param_util
 from slsim.Sources.SourcePopulation.source_pop_base import SourcePopBase
 from astropy.table import vstack
@@ -35,7 +34,8 @@ class Galaxies(SourcePopBase):
         """
 
         :param galaxy_list: An astropy table with galaxy parameters.
-         The minimal requirement for the catalog is "z" for redshift and the magnitudes in case cuts are being made on it.
+         The minimal requirement for the catalog is "z" for redshift and the magnitudes in case cuts are
+         being made on it.
         :type galaxy_list: astropy Table object or list of objects.
         :param kwargs_cut: cuts in parameters: band, band_mag, z_min, z_max
         :type kwargs_cut: dict

@@ -27,7 +27,7 @@ class PointPlusExtendedSources(Galaxies):
             solid angle.
         :type sky_area: `~astropy.units.Quantity`
         :param kwargs_cut: cuts in parameters: band, band_mag, z_min, z_max
-        :type kwargs_cut: dict
+        :type kwargs_cut: dict or None
         :param catalog_type: type of the catalog. If someone wants to use scotch
          catalog, they need to specify it.
         :type catalog_type: str. eg: "scotch" or None
@@ -47,8 +47,6 @@ class PointPlusExtendedSources(Galaxies):
             "i", "r"], "sn_type": "Ia", "sn_absolute_mag_band": "bessellb",
             "sn_absolute_zpsys": "ab", "lightcurve_time": np.linspace(-50, 100, 150),
             "sn_modeldir": None}.
-        :param extended_source_kwargs: dictionary of keyword arguments for ExtendedSource.
-         Please see documentation of ExtendedSource() class as well as specific extended source classes.
         """
         if kwargs_cut is None:
             kwargs_cut = {}
