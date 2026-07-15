@@ -50,7 +50,7 @@ source_quasars_high_z = PointPlusExtendedSources(
     cosmo=cosmo,
     sky_area=Quantity(12.0, unit="deg2"),
     point_source_type="quasar",
-    point_source_kwargs={},
+    joint_point_source_kwargs={},
     extended_source_type="double_sersic",
 )
 

@@ -60,7 +60,7 @@ def fp_test_setup():
         kwargs_cut={"band": "g", "band_max": 28, "z_min": 2, "z_max": 5.0},
         sky_area=Quantity(12.0, unit="deg2"),
         point_source_type="quasar",
-        point_source_kwargs={},
+        joint_point_source_kwargs={},
         extended_source_type="double_sersic",
     )
     return cosmo, lens_galaxies, source_galaxies, source_quasars

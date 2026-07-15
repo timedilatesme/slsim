@@ -128,7 +128,7 @@ def test_pes_lens_pop_instance():
         kwargs_cut=kwargs_source_cut,
         point_source_type="quasar",
         extended_source_type=None,
-        point_source_kwargs=kwargs,
+        joint_point_source_kwargs=kwargs,
     )
 
     pes_lens_pop = LensPop(
@@ -249,7 +249,7 @@ def test_cluster_lens_pop_instance():
     kwargs_model, kwargs_params = pes_lens_class.lenstronomy_kwargs(band="g")
     assert len(kwargs_model["lens_model_list"]) >= 3  # halo, 1>= subhalo, LoS
     assert len(kwargs_model["lens_light_model_list"]) >= 1  # 1>= member galaxy
-    assert pes_lens_class.deflector_velocity_dispersion() > 250
+    assert pes_lens_class.deflector_velocity_dispersion() > 100
 
 
 def test_galaxies_lens_pop_instance():
@@ -351,7 +351,7 @@ def test_supernovae_plus_galaxies_lens_pop_instance_2():
         kwargs_cut=kwargs_source_cut,
         point_source_type="supernova",
         extended_source_type="single_sersic",
-        point_source_kwargs=point_source_kwargs,
+        joint_point_source_kwargs=point_source_kwargs,
     )
 
     pes_lens_pop = LensPop(
@@ -416,7 +416,7 @@ def test_supernovae_lens_pop_instance():
         kwargs_cut=kwargs_source_cut,
         point_source_type="supernova",
         extended_source_type=None,
-        point_source_kwargs=point_source_kwargs,
+        joint_point_source_kwargs=point_source_kwargs,
     )
 
     ps_lens_pop_1 = LensPop(

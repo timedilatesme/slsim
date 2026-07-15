@@ -10,10 +10,7 @@ colossus
 speclite
 pyyaml
 matplotlib
-sncosmo
-colossus
 uncertainties
 kcorrect
-stpsf
 tqdm
 pandas

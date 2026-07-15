@@ -274,7 +274,6 @@ class DeflectorGroup(object):
         lens_mass_model_list, kwargs_lens_mass = self.mass_model_lenstronomy(
             lens_cosmo=lens_cosmo, spherical=True
         )
-        print(kwargs_lens_mass, "test kwargs_lens_mass")
         theta_E_infinity = lenstronomy_util.theta_E_numerical(
             lens_mass_model_list=lens_mass_model_list,
             kwargs_lens_mass=kwargs_lens_mass,
