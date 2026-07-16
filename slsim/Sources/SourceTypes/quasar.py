@@ -31,7 +31,11 @@ class Quasar(SourceBase):
     ):
         """
 
-        :param lightcurve_time: observation time array for lightcurve in unit of days.
+        :param lightcurve_time: time array for lightcurve in unit of days,
+         defined in the rest (source) frame relative to time_zero_point (see
+         Source._image_to_source_time_translation()). The AGN reprocessing response
+         function is defined by the disk's physical light-crossing time, which is
+         redshift-independent, so this is in rest-frame.
         :type lightcurve_time: array
         :param source_dict: Source properties. May be a dictionary or an Astropy table.
          This dict or table should contain atleast redshift and i-band magnitude.

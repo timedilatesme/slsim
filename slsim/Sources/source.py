@@ -300,6 +300,13 @@ class Source(object):
         """Translates times in the observer frame to time in the source frame
         relative to a defined zero time point.
 
+        Note: this assumes the underlying point source's light curve (its "MJD"
+        axis / lightcurve_time) is stored in the rest (source) frame -- true for
+        Quasar, SupernovaEvent, and GeneralLightCurve by convention (see their
+        docstrings). If a new point source type is added, make sure its internal
+        light curve axis follows the same convention, or this translation will
+        silently double- or de-dilate it.
+
         :param image_observation_times: observed times in the observer
             frame
         :return: corresponding times in the source frame
