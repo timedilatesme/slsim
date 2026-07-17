@@ -38,10 +38,14 @@ class SupernovaeHostMatch:
         # column that is non-numeric (e.g. "galaxy_type") or multi-dimensional per
         # row (e.g. "coeff"), and "float64" for plain scalar numeric columns.
         dtype_tuple = tuple(
-            "object"
-            if (self.galaxy_catalog[name].dtype.kind in ("U", "S", "O")
-                or self.galaxy_catalog[name].ndim > 1)
-            else "float64"
+            (
+                "object"
+                if (
+                    self.galaxy_catalog[name].dtype.kind in ("U", "S", "O")
+                    or self.galaxy_catalog[name].ndim > 1
+                )
+                else "float64"
+            )
             for name in self.galaxy_catalog.colnames
         )
         # Create a new Table object where supernovae and their host galaxy will be stored.
