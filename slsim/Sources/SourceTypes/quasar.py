@@ -55,6 +55,7 @@ class Quasar(SourceBase):
         :param kwargs_variability_model: Pre-computed variabilities for each band (default=None)
         """
 
+        kwargs.setdefault("allow_more_source_dict", True)
         super().__init__(
             extended_source=False,
             point_source=True,
