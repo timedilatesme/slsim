@@ -9,18 +9,25 @@ from slsim.LOS.los_individual import LOSIndividual
 
 
 class LensPopCatalog(object):
-    """
-    class to deal with pre-established set of lenses. The catalog shoudl contain parameters for the deflector ending
-    with <_deflector>, parameters for the source ending with <_source> and for the line of sight ending with <_los>.
+    """Class to deal with pre-established set of lenses.
+
+    The catalog shoudl contain parameters for the deflector ending with
+    <_deflector>, parameters for the source ending with <_source> and
+    for the line of sight ending with <_los>.
     """
 
-    def __init__(self, lens_catalog,  cosmo: Optional[Cosmology] = None,
-                 sky_area: Optional[float or Quantity] = None,
-                 catalog_type=None, use_jax=True,
-                 deflector_mass_type="EPL",
-                 deflector_light_type="single_sersic",
-                 extended_source_type="single_sersic",
-                 point_source_type=None):
+    def __init__(
+        self,
+        lens_catalog,
+        cosmo: Optional[Cosmology] = None,
+        sky_area: Optional[float or Quantity] = None,
+        catalog_type=None,
+        use_jax=True,
+        deflector_mass_type="EPL",
+        deflector_light_type="single_sersic",
+        extended_source_type="single_sersic",
+        point_source_type=None,
+    ):
         """
 
         :param lens_catalog: catalog with all deflector and source parameters with <_source>, <_deflector> and <_los>
@@ -57,21 +64,32 @@ class LensPopCatalog(object):
             index = random.randint(0, self._num_lenses)
         lens_object = self._lens_catalog[index]
 
-        deflector_dict, source_dict, los_dict = _catalog_deflector_source_split(lens_object)
-        deflector = deflector_from_table(deflector_dict, mass_type=self._deflector_mass_type,
-                                         extended_source_type=self._deflector_light_type,
-                                         cosmo=self._cosmo)
-        source = Source(extended_source_type=self._extended_source_type,
-                        point_source_type=self._point_source_type,
-                        **source_dict)
+        deflector_dict, source_dict, los_dict = _catalog_deflector_source_split(
+            lens_object
+        )
+        deflector = deflector_from_table(
+            deflector_dict,
+            mass_type=self._deflector_mass_type,
+            extended_source_type=self._deflector_light_type,
+            cosmo=self._cosmo,
+        )
+        source = Source(
+            extended_source_type=self._extended_source_type,
+            point_source_type=self._point_source_type,
+            **source_dict
+        )
         los_class = LOSIndividual(**los_dict)
-        lens_class = Lens(source_class=source, deflector_class=deflector, cosmo=self._cosmo, los_class=los_class)
+        lens_class = Lens(
+            source_class=source,
+            deflector_class=deflector,
+            cosmo=self._cosmo,
+            los_class=los_class,
+        )
         return lens_class
 
 
 def _catalog_deflector_source_split(lens_object):
-    """
-    split catalog with <_source> and <_deflector>
+    """Split catalog with <_source> and <_deflector>
 
     :param lens_object: single column of catalog
     :return: deflector_dict, source_dict, los_dict

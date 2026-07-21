@@ -30,8 +30,12 @@ class LensingPlots(object):
         self._observatory = observatory
         self._kwargs = kwargs
         if self._observatory == "Roman-galsim":
-            from slsim.ImageSimulation.roman_image_simulation import simulate_roman_image
+            from slsim.ImageSimulation.roman_image_simulation import (
+                simulate_roman_image,
+            )
+
             self._simulate_roman_image = simulate_roman_image
+
     def rgb_image(
         self,
         lens_class,
