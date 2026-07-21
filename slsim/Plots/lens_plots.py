@@ -1,7 +1,6 @@
 import matplotlib.pyplot as plt
 from astropy.visualization import make_lupton_rgb
 from slsim.ImageSimulation.image_simulation import simulate_image
-from slsim.ImageSimulation.roman_image_simulation import simulate_roman_image
 
 
 class LensingPlots(object):
@@ -30,7 +29,9 @@ class LensingPlots(object):
         self.num_pix = num_pix
         self._observatory = observatory
         self._kwargs = kwargs
-
+        if self._observatory == "Roman-galsim":
+            from slsim.ImageSimulation.roman_image_simulation import simulate_roman_image
+            self._simulate_roman_image = simulate_roman_image
     def rgb_image(
         self,
         lens_class,
@@ -60,7 +61,7 @@ class LensingPlots(object):
 
         if self._observatory == "Roman-galsim":
             # NOTE: Galsim is required which is not supported on Windows
-            make_image = simulate_roman_image
+            make_image = self._simulate_roman_image
             main_kwargs.pop("observatory")
             main_kwargs["subtract_mean_background"] = True
         else:
@@ -137,7 +138,7 @@ class LensingPlots(object):
                 if single_band:
                     if self._observatory == "Roman-galsim":
                         # NOTE: Galsim is required which is not supported on Windows
-                        make_image = simulate_roman_image
+                        make_image = self._simulate_roman_image
                         extra_kwargs = {"subtract_mean_background": True}
                     else:
                         make_image = simulate_image

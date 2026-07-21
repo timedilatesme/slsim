@@ -27,8 +27,8 @@ from slsim.Sources.SourceCatalogues.QuasarCatalog.simple_quasar import (
 from astropy.units import Quantity
 from astropy.table import Table
 from astropy.cosmology import FlatLambdaCDM
-from slsim.Lenses.lens_pop import LensPop
-from slsim.Lenses.lens_pop import area_theta_e_infinity
+from slsim.Lenses.LensPopulation.lens_pop import LensPop
+from slsim.Lenses.LensPopulation.lens_pop import area_theta_e_infinity
 from slsim.Lenses.lens import Lens
 
 sky_area = Quantity(value=0.05, unit="deg2")

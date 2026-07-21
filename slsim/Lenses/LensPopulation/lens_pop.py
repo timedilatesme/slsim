@@ -7,7 +7,7 @@ from astropy.units import Quantity
 from slsim.Sources.SourcePopulation.source_pop_base import SourcePopBase
 from slsim.LOS.los_pop import LOSPop
 from slsim.Deflectors.DeflectorPopulation.deflectors_base import DeflectorsBase
-from slsim.Lenses.lensed_population_base import LensedPopulationBase
+from slsim.Lenses.LensPopulation.lensed_population_base import LensedPopulationBase
 
 from tqdm import tqdm
 
