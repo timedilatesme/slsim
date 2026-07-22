@@ -11,7 +11,7 @@ from slsim.LOS.los_individual import LOSIndividual
 class LensPopCatalog(object):
     """Class to deal with pre-established set of lenses.
 
-    The catalog shoudl contain parameters for the deflector ending with
+    The catalog should contain parameters for the deflector ending with
     <_deflector>, parameters for the source ending with <_source> and
     for the line of sight ending with <_los>.
     """
