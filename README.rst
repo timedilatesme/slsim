@@ -20,6 +20,9 @@ All the tools are open-source available. Check out below how you can contribute 
 * Free software: MIT license
 * Documentation: https://slsim.readthedocs.io.
 
+Notebooks
+----------
+Please visit the slsim-tutorials_ repository for example notebook tutorials demonstrating the capabilities of `SLSim`.
 
 How to contribute to the repository?
 ------------------------------------
@@ -43,6 +46,7 @@ See our Citation_ guidelines.
 .. _Contributing: https://slsim.readthedocs.io/en/latest/contributing.html
 .. _Onboarding: https://slsim.readthedocs.io/en/latest/onboarding.html
 .. _Citation: https://slsim.readthedocs.io/en/latest/citation.html
+.. _slsim-tutorials: https://github.com/LSST-strong-lensing/slsim-tutorials.git
 
 
 .. |Read the Docs| image:: https://readthedocs.org/projects/slsim/badge/?version=latest
@@ -77,11 +81,3 @@ The SLSim logo can be generated using the built-in utility:
 
     slsim_logo = SLSimLogo()
     slsim_logo.create()
-
-Notebooks
-----------
-
-The tutorial notebooks have been moved to a separate repository to keep the main SLSim package lightweight and focused on code development.
-All example notebooks, tutorials, and usage demonstrations are now maintained in the slsim-tutorials repository:
-https://github.com/LSST-strong-lensing/slsim-tutorials.git .
-Please visit the slsim-tutorials repository for example notebook tutorials demonstrating the capabilities of `SLSim`.
