@@ -87,3 +87,6 @@ class TestLensPopCatalog(object):
 
         lens = self.lens_pop_catalog.lens_from_table(index=None)
         assert isinstance(lens, Lens)
+
+        lens = self.lens_pop_catalog2.lens_from_table(index=None)
+        assert isinstance(lens, Lens)
