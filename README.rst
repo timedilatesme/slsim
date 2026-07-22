@@ -83,5 +83,5 @@ Notebooks
 
 The tutorial notebooks have been moved to a separate repository to keep the main SLSim package lightweight and focused on code development.
 All example notebooks, tutorials, and usage demonstrations are now maintained in the slsim-tutorials repository:
-https://github.com/LSST-strong-lensing/slsim-tutorials.git
+https://github.com/LSST-strong-lensing/slsim-tutorials.git .
 Please visit the slsim-tutorials repository for example notebook tutorials demonstrating the capabilities of `SLSim`.
