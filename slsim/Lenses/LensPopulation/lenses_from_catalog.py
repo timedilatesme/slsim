@@ -61,7 +61,8 @@ class LensPopCatalog(object):
         :return: Lens() class
         """
         if index is None:
-            index = random.randint(0, self._num_lenses)
+            print(self._num_lenses, "test num lenses")
+            index = random.randint(0, self._num_lenses - 1)
         lens_object = self._lens_catalog[index]
 
         deflector_dict, source_dict, los_dict = _catalog_deflector_source_split(
