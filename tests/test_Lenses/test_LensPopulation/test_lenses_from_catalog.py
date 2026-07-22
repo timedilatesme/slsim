@@ -26,8 +26,8 @@ class TestLensPopCatalog(object):
                 "e1_source",
                 "e2_source",
                 "vel_disp_deflector",
-                "gamma_1_los",
-                "gamma_2_los",
+                "gamma1_los",
+                "gamma2_los",
                 "kappa_los",
             ),
             rows=[
@@ -77,8 +77,8 @@ class TestLensPopCatalog(object):
                 "e1_source": 0.1,
                 "e2_source": 0.1,
                 "vel_disp_deflector": 250,
-                "gamma_1_los": 0.01,
-                "gamma_2_los": 0.01,
+                "gamma1_los": 0.01,
+                "gamma2_los": 0.01,
                 "kappa_los": 0.03,
             },
         ]
