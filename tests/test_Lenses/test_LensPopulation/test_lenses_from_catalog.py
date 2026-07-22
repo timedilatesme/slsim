@@ -58,7 +58,9 @@ class TestLensPopCatalog(object):
         cosmo = FlatLambdaCDM(H0=70, Om0=0.3)
         self.lens_pop_catalog = LensPopCatalog(lens_catalog=lens_table, cosmo=cosmo)
 
-        dict_list = [{"z_deflector": 0.2,
+        dict_list = [
+            {
+                "z_deflector": 0.2,
                 "z_source": 2,
                 "center_x_deflector": 0,
                 "center_y_deflector": 0,
@@ -77,7 +79,9 @@ class TestLensPopCatalog(object):
                 "vel_disp_deflector": 250,
                 "gamma_1_los": 0.01,
                 "gamma_2_los": 0.01,
-                "kappa_los": 0.03,},]
+                "kappa_los": 0.03,
+            },
+        ]
         self.lens_pop_catalog2 = LensPopCatalog(lens_catalog=dict_list, cosmo=cosmo)
 
     def test_lens_from_table(self):
