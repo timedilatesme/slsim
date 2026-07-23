@@ -4,19 +4,6 @@ from slsim.Util import param_util
 from slsim.Sources.SourceVariability.variability import Variability
 
 _SUPPORTED_KEYS = ["M", "coeff", "physical_size", "ellipticity", "phi_G", "MJD"]
-# TODO: find a better way not to store these keywords in the SourceBase class for better stability
-_AGN_VARIABILITY_KEYS = [
-    "r_out",
-    "r_resolution",
-    "corona_height",
-    "inclination_angle",
-    "black_hole_mass_exponent",
-    "black_hole_spin",
-    "intrinsic_light_curve",
-    "eddington_ratio",
-    "driving_variability_model",
-    "accretion_disk",
-]
 
 
 class SourceBase(ABC):
@@ -108,13 +95,13 @@ class SourceBase(ABC):
             for key in self.source_dict:
                 if key.startswith("ps_mag_") or key.startswith("mag_"):
                     pass
-                elif key in _SUPPORTED_KEYS or key in _AGN_VARIABILITY_KEYS:
+                elif key in _SUPPORTED_KEYS:
                     pass
                 else:
                     raise ValueError(
                         "Dictionary in Source class has invalid arguments. "
                         "Key %s is not part of ps_mag_<band> and mag_<band> or the supported keys %s."
-                        % (key, _SUPPORTED_KEYS + _AGN_VARIABILITY_KEYS)
+                        % (key, _SUPPORTED_KEYS)
                     )
 
         self._variability_bands = (
