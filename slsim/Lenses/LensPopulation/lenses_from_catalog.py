@@ -2,9 +2,9 @@ from typing import Optional
 from astropy.units import Quantity
 from astropy.cosmology import Cosmology
 import random
-from slsim.Deflectors.deflector_util import deflector_from_table
 from slsim.Lenses.lens import Lens
 from slsim.Sources.source import Source
+from slsim.Deflectors.deflector import Deflector
 from slsim.LOS.los_individual import LOSIndividual
 
 
@@ -14,6 +14,10 @@ class LensPopCatalog(object):
     The catalog should contain parameters for the deflector ending with
     <_deflector>, parameters for the source ending with <_source> and
     for the line of sight ending with <_los>.
+    Source parameters should match slsim.Sources.source.Source() class initialization with
+    Source(extended_source_type, point_source_type, **<..._source>).
+    Deflector parameters should match
+
     """
 
     def __init__(
@@ -57,7 +61,7 @@ class LensPopCatalog(object):
     def lens_from_table(self, index=None):
         """
 
-        :param index:
+        :param index: index of catalog of the class initialization
         :return: Lens() class
         """
         if index is None:
@@ -68,12 +72,14 @@ class LensPopCatalog(object):
         deflector_dict, source_dict, los_dict = _catalog_deflector_source_split(
             lens_object
         )
-        deflector = deflector_from_table(
-            deflector_dict,
-            mass_type=self._deflector_mass_type,
-            extended_source_type=self._deflector_light_type,
-            cosmo=self._cosmo,
-        )
+        z, center_x, center_y, kwargs_mass, kwargs_light = _deflector_dict_split(deflector_dict)
+
+        deflector = Deflector(z,
+                              center_x=center_x,
+                              center_y=center_y,
+                              kwargs_mass=kwargs_mass,
+                              kwargs_light=kwargs_light,)
+
         source = Source(
             extended_source_type=self._extended_source_type,
             point_source_type=self._point_source_type,
@@ -88,6 +94,29 @@ class LensPopCatalog(object):
         )
         return lens_class
 
+
+def _deflector_dict_split(deflector_dict):
+    """
+    split single dictionary into the components required in the Deflector() class
+
+    :param deflector_dict: single dictionary containing all the deflector quantities
+    :type deflector_dict: dict
+    :return: z, center_x, center_y, kwargs_mass, kwargs_light
+    """
+    colnames = list(deflector_dict.keys())
+    z = deflector_dict.pop("z")
+    center_x = deflector_dict.pop("center_x")
+    center_y = deflector_dict.pop("center_y")
+    kwargs_mass = {}
+    kwargs_light = {}
+    for item in colnames:
+        if item.endswith("_mass"):
+            clean_item = item.removesuffix("_mass")
+            kwargs_mass[clean_item] = deflector_dict[item]
+        elif item.endswith("_light"):
+            clean_item = item.removesuffix("_light")
+            kwargs_light[clean_item] = deflector_dict[item]
+    return z, center_x, center_y, kwargs_mass, kwargs_light
 
 def _catalog_deflector_source_split(lens_object):
     """Split catalog with <_source> and <_deflector>
@@ -113,4 +142,7 @@ def _catalog_deflector_source_split(lens_object):
         elif item.endswith("_los"):
             clean_item = item.removesuffix("_los")
             los_dict[clean_item] = lens_object[item]
+        else:
+            raise ValueError("key %s is not supported. Key needs to end in _deflector, _source or _los.")
+
     return deflector_dict, source_dict, los_dict

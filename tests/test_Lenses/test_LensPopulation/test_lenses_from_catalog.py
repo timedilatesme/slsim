@@ -66,7 +66,7 @@ class TestLensPopCatalog(object):
                 "center_y_deflector": 0,
                 "center_x_source": 0.1,
                 "center_y_source": 0,
-                "mag_i_deflector": 17,
+                "mag_i_light_deflector": 17,
                 "mag_i_source": 22,
                 "angular_size_deflector": 1,
                 "angular_size_source": 0.5,
