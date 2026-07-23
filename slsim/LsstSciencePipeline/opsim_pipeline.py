@@ -18,10 +18,10 @@ def opsim_time_series_images_data(
 ):
     """Creates time series data from opsim database.
 
-    :param ra_list: a list of ra points (in degrees) from objects we want to collect
-        observations for
-    :param dec_list: a list of dec points (in degrees) from objects we want to collect
-        observations for
+    :param ra_list: a list of ra points (in degrees) from objects we
+        want to collect observations for
+    :param dec_list: a list of dec points (in degrees) from objects we
+        want to collect observations for
     :param opsim_path: provide a path to the opsim database
     :param MJD_min: minimum MJD for the observations
     :param MJD_max: maximum MJD for the observations
@@ -29,10 +29,10 @@ def opsim_time_series_images_data(
     :param moffat_beta: power index of the moffat psf kernel
     :param readout_noise: noise added per readout
     :param delta_pix: size of pixel in units arcseonds
-    :param print_warning: if True, prints a warning of coordinates outside of the LSST
-        footprint
-    :return: a list of astropy tables containing observation information for each
-        coordinate
+    :param print_warning: if True, prints a warning of coordinates
+        outside of the LSST footprint
+    :return: a list of astropy tables containing observation information
+        for each coordinate
     """
 
     # Import OpSimSummaryV2
