@@ -27,8 +27,8 @@ from slsim.Sources.SourceCatalogues.QuasarCatalog.simple_quasar import (
 from astropy.units import Quantity
 from astropy.table import Table
 from astropy.cosmology import FlatLambdaCDM
-from slsim.Lenses.lens_pop import LensPop
-from slsim.Lenses.lens_pop import area_theta_e_infinity
+from slsim.Lenses.LensPopulation.lens_pop import LensPop
+from slsim.Lenses.LensPopulation.lens_pop import area_theta_e_infinity
 from slsim.Lenses.lens import Lens
 
 sky_area = Quantity(value=0.05, unit="deg2")
@@ -197,7 +197,7 @@ def test_cluster_lens_pop_instance():
     kwargs_source_cut = {"band": "g", "band_max": 28, "z_min": 0.25, "z_max": 5.0}
 
     path = os.path.dirname(__file__)
-    module_path = os.path.dirname(os.path.dirname(path))
+    module_path = os.path.dirname(os.path.dirname(os.path.dirname(path)))
     cluster_catalog_path = os.path.join(
         module_path, "data/redMaPPer/clusters_example.fits"
     )
