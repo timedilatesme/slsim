@@ -15,6 +15,8 @@ import astropy.coordinates as coord
 import astropy.units as u
 import pytest
 
+import numpy.testing as npt
+
 try:
     import jax
 
@@ -122,26 +124,30 @@ def test_opsim_time_series_images_data():
             opsim_data = opsim_time_series_images_data(
                 ra_points,
                 dec_points,
-                obs_strategy="baseline_v3.0_10yrs",
-                MJD_min=60000,
-                MJD_max=60500,
-                print_warning=False,
                 opsim_path=opsim_path_db,
+                obs_strategy=None,
+                MJD_min=60000,
+                MJD_max=64500,
+                print_warning=False,
             )
 
             assert isinstance(opsim_data, list)  # is opsim_data a list?
             assert len(opsim_data) == len(
                 dec_points
             )  # does it have the same length as number of points given?
-            assert opsim_data[0].keys() == [
+            keys_required = [
                 "bkg_noise",  # does it contain the right data columns?
                 "psf_kernel",
                 "obs_time",
                 "expo_time",
                 "zero_point",
+                "psf_fwhm",
                 "calexp_center",
                 "band",
             ]
+            keys_output = opsim_data[0].keys()
+            for key in keys_required:
+                assert key in keys_output  # is each required key in the output?
             assert isinstance(
                 opsim_data[0]["bkg_noise"][0], float
             )  # are entries from bkg_noise floats?
@@ -169,6 +175,18 @@ def test_opsim_time_series_images_data():
             assert isinstance(
                 opsim_data[0]["band"][0], str
             )  # are entries from band strings?
+
+            # test neither obs_stragegy and opsim_path arguments are None
+            with pytest.raises(ValueError):
+                opsim_data = opsim_time_series_images_data(
+                    ra_points,
+                    dec_points,
+                    opsim_path=None,
+                    obs_strategy=None,
+                    MJD_min=60000,
+                    MJD_max=64500,
+                    print_warning=False,
+                )
 
 
 def test_opsim_variable_lens_injection(pes_lens_instance):
