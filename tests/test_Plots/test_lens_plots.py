@@ -11,7 +11,7 @@ from slsim.Deflectors.DeflectorPopulation.galaxy_deflectors import GalaxyDeflect
 
 from astropy.cosmology import FlatLambdaCDM
 from astropy.units import Quantity
-from slsim.Lenses.lens_pop import LensPop
+from slsim.Lenses.LensPopulation.lens_pop import LensPop
 from slsim.Plots.lens_plots import LensingPlots
 from slsim.Pipelines.roman_speclite import configure_roman_filters
 from slsim.Pipelines.roman_speclite import filter_names
