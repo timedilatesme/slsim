@@ -17,7 +17,6 @@ class LensPopCatalog(object):
     Source parameters should match slsim.Sources.source.Source() class initialization with
     Source(extended_source_type, point_source_type, **<..._source>).
     Deflector parameters should match
-
     """
 
     def __init__(
@@ -72,13 +71,17 @@ class LensPopCatalog(object):
         deflector_dict, source_dict, los_dict = _catalog_deflector_source_split(
             lens_object
         )
-        z, center_x, center_y, kwargs_mass, kwargs_light = _deflector_dict_split(deflector_dict)
+        z, center_x, center_y, kwargs_mass, kwargs_light = _deflector_dict_split(
+            deflector_dict
+        )
 
-        deflector = Deflector(z,
-                              center_x=center_x,
-                              center_y=center_y,
-                              kwargs_mass=kwargs_mass,
-                              kwargs_light=kwargs_light,)
+        deflector = Deflector(
+            z,
+            center_x=center_x,
+            center_y=center_y,
+            kwargs_mass=kwargs_mass,
+            kwargs_light=kwargs_light,
+        )
 
         source = Source(
             extended_source_type=self._extended_source_type,
@@ -96,10 +99,11 @@ class LensPopCatalog(object):
 
 
 def _deflector_dict_split(deflector_dict):
-    """
-    split single dictionary into the components required in the Deflector() class
+    """Split single dictionary into the components required in the Deflector()
+    class.
 
-    :param deflector_dict: single dictionary containing all the deflector quantities
+    :param deflector_dict: single dictionary containing all the
+        deflector quantities
     :type deflector_dict: dict
     :return: z, center_x, center_y, kwargs_mass, kwargs_light
     """
@@ -117,6 +121,7 @@ def _deflector_dict_split(deflector_dict):
             clean_item = item.removesuffix("_light")
             kwargs_light[clean_item] = deflector_dict[item]
     return z, center_x, center_y, kwargs_mass, kwargs_light
+
 
 def _catalog_deflector_source_split(lens_object):
     """Split catalog with <_source> and <_deflector>
@@ -143,6 +148,8 @@ def _catalog_deflector_source_split(lens_object):
             clean_item = item.removesuffix("_los")
             los_dict[clean_item] = lens_object[item]
         else:
-            raise ValueError("key %s is not supported. Key needs to end in _deflector, _source or _los.")
+            raise ValueError(
+                "key %s is not supported. Key needs to end in _deflector, _source or _los."
+            )
 
     return deflector_dict, source_dict, los_dict
