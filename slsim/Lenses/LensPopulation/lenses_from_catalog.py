@@ -16,7 +16,8 @@ class LensPopCatalog(object):
     for the line of sight ending with <_los>.
     Source parameters should match slsim.Sources.source.Source() class initialization with
     Source(extended_source_type, point_source_type, **<..._source>).
-    Deflector parameters should match
+    Deflector parameters should match kwargs_mass, z, center_x, center_y and kwargs_light of Deflector().
+    Parameters in kwargs_light of the deflector should be stated as _light_deflector.
     """
 
     def __init__(
