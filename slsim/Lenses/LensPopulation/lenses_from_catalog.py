@@ -64,7 +64,6 @@ class LensPopCatalog(object):
         :return: Lens() class
         """
         if index is None:
-            print(self._num_lenses, "test num lenses")
             index = random.randint(0, self._num_lenses - 1)
         lens_object = self._lens_catalog[index]
 
@@ -74,6 +73,8 @@ class LensPopCatalog(object):
         z, center_x, center_y, kwargs_mass, kwargs_light = _deflector_dict_split(
             deflector_dict
         )
+        kwargs_mass["mass_type"] = self._deflector_mass_type
+        kwargs_light["extended_source_type"] = self._deflector_light_type
 
         deflector = Deflector(
             z,
@@ -107,19 +108,19 @@ def _deflector_dict_split(deflector_dict):
     :type deflector_dict: dict
     :return: z, center_x, center_y, kwargs_mass, kwargs_light
     """
-    colnames = list(deflector_dict.keys())
+
     z = deflector_dict.pop("z")
     center_x = deflector_dict.pop("center_x")
     center_y = deflector_dict.pop("center_y")
+    colnames = list(deflector_dict.keys())
     kwargs_mass = {}
     kwargs_light = {}
     for item in colnames:
-        if item.endswith("_mass"):
-            clean_item = item.removesuffix("_mass")
-            kwargs_mass[clean_item] = deflector_dict[item]
-        elif item.endswith("_light"):
+        if item.endswith("_light"):
             clean_item = item.removesuffix("_light")
             kwargs_light[clean_item] = deflector_dict[item]
+        else:
+            kwargs_mass[item] = deflector_dict[item]
     return z, center_x, center_y, kwargs_mass, kwargs_light
 
 
