@@ -125,7 +125,6 @@ def test_opsim_time_series_images_data():
                 ra_points,
                 dec_points,
                 opsim_path=opsim_path_db,
-                obs_strategy=None,
                 MJD_min=60000,
                 MJD_max=64500,
                 print_warning=False,
@@ -176,13 +175,11 @@ def test_opsim_time_series_images_data():
                 opsim_data[0]["band"][0], str
             )  # are entries from band strings?
 
-            # test neither obs_stragegy and opsim_path arguments are None
-            with pytest.raises(ValueError):
+            with pytest.raises(FileNotFoundError):
                 opsim_data = opsim_time_series_images_data(
                     ra_points,
                     dec_points,
                     opsim_path=None,
-                    obs_strategy=None,
                     MJD_min=60000,
                     MJD_max=64500,
                     print_warning=False,

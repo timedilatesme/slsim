@@ -7,8 +7,7 @@ import lenstronomy.Util.data_util as data_util
 def opsim_time_series_images_data(
     ra_list,
     dec_list,
-    opsim_path=None,
-    obs_strategy=None,
+    opsim_path,
     MJD_min=60000,
     MJD_max=64500,
     num_pix=101,
@@ -23,7 +22,7 @@ def opsim_time_series_images_data(
         observations for
     :param dec_list: a list of dec points (in degrees) from objects we want to collect
         observations for
-    :param opsim_path: optinal: provide a path to the opsim database. IF None, the function will look for the opsim database in the folder "../data/OpSim_database" and use the obs_strategy variable to find the correct database.
+    :param opsim_path: provide a path to the opsim database
     :param MJD_min: minimum MJD for the observations
     :param MJD_max: maximum MJD for the observations
     :param num_pix: cutout size of images (in pixels)
@@ -32,8 +31,6 @@ def opsim_time_series_images_data(
     :param delta_pix: size of pixel in units arcseonds
     :param print_warning: if True, prints a warning of coordinates outside of the LSST
         footprint
-    :param obs_strategy: optional: version of observing strategy corresponding to opsim database.
-        for example "baseline_v3.0_10yrs" (string). OpSim database must be saved in the folder "../data/OpSim_database".
     :return: a list of astropy tables containing observation information for each
         coordinate
     """
@@ -47,20 +44,13 @@ def opsim_time_series_images_data(
         )
 
     # Initialise OpSimSummaryV2 with opsim database
-    if opsim_path is None:
-        if obs_strategy is None:
-            raise ValueError(
-                "If opsim_path is not provided, obs_strategy must be provided to find the correct opsim database in the folder ../data/OpSim_database"
-            )
-        else:
-            opsim_path = "../data/OpSim_database/" + obs_strategy + ".db"
     try:
         OpSimSurv = op.OpSimSurvey(opsim_path)
     except ValueError:
         raise FileNotFoundError(
             "File not found: "
             + opsim_path
-            + ". Input variable 'obs_strategy' should correspond to the name of an opsim database saved in the folder ../data/OpSim_database"
+            + ". Please provide a valid path to the opsim database."
         )
 
     # Collect observations that cover the coordinates in ra_list and dec_list
