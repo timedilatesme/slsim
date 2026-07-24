@@ -15,8 +15,6 @@ import astropy.coordinates as coord
 import astropy.units as u
 import pytest
 
-import numpy.testing as npt
-
 try:
     import jax
 
