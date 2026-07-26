@@ -203,7 +203,8 @@ class TestQuasar:
         assert updated_kwargs["eddington_ratio"] == 0.1
 
     def test_unset_agn_params_get_random_fill(self):
-        """Unset AGN params (None) must still be randomly filled, not left as None."""
+        """Unset AGN params (None) must still be randomly filled, not left as
+        None."""
         updated_kwargs = (
             self.source_agn_params.update_microlensing_kwargs_source_morphology({})
         )
@@ -223,7 +224,8 @@ class TestQuasar:
 
 
 def test_unrecognized_kwarg_raises_value_error():
-    """Misspelled/unrecognized keywords must raise, not be silently absorbed."""
+    """Misspelled/unrecognized keywords must raise, not be silently
+    absorbed."""
     with pytest.raises(ValueError):
         Quasar(z=0.8, ps_mag_i=20, black_hole_mass_exponet=8.0)
 

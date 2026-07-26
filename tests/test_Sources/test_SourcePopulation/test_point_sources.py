@@ -61,7 +61,8 @@ class TestPointSources(object):
         assert isinstance(point_source, Source)
 
     def test_catalog_overrides_joint_kwargs_on_collision(self):
-        """A catalog column should override a same-named joint kwarg, and should not crash."""
+        """A catalog column should override a same-named joint kwarg, and
+        should not crash."""
         sky_area = Quantity(value=0.1, unit="deg2")
         cosmo = FlatLambdaCDM(H0=70, Om0=0.3)
         catalog = self.quasar_list.copy()

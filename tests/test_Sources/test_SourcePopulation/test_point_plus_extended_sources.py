@@ -49,7 +49,8 @@ class TestPointPlusExtendedSources(object):
         assert point_plus_extended_sources2 is None
 
     def test_catalog_overrides_joint_kwargs_on_collision(self):
-        """A catalog column should override a same-named joint kwarg, not crash."""
+        """A catalog column should override a same-named joint kwarg, not
+        crash."""
         sky_area = Quantity(value=0.1, unit="deg2")
         catalog = self.source_list.copy()
         catalog["black_hole_mass_exponent"] = 9.0
