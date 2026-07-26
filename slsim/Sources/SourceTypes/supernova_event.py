@@ -42,13 +42,13 @@ class SupernovaEvent(SourceBase):
           per-object catalog row, catalog value taking precedence).
 
         :param sn_type: Supernova type (Ia, Ib, Ic, IIP, etc.)
-            :type sn_type: str
+        :type sn_type: str
         :param variability_model: keyword for variability model to be used. This is an
             input for the Variability class.
-            :type variability_model: str
+        :type variability_model: str
         :param kwargs_variability: Dictionary with bands as strings, each containing a dictionary for a
          Variability() class input configurations for point source variability
-        :type kwargs_variability_model: dict of dict or None
+        :type kwargs_variability: dict of dict or None
         :param sn_absolute_mag_band: Band used to normalize to absolute magnitude
         :type sn_absolute_mag_band: str or `~sncosmo.Bandpass`
         :param sn_absolute_zpsys: Optional, AB or Vega (AB default)
@@ -68,11 +68,6 @@ class SupernovaEvent(SourceBase):
             For more detail, please look at the documentation of RandomizedSupernovae
             class.
         :type sn_modeldir: str
-        :param source_dict: Source properties. May be a dictionary or an Astropy table.
-         This table or dict should contain at least redshift of a supernova, offset from
-         the host if host galaxy is available.
-         eg: {"z": 0.8, "ra_off": 0.001, "dec_off": 0.005}
-        :type source_dict: dict or astropy.table.Table
         :param cosmo: astropy.cosmology instance
         :param kwargs: required per-object catalog data (dict or one row of an
          Astropy table), passed through to `SourceBase`. Must contain at least

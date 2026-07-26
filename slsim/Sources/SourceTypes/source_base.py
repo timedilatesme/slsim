@@ -63,8 +63,7 @@ class SourceBase(ABC):
         :param vel_disp: velocity dispersion [km/s]
         :type vel_disp: float or None
         :param kwargs: ps_mag_<band> keyword arguments and mag_<band> to store magnitudes for different bands
-        :type kwargs: dict
-        :type source_dict: dict or astropy.table.Table
+        :type kwargs: dict or astropy.table.Table
         :param allow_more_source_dict: if True, will not check for consistency of the dictionary with what is required.
          This is due to Extended+Point source models
         :type allow_more_source_dict: bool

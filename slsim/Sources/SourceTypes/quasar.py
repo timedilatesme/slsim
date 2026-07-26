@@ -41,19 +41,25 @@ class Quasar(SourceBase):
     ):
         """
 
+        AGN accretion-disk parameters below (all optional). Any left as ``None`` are
+        drawn randomly by :func:`~slsim.Sources.SourceVariability.agn.RandomAgn` from
+        ``agn_bounds_dict`` (or ``input_agn_bounds_dict`` if provided) the first time
+        the AGN model is needed (on first access of ``.light_curve`` or
+        ``update_microlensing_kwargs_source_morphology``) -- this is a deliberate
+        generative feature (population diversity), not a fallback to guard against.
+        See :mod:`slsim.Sources.SourceVariability.agn` for the sampling distributions.
+
         :param lightcurve_time: time array for lightcurve in unit of days,
          defined in the rest (source) frame relative to time_zero_point (see
          Source._image_to_source_time_translation()). The AGN reprocessing response
          function is defined by the disk's physical light-crossing time, which is
          redshift-independent, so this is in rest-frame.
         :type lightcurve_time: array
-        :param source_dict: Source properties. May be a dictionary or an Astropy table.
-         This dict or table should contain atleast redshift and i-band magnitude.
-         eg: {"z": 0.8, "ps_mag_i": 22}
-        :type source_dict: dict or astropy.table.Table
         :param cosmo: astropy.cosmology instance
-        :param kwargs: dictionary of keyword arguments for a supernova. It sould contain
-          following keywords:
+        :param kwargs: required per-object catalog data (dict or one row of an
+         Astropy table), passed through to `SourceBase`. Must contain at least
+         redshift (``z``) and i-band magnitude (``ps_mag_i``).
+         eg: {"z": 0.8, "ps_mag_i": 22}
         :param variability_model: keyword for variability model to be used. This is an
             input for the Variability class.
         :type variability_model: str
@@ -63,15 +69,6 @@ class Quasar(SourceBase):
             a dictionary and this dict should be passed to the Variability class.
         :type kwargs_variability: list of str
         :param kwargs_variability_model: Pre-computed variabilities for each band (default=None)
-
-        AGN accretion-disk parameters (all optional). Any left as ``None`` are drawn
-        randomly by :class:`~slsim.Sources.SourceVariability.agn.RandomAgn` from
-        ``agn_bounds_dict`` (or ``input_agn_bounds_dict`` if provided) the first time
-        the AGN model is needed (on first access of ``.light_curve`` or
-        ``update_microlensing_kwargs_source_morphology``) -- this is a deliberate
-        generative feature (population diversity), not a fallback to guard against.
-        See :mod:`slsim.Sources.SourceVariability.agn` for the sampling distributions.
-
         :param black_hole_mass_exponent: mass exponent of the SMBH,
          log10(M_BH/M_sun). If ``None``, drawn from
          ``agn_bounds_dict["black_hole_mass_exponent_bounds"]``.
