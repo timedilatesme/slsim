@@ -46,8 +46,8 @@ class PointPlusExtendedSources(Galaxies):
          row, is also shared with the extended-source half of the combined source
          (see `PointPlusExtendedSource` for how each half reads only its own
          relevant keys and ignores the rest).
-         For supernova kwargs, please see documentation of SupernovaEvent class.
-         For quasar kwargs, please see documentation of Quasar class.
+         For supernova kwargs, please see documentation of SupernovaEvent class (slsim/Sources/SourceTypes/supernova_event.py).
+         For quasar kwargs, please see documentation of Quasar class (slsim/Sources/SourceTypes/quasar.py).
          Eg of supernova kwargs::
 
              joint_point_source_kwargs = {
