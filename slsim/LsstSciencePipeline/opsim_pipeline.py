@@ -19,6 +19,12 @@ def opsim_time_series_images_data(
     """Creates time series data from opsim database.
 
     :param ra_list: a list of ra points (in degrees) from objects we
+    want to collect observations for :param dec_list: a list of dec
+    points (in degrees) from objects we     want to collect observations
+    for :param opsim_path: string, path to the opsim database. The opsim
+    database can be downloaded from
+    https://s3df.slac.stanford.edu/data/rubin/sim-data/
+    :param ra_list: a list of ra points (in degrees) from objects we
         want to collect observations for
     :param dec_list: a list of dec points (in degrees) from objects we
         want to collect observations for
