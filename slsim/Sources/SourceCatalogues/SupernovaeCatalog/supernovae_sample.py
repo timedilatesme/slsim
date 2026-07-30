@@ -62,7 +62,6 @@ def supernovae_host_galaxy_offset(host_galaxy_catalog):
     # accept scalars, so these two steps stay in a loop.
     for i in range(len(host_galaxy_catalog)):
 
-        
         slsim_e1, slsim_e2 = galaxy_projected_eccentricity(
             ellipticity[i], position_angle_galaxy[i]
         )
