@@ -344,9 +344,7 @@ class ClusterDeflectors:
         if "z" not in column_names:
             raise ValueError("redshift is mandatory in cluster catalog")
         if "halo_mass" not in column_names and "richness" not in column_names:
-            raise ValueError(
-                    "richness or halo_mass is mandatory in cluster catalog"
-                )
+            raise ValueError("richness or halo_mass is mandatory in cluster catalog")
 
     @staticmethod
     def _preprocess_members(cluster_list, members_list):

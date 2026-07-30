@@ -1,4 +1,5 @@
 from setuptools import setup, find_packages
+
 """The setup script."""
 
 with open("README.rst") as readme_file:
