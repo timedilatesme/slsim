@@ -48,5 +48,31 @@ def test_supernova_mag_never_nan(Supernova_class):
     assert np.isfinite(mag).any()
 
 
+def test_supernova_amplitude_arguments(capsys):
+    kwargs = dict(source="salt3-nir", redshift=1.2, sn_type="Ia")
+
+    # An absolute magnitude cannot be normalized without the band it refers to.
+    with pytest.raises(Exception, match="Must set absolute_mag_band"):
+        Supernova(absolute_mag=-19.3, **kwargs)
+
+    # Given both normalizations, the absolute magnitude is the one applied.
+    Supernova(
+        absolute_mag=-19.3,
+        absolute_mag_band="bessellb",
+        peak_apparent_mag=22.0,
+        peak_apparent_mag_band="lsstr",
+        **kwargs
+    )
+    assert "choosing absolute_mag" in capsys.readouterr().out
+
+    # Given only an apparent magnitude, the source is normalized to it.
+    peak = Supernova(peak_apparent_mag=22.0, peak_apparent_mag_band="lsstr", **kwargs)
+    npt.assert_almost_equal(peak.source_peakmag("lsstr", "AB"), 22.0, decimal=3)
+
+    # Given neither, the amplitude is left for the user to set.
+    with pytest.warns(UserWarning, match="set the amplitude"):
+        Supernova(**kwargs)
+
+
 if __name__ == "__main__":
     pytest.main()
