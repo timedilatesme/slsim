@@ -41,7 +41,7 @@ def supernovae_host_galaxy_offset(host_galaxy_catalog):
         too_large = offset_ratios > 3
 
     ellipticity = np.asarray(host_galaxy_catalog["ellipticity"], dtype=float)
-    # By default, skypy gives arcsec for angular sizes. 
+    # By default, skypy gives arcsec for angular sizes.
     # A catalog that carries no unit at all is still taken to be in arcsec.
     angular_size = units.Quantity(
         host_galaxy_catalog["angular_size"], unit=units.arcsec, copy=False
