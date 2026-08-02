@@ -1,5 +1,4 @@
 import numpy as np
-import astropy.units as u
 
 """References:
 Sullivan et al. 2006
@@ -64,9 +63,8 @@ class SupernovaeHostMatch:
             )
 
         # Index the catalog once, instead of growing a table row by row.
+        #  maintains the original units (angular sizes coming out of the SkyPy pipeline are in arcsec.)
         matched_catalog = self.galaxy_catalog[matched_indices]
-        matched_catalog["physical_size"].unit = u.kpc
-        matched_catalog["angular_size"].unit = u.rad
         matched_catalog["z"] = self.supernovae_catalog
 
         return matched_catalog

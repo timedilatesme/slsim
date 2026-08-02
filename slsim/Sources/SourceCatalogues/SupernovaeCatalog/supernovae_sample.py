@@ -41,10 +41,14 @@ def supernovae_host_galaxy_offset(host_galaxy_catalog):
         too_large = offset_ratios > 3
 
     ellipticity = np.asarray(host_galaxy_catalog["ellipticity"], dtype=float)
-    angular_size = np.asarray(host_galaxy_catalog["angular_size"], dtype=float)
+    # By default, skypy gives arcsec for angular sizes. 
+    # A catalog that carries no unit at all is still taken to be in arcsec.
+    angular_size = units.Quantity(
+        host_galaxy_catalog["angular_size"], unit=units.arcsec, copy=False
+    ).to_value(units.arcsec)
 
     # Calculate offsets [arcsec]
-    offsets = (offset_ratios * angular_size * units.rad).to_value(units.arcsec)
+    offsets = offset_ratios * angular_size
 
     position_angle_galaxy = np.random.uniform(0, np.pi, len(offsets))
     position_angle_supernovae = np.random.uniform(0, 2 * np.pi, len(offsets))

@@ -1,4 +1,3 @@
-import copy
 import os
 from warnings import warn
 import sncosmo
@@ -6,7 +5,7 @@ from sncosmo.bandpasses import get_bandpass
 import numpy as np
 from astropy import cosmology
 
-# Reading a source from disk (~0.7 s for SALT3) dominates the cost of building a
+# Reading a sncosmo source from disk dominates the cost of building a
 # Supernova and depends only on the model, not on the individual supernova, so a
 # population loop can pay it once instead of once per object.
 _SOURCE_CACHE = {}
@@ -22,7 +21,7 @@ def _source_from_modeldir(modeldir, sn_type, source):
     :type sn_type: str
     :param source: name of the SED model, ignored for type Ia
     :type source: str
-    :return: `~sncosmo.Source`, independent of the cached template
+    :return: `~sncosmo.Source`, template shared by every supernova using this model
     """
     key = (modeldir, sn_type, source)
     if key not in _SOURCE_CACHE:
@@ -34,8 +33,7 @@ def _source_from_modeldir(modeldir, sn_type, source):
             _SOURCE_CACHE[key] = sncosmo.TimeSeriesSource(
                 phase=phase, wave=wave, flux=flux
             )
-    # Copy so that each supernova owns its own x0, x1 and c.
-    return copy.deepcopy(_SOURCE_CACHE[key])
+    return _SOURCE_CACHE[key]
 
 
 class Supernova(sncosmo.Model):
