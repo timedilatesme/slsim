@@ -24,6 +24,7 @@ from slsim.Deflectors import deflector_util
 
 plt.rcParams["text.usetex"] = False
 
+
 @pytest.fixture
 def quasar_lens_pop_instance():
     path = os.path.dirname(__file__)

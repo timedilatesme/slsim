@@ -19,6 +19,7 @@ import speclite
 
 plt.rcParams["text.usetex"] = False
 
+
 @pytest.fixture
 def gg_lens_pop_instance():
     cosmo = FlatLambdaCDM(H0=70, Om0=0.3)
