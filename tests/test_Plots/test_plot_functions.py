@@ -2,6 +2,7 @@ import pytest
 
 import numpy as np
 import matplotlib.pyplot as plt
+plt.rcParams['text.usetex'] = False
 from astropy.cosmology import FlatLambdaCDM
 from slsim.Lenses.lens import Lens
 from slsim.Plots.plot_functions import (

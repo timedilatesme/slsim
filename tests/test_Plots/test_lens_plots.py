@@ -4,6 +4,7 @@ import pathlib
 
 import numpy as np
 import matplotlib.pyplot as plt
+plt.rcParams['text.usetex'] = False
 import slsim
 import slsim.Pipelines as pipelines
 from slsim.Sources.SourcePopulation.galaxies import Galaxies
