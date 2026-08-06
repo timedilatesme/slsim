@@ -337,6 +337,8 @@ class MicrolensingLightCurve(object):
                         max_pad, res_k.shape[0] // 2 + 1, res_k.shape[1] // 2 + 1
                     )
 
+                # Build one decimated, edge-padded magnification map per
+                # decimation level, shared by every step that uses it.
                 magnifications = self._magnification_map.magnifications
                 padded_mag_maps = {}
                 for d in set(decimations):
@@ -351,6 +353,8 @@ class MicrolensingLightCurve(object):
                         mode="reflect",
                     )
 
+                # Dot each step's source morphology with the magnification map patch it covers to
+                # get the magnification at that time.
                 for i in range(n_steps):
                     res_k = rescaled_kernels[i]
                     padded_mag_map = padded_mag_maps[decimations[i]]
