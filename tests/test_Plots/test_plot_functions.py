@@ -2,8 +2,6 @@ import pytest
 
 import numpy as np
 import matplotlib.pyplot as plt
-
-plt.rcParams["text.usetex"] = False
 from astropy.cosmology import FlatLambdaCDM
 from slsim.Lenses.lens import Lens
 from slsim.Plots.plot_functions import (
@@ -24,6 +22,7 @@ from slsim.Plots.plot_functions import plot_magnification_map
 from slsim.Sources.SourcePopulation.galaxies import convert_catalog_to_source
 from slsim.Deflectors import deflector_util
 
+plt.rcParams["text.usetex"] = False
 
 @pytest.fixture
 def quasar_lens_pop_instance():

@@ -4,8 +4,6 @@ import pathlib
 
 import numpy as np
 import matplotlib.pyplot as plt
-
-plt.rcParams["text.usetex"] = False
 import slsim
 import slsim.Pipelines as pipelines
 from slsim.Sources.SourcePopulation.galaxies import Galaxies
@@ -19,6 +17,7 @@ from slsim.Pipelines.roman_speclite import configure_roman_filters
 from slsim.Pipelines.roman_speclite import filter_names
 import speclite
 
+plt.rcParams["text.usetex"] = False
 
 @pytest.fixture
 def gg_lens_pop_instance():
